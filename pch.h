@@ -17,11 +17,26 @@
 
 using namespace plugin;
 
-enum eRenderer
+enum class eRenderer
 {
-    Render_DirectX9,
-    Render_DirectX11,
-    Render_Unknown
+    Dx9,
+    Dx11,
+    Unknown
 };
 
-static eRenderer gRenderer = Render_Unknown;
+enum class eGameVer
+{
+    SA,
+    VC,
+    III,
+    SA_DE,
+    VC_DE,
+    III_DE,
+    ReSA,
+    ReVC,
+    Re3,
+    Unknown
+};
+
+extern eRenderer gRenderer;
+extern eGameVer gGameVer;

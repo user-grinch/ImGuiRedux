@@ -12,33 +12,104 @@ static void TestWindow()
 	ImGui::End();
 }
 
-class ImGuiRedux {
-public:
-	ImGuiRedux() 
-	{
-		Log("Init ImGuiRedux");
+void ImGuiThread(void* param)
+{
+    // wait for game init
+    Sleep(3000);
 
-		uint gameVer = GetGameVersion();
-		if (gameVer != GAME_10US_HOODLUM && gameVer != GAME_10US_COMPACT)
+	if (D3dHook::InjectHook(&TestWindow))
+	{
+		OpcodeMgr::bImGuiHooked = true;
+	}
+	else
+	{
+		Log("[ImGuiRedux] Failed to inject dxhook.");
+		MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
+	}
+
+    while (true)
+    {
+        Sleep(5000);
+    }
+}
+
+BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
+{
+    if (nReason == DLL_PROCESS_ATTACH)
+    {
+		MessageBox(HWND_DESKTOP, "TEST", "ImGuiRedux", MB_ICONERROR);
+		HostId id = GetHostId();
+		auto gvm = injector::game_version_manager();
+		gvm.Detect();
+
+		switch (id)
 		{
-			Log("[ImGuiRedux] Unsupported game. Only GTA SA Classic is supported.");
-			MessageBox(HWND_DESKTOP, "Unsupported game. Only GTA SA Classic is supported.", "ImGuiRedux", MB_ICONERROR);
-			return;
+			case GTA3:
+			{
+				// III 1.0 US
+				if (gvm.IsIII() && gvm.IsUS()
+					&& gvm.GetMajorVersion() == 1
+					&& gvm.GetMinorVersion() == 0
+					)
+				{
+					gGameVer = eGameVer::III;
+				}
+				break;
+			}
+			case VC:
+			{
+				// VC 1.0 US
+				if (gvm.IsVC() && gvm.IsUS()
+					&& gvm.GetMajorVersion() == 1
+					&& gvm.GetMinorVersion() == 0
+					)
+				{
+					gGameVer = eGameVer::VC;
+				}
+				break;
+			}
+			case SA:
+			{
+				// SA US 1.0 Hoodlum
+				if (gvm.IsHoodlum())
+				{
+					gGameVer = eGameVer::SA;
+				}
+				break;
+			}
+			case GTA3_UNREAL:
+			{
+				gGameVer = eGameVer::III_DE;
+				break;
+			}
+			case VC_UNREAL:
+			{
+				gGameVer = eGameVer::VC_DE;
+				break;
+			}
+			case SA_UNREAL:
+			{
+				gGameVer = eGameVer::SA_DE;
+				break;
+			}
+			default:
+			{
+				gGameVer = eGameVer::Unknown;
+				break;
+			}
 		}
 
-		Events::initGameEvent += []()
+		if (gGameVer == eGameVer::Unknown)
 		{
-			if (D3dHook::InjectHook(&TestWindow))
-			{
-				OpcodeMgr::bImGuiHooked = true;
-			}
-			else
-			{
-				Log("[ImGuiRedux] Failed to inject dxhook.");
-				MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
-			}
-		};
+			Log("[ImGuiRedux] Unsupported game/version!");
+			MessageBox(HWND_DESKTOP, "Unsupported game/version!", "ImGuiRedux", MB_ICONERROR);
+		}
+		else
+		{
+			OpcodeMgr::RegisterCommands();
+			CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
+		}
+    }
 
-		OpcodeMgr::RegisterCommands();
-	}
-} ImGuiRedux_;
+    return TRUE;
+}
