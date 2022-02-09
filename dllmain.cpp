@@ -1,23 +1,16 @@
 #include "pch.h"
 #include <windows.h>
 #include "version.h"
-#include "opcode_mgr.h"
+#include "opcodemgr.h"
 #include "d3dhook.h"
-
-static void TestWindow()
-{
-	D3dHook::SetMouseState(true);
-	ImGui::Begin("TEST");
-	ImGui::Text("ImGuiRedux");
-	ImGui::End();
-}
+#include "depend/injector/injector.hpp"
 
 void ImGuiThread(void* param)
 {
     // wait for game init
     Sleep(3000);
 
-	if (D3dHook::InjectHook(&TestWindow))
+	if (D3dHook::InjectHook(&ScriptExData::DrawFrames))
 	{
 		OpcodeMgr::bImGuiHooked = true;
 	}
@@ -37,7 +30,6 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 {
     if (nReason == DLL_PROCESS_ATTACH)
     {
-		MessageBox(HWND_DESKTOP, "TEST", "ImGuiRedux", MB_ICONERROR);
 		HostId id = GetHostId();
 		auto gvm = injector::game_version_manager();
 		gvm.Detect();

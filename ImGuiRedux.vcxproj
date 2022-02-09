@@ -108,8 +108,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(PLUGIN_SDK_DIR)/output/lib/;depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>plugin_d.lib;d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -124,7 +124,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(DIRECTX9_SDK_DIR)/Include;$(PLUGIN_SDK_DIR)/plugin_sa;$(PLUGIN_SDK_DIR)/plugin_sa/game_sa;$(PLUGIN_SDK_DIR)/shared;$(PLUGIN_SDK_DIR)/shared/game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DIRECTX9_SDK_DIR)/Include;$(PLUGIN_SDK_DIR)/plugin_sa/game_sa;$(PLUGIN_SDK_DIR)/shared;$(PLUGIN_SDK_DIR)/shared/game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -133,8 +133,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>plugin.lib;d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PLUGIN_SDK_DIR)/output/lib/;depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -154,8 +154,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(PLUGIN_SDK_DIR)/output/lib/;depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>plugin_d.lib;d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,7 +170,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(DIRECTX9_SDK_DIR)/Include;$(PLUGIN_SDK_DIR)/plugin_sa;$(PLUGIN_SDK_DIR)/plugin_sa/game_sa;$(PLUGIN_SDK_DIR)/shared;$(PLUGIN_SDK_DIR)/shared/game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DIRECTX9_SDK_DIR)/Include;$(PLUGIN_SDK_DIR)/plugin_sa/game_sa;$(PLUGIN_SDK_DIR)/shared;$(PLUGIN_SDK_DIR)/shared/game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -179,8 +179,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>plugin.lib;d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(PLUGIN_SDK_DIR)/output/lib/;depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d9.lib;d3d11.lib;d3dx9.lib;cleo_redux.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>depend/cleo/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -198,8 +198,13 @@
     <ClCompile Include="depend\kiero\minhook\hde\hde32.c" />
     <ClCompile Include="depend\kiero\minhook\hook.c" />
     <ClCompile Include="depend\kiero\minhook\trampoline.c" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="opcode_mgr.cpp">
+    <ClCompile Include="dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="opcodemgr.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -250,8 +255,10 @@
     <ClInclude Include="depend\kiero\minhook\hde\table32.h" />
     <ClInclude Include="depend\kiero\minhook\MinHook.h" />
     <ClInclude Include="depend\kiero\minhook\trampoline.h" />
-    <ClInclude Include="opcode_mgr.h" />
+    <ClInclude Include="opcodemgr.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="scriptextender.hpp" />
+    <ClInclude Include="table.hpp" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

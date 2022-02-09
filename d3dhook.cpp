@@ -5,7 +5,7 @@
 #include "depend/imgui/imgui_impl_dx9.h"
 #include "depend/imgui/imgui_impl_dx11.h"
 #include "depend/imgui/imgui_impl_win32.h"
-#include <dinput.h>
+#include "depend/injector/injector.hpp"
 
 eRenderer gRenderer;
 eGameVer gGameVer;
@@ -30,7 +30,7 @@ LRESULT D3dHook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     {
         if (gGameVer == eGameVer::SA)
         {
-            Call<0x53F1E0>(); // CPad::ClearKeyboardHistory
+            reinterpret_cast<void(__cdecl*)()>(0x53F1E0)(); // CPad::ClearKeyboardHistory
         }
         return 1;
     }
@@ -59,13 +59,17 @@ void D3dHook::ProcessFrame(void* ptr)
         ProcessMouse();
 
         // Scale the menu if game resolution changed
+        RECT rect;
+        GetWindowRect(GetForegroundWindow(), &rect);
+        int width = rect.right - rect.left;
+        int height = rect.bottom - rect.top;
+        
         static ImVec2 fScreenSize = ImVec2(-1, -1);
-        ImVec2 size(screen::GetScreenWidth(), screen::GetScreenHeight());
-        if (fScreenSize.x != size.x && fScreenSize.y != size.y)
+        if (fScreenSize.x != width && fScreenSize.y != height)
         {
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            size_t fontSize = static_cast<int>(screen::GetScreenHeight() / 54.85f);
+            size_t fontSize = static_cast<int>(height / 54.85f);
             io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/trebucbd.ttf", fontSize);
             io.Fonts->Build();
 
@@ -79,8 +83,8 @@ void D3dHook::ProcessFrame(void* ptr)
             }
 
             ImGuiStyle* style = &ImGui::GetStyle();
-            float scaleX = size.x / 1366.0f;
-            float scaleY = size.y / 768.0f;
+            float scaleX = width / 1366.0f;
+            float scaleY = height / 768.0f;
 
             style->FramePadding = ImVec2(5 * scaleX, 5 * scaleY);
             style->ItemSpacing = ImVec2(8 * scaleX, 4 * scaleY);
@@ -88,7 +92,7 @@ void D3dHook::ProcessFrame(void* ptr)
             style->IndentSpacing = 20 * scaleX;
             style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
 
-            fScreenSize = size;
+            fScreenSize = ImVec2(width, height);
         }
 
         ImGui_ImplWin32_NewFrame();
@@ -127,7 +131,7 @@ void D3dHook::ProcessFrame(void* ptr)
 
         if (gGameVer == eGameVer::SA)
         {
-            patch::Nop(0x00531155, 5); // shift trigger fix
+            injector::MakeNOP(0x00531155, 5); // shift trigger fix
         }
 
         if (gRenderer == eRenderer::Dx9)
