@@ -74,22 +74,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.cleo</TargetExt>
-    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS</OutDir>
+    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.cleo</TargetExt>
-    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS</OutDir>
+    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>64.cleo</TargetExt>
-    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS</OutDir>
+    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>64.cleo</TargetExt>
-    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS</OutDir>
+    <OutDir>..\..\..\GTASanAndreas\cleo\CLEO_PLUGINS\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -259,7 +259,9 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="scriptextender.hpp" />
     <ClInclude Include="table.hpp" />
-    <ClInclude Include="version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="func.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

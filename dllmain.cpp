@@ -1,6 +1,5 @@
 #include "pch.h"
 #include <windows.h>
-#include "version.h"
 #include "opcodemgr.h"
 #include "d3dhook.h"
 #include "depend/injector/injector.hpp"

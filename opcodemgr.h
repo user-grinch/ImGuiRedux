@@ -4,6 +4,7 @@ class OpcodeMgr
 {
 public:
 	static inline bool bImGuiHooked;
+	static inline size_t nFPS;
 
 	OpcodeMgr() = delete;
 	OpcodeMgr(const OpcodeMgr&) = delete;

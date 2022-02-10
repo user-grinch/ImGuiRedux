@@ -9,6 +9,11 @@ private:
     std::vector<std::pair<S,T>> _data;
 public:
 
+    void Clear()
+    {
+        _data.clear();
+    }
+
     T& operator[](S str)
     {
         for (auto it = _data.begin(); it != _data.end(); ++it)
@@ -19,7 +24,7 @@ public:
         }
         
         // push the value into vector and return a ref
-        _data.push_back({str,0});
+        _data.push_back({ str, T{}});
         return _data.back().second;
     }
 };

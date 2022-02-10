@@ -1,9 +1,11 @@
 #pragma once
+#pragma warning(push, 0)  
 #include <d3d9.h>
 #include <d3d11.h>
 #include <d3d11Shader.h>
 #include <D3dx9tex.h>
 #include <D3DX11tex.h>
+#pragma warning(pop)
 
 class D3dHook
 {

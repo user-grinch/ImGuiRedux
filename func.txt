@@ -1,0 +1,47 @@
+OpcodeResult WINAPI ImGuiSliderInt(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiSliderFloat(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiColorEdit(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiColorPicker(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiBeginChild(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiEndChild(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiInputInt(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiInputFloat(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiInputText(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiInputTextMultiline(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiIsItemFocused(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsItemHovered(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsItemActivated(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsItemDeactivated(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsItemActive(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsItemClicked(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsWindowHovered(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiIsWindowFocused(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiRadioButton(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiCollapsingHeader(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiGetWindowPosX(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiGetWindowPosY(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiGetWindowWidth(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiGetWindowHeight(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiSelectable(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiBeginMainMenuBar(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiEndMainMenuBar(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiMenuItem(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiCalcTextHeight(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiCalcTextWidth(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiPushItemWidth(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiPopItemWidth(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiPushItemFlag(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiPopItemFlag(CScriptThread* thread);
+
+OpcodeResult WINAPI ImGuiGetWindowContentRegionWidth(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiGetFrameHeight(CScriptThread* thread);
+OpcodeResult WINAPI ImGuiGetFrameHeightWithSpacing(CScriptThread* thread);

@@ -69,7 +69,7 @@ void D3dHook::ProcessFrame(void* ptr)
         {
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            size_t fontSize = static_cast<int>(height / 54.85f);
+            float fontSize = height / 54.85f;
             io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/trebucbd.ttf", fontSize);
             io.Fonts->Build();
 
@@ -92,7 +92,7 @@ void D3dHook::ProcessFrame(void* ptr)
             style->IndentSpacing = 20 * scaleX;
             style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
 
-            fScreenSize = ImVec2(width, height);
+            fScreenSize = ImVec2((float)width, (float)height);
         }
 
         ImGui_ImplWin32_NewFrame();
