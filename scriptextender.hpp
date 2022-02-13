@@ -21,6 +21,7 @@ private:
     struct ImGuiFrame
     {
         std::vector<std::function<void()>> frames;
+
         ImGuiFrame& operator+=(std::function<void()> f)
         {
             frames.push_back(f);
@@ -100,12 +101,19 @@ public:
         }
     }
 
+    static void SetCursorVisible(bool flag)
+    {
+        show_cursor = flag;
+    }
+
     static void DrawFrames()
     {
         // reset stuff
-        show_cursor = true;
+        show_cursor = false;
         ImGuiStyle::ImGuiStyle();
+
         OpcodeMgr::nFPS = (size_t)ImGui::GetIO().Framerate;
+        OpcodeMgr::frameHeight = ImGui::GetFrameHeight();
 
         // draw frames
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
