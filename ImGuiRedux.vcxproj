@@ -260,9 +260,6 @@
     <ClInclude Include="scriptextender.hpp" />
     <ClInclude Include="table.hpp" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="func.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

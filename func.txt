@@ -1,4 +1,0 @@
-OpcodeResult WINAPI ImGuiColorEdit(CScriptThread* thread);
-OpcodeResult WINAPI ImGuiColorPicker(CScriptThread* thread);
-
-OpcodeResult WINAPI ImGuiInputText(CScriptThread* thread);

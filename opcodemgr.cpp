@@ -540,13 +540,10 @@ static HandlerResult ImGuiBeginChild(Context ctx)
 
 static HandlerResult ImGuiEndChild(Context ctx)
 {
-	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
-
 	ScriptExData* data = ScriptExData::Get(&ctx);
 	data->imgui += [=]()
 	{
-		ImGui::BeginChild(buf);
+		ImGui::EndChild();
 	};
 
 	return HR_CONTINUE;
@@ -721,7 +718,6 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 	col[0] = GetFloatParam(ctx);
 	col[1] = GetFloatParam(ctx);
 	col[2] = GetFloatParam(ctx);
-	col[3] = GetFloatParam(ctx);
 	col[3] = GetFloatParam(ctx);
 	int type = GetIntParam(ctx);
 
