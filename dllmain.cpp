@@ -7,9 +7,8 @@
 void ImGuiThread(void* param)
 {
     // wait for game init
-    Sleep(3000);
-
-	if (D3dHook::InjectHook(&ScriptExData::DrawFrames))
+    Sleep(5000);
+	if (D3dHook::InjectHook(&ScriptMgr::ProcessFrame))
 	{
 		OpcodeMgr::bImGuiHooked = true;
 	}
@@ -29,6 +28,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 {
     if (nReason == DLL_PROCESS_ATTACH)
     {
+		MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
 		HostId id = GetHostId();
 		auto gvm = injector::game_version_manager();
 		gvm.Detect();

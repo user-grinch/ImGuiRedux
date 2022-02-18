@@ -257,8 +257,7 @@
     <ClInclude Include="depend\kiero\minhook\trampoline.h" />
     <ClInclude Include="opcodemgr.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="scriptextender.hpp" />
-    <ClInclude Include="table.hpp" />
+    <ClInclude Include="scriptmgr.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
