@@ -172,7 +172,7 @@ HRESULT D3dHook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 void D3dHook::ProcessMouse()
 {
     static bool mouseState;
-    mouseState = !mouseState;
+    
     if (mouseState != mouseShown)
     {
         ImGui::GetIO().MouseDrawCursor = mouseShown;
@@ -190,13 +190,13 @@ void D3dHook::ProcessMouse()
                 injector::WriteMemoryRaw(0x541DD7, (char*)"\xE8\xE4\xD5\xFF\xFF", 5, false);
             }
 
-            reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
-            reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistroy();
-
             // ClearMouseStates
-            int& NewMouseState = *(int*)0xB73418;
-            injector::WriteMemory<float>(&NewMouseState + 12, 0); // X
-            injector::WriteMemory<float>(&NewMouseState + 16, 0); // Y
+            int NewMouseState = 0xB73418;
+            injector::WriteMemory<float>(NewMouseState + 12, 0); // X
+            injector::WriteMemory<float>(NewMouseState + 16, 0); // Y
+
+            reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistory();
+            reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
         } 
         else if (gGameVer == eGameVer::VC)
         {
@@ -211,13 +211,13 @@ void D3dHook::ProcessMouse()
                 injector::WriteMemoryRaw(0x4AB6CA, (char*)"\xE8\x51\x21\x00\x00", 5, true);
             }
 
-            reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
-            reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistroy();
-
             // ClearMouseStates
-            int& NewMouseState = *(int*)0x94D788;
-            injector::WriteMemory<float>(&NewMouseState + 8, 0); // X
-            injector::WriteMemory<float>(&NewMouseState + 12, 0);// Y
+            int NewMouseState = 0x94D788;
+            injector::WriteMemory<float>(NewMouseState + 8, 0); // X
+            injector::WriteMemory<float>(NewMouseState + 12, 0);// Y
+
+            reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistory();
+            reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
         }
         else if (gGameVer == eGameVer::III)
         {
@@ -232,14 +232,14 @@ void D3dHook::ProcessMouse()
                 injector::WriteMemoryRaw(0x49272F, (char*)"\xE8\x6C\xF5\xFF\xFF", 5, true);
             }
 
-            reinterpret_cast<void(__cdecl*)()>(0x492720)(); // CPad::UpdatePads();
+            // ClearMouseStates
+            int NewMouseState = 0x8809F0;
+            injector::WriteMemory<float>(NewMouseState + 8, 0); // X
+            injector::WriteMemory<float>(NewMouseState + 12, 0);// Y
+            
             int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
             reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();
-
-            // ClearMouseStates
-            int& NewMouseState = *(int*)0x8809F0;
-            injector::WriteMemory<float>(&NewMouseState + 8, 0); // X
-            injector::WriteMemory<float>(&NewMouseState + 12, 0);// Y
+            reinterpret_cast<void(__cdecl*)()>(0x492720)(); // CPad::UpdatePads();
         }
         // TODO DE 
 

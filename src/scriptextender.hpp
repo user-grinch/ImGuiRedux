@@ -12,7 +12,7 @@
 class ScriptExData
 {
 private:
-    ScriptExData(Context* data): context(data){}
+    ScriptExData(std::string id): ID(id){}
 
     /*
     * We're storing all the func ptrs that we need for a single frame
@@ -26,7 +26,7 @@ private:
         {
             frames.push_back(f);
             return *this;
-        }
+        }   
 
         void DrawFrames()
         {
@@ -42,7 +42,7 @@ private:
         }
     };
 
-    Context* context; // script indentifier
+    std::string ID; // script indentifier
     /*
     * Cached return data of previous frame
     * Due to some limitations we can't run the ImGui realtime with the script
@@ -51,27 +51,35 @@ private:
     Table<std::string, std::vector<std::any>> frame_cache;
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
     static inline bool show_cursor; // global cursor state flag
+    static inline std::string curScriptID; // current script identifier
 
 public:
 
     ImGuiFrame imgui;
-    static ScriptExData* Get(Context* cx)
+
+    static void SetCurrentScript(std::string id)
+    {
+        curScriptID = id;
+    }
+    
+    static ScriptExData* Get()
     {
         // create the object if it doesn't exist
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
         {
             // return the exisitng data
-            if ((*it)->context == cx)
+            if ((*it)->ID == curScriptID)
             {
                 return *it;
             }
         }
 
         // return the new data
-        ScriptExData* script = new ScriptExData(cx);
+        ScriptExData* script = new ScriptExData(curScriptID);
         scripts.push_back(script);
         return script;
     }
+
     template<typename T>
     T GetData(const char* label, int index, T defaultVal)
     {
