@@ -16,7 +16,6 @@ static HandlerResult ImGuiBegin(Context ctx)
 	{
 		bool isClosed;
 		bool rtn = ImGui::Begin(label, &isClosed, windowFlags);
-		Log("Begin");
 		data->SetData(label, 0, rtn);
 		data->SetData(label, 1, isClosed);
 	};
@@ -41,7 +40,6 @@ static HandlerResult ImGuiButton(Context ctx)
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		Log("Button");
 		bool isPressed = ImGui::Button(buf, ImVec2(size.x, size.y));
 		data->SetData(buf, 0, isPressed);
 	};
@@ -63,7 +61,6 @@ static HandlerResult ImGuiInvisibleButton(Context ctx)
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		Log("Invisible Button");
 		bool isPressed = ImGui::InvisibleButton(buf, ImVec2(size.x, size.y));
 		data->SetData(buf, 0, isPressed);
 	};
@@ -106,20 +103,34 @@ static HandlerResult ImGuiCheckbox(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	bool state = (GetIntParam(ctx) == 1);
+	bool state = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
 		bool check = state;
-		bool rtn = ImGui::Checkbox(buf, &check);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, check);
+		bool clicked = ImGui::Checkbox(buf, &check);
+
+		/* 	
+			FK THIS SHIT
+			TOOK ME SO LONG TO FIND THIS FIX
+			TODO: Improve ltr
+		*/
+		if (clicked)
+		{
+			data->SetData(buf, 1, check);
+		}
+		else
+		{
+			data->SetData(buf, 1, data->GetData(buf, 1, false));
+		}
+		
+		data->SetData(buf, 0, clicked);
 	};
-	bool rtn = data->GetData(buf, 0, false);
+	bool clicked = data->GetData(buf, 0, false);
 	bool check = data->GetData(buf, 1, false);
 
-	SetIntParam(ctx, rtn ? 1 : 0);
+	SetIntParam(ctx, clicked ? 1 : 0);
 	SetIntParam(ctx, check ? 1 : 0);
 	return HR_CONTINUE;
 }
@@ -129,7 +140,6 @@ static HandlerResult ImGuiEnd(Context ctx)
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		Log("End");
 		ImGui::End();
 	};
 	return HR_CONTINUE;
@@ -141,7 +151,6 @@ static HandlerResult ImGuiSameLine(Context ctx)
 
 	data->imgui += [=]()
 	{
-		Log("Sameline");
 		ImGui::SameLine();
 	};
 	return HR_CONTINUE;
