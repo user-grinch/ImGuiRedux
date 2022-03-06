@@ -16,15 +16,15 @@ enum class eRenderer
 
 enum class eGameVer
 {
-    SA,
-    VC,
     III,
-    SA_DE,
-    VC_DE,
+    VC,
+    SA,
     III_DE,
-    ReSA,
-    ReVC,
+    VC_DE,
+    SA_DE,
     Re3,
+    ReVC,
+    ReSA,
     Unknown
 };
 

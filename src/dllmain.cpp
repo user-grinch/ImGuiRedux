@@ -9,6 +9,36 @@ void ImGuiThread(void* param)
     // wait for game init
     Sleep(3000);
 
+	/*
+		Need SP for mouse fixes
+		Only need for classics
+		TODO: Get the mouse patches from MTA later
+	*/
+	if (gGameVer <= eGameVer::SA)
+	{
+		char moduleName[32] = "SilentPatchSA.asi";
+		if (gGameVer == eGameVer::VC)
+		{
+			strcpy(moduleName, "SilentPatchVC.asi");
+		}
+		else if (gGameVer == eGameVer::III)
+		{
+			strcpy(moduleName, "SilentPatchIII.asi");
+		}
+
+		if (!GetModuleHandle(moduleName))
+		{
+			Log("[ImGuiRedux] SilentPatch not found. Please install it from here https://gtaforums.com/topic/669045-silentpatch/");
+			int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
+
+			if (msgID == IDOK)
+			{
+				ShellExecute(nullptr, "open", "https://gtaforums.com/topic/669045-silentpatch/", nullptr, nullptr, SW_SHOWNORMAL);
+			};
+			return;
+		}
+	}
+
 	if (D3dHook::InjectHook(&ScriptExData::DrawFrames))
 	{
 		OpcodeMgr::bImGuiHooked = true;

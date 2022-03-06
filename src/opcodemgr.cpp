@@ -582,7 +582,7 @@ static HandlerResult ImGuiPopItemWidth(Context ctx)
 	return HR_CONTINUE;
 }
 
-static HandlerResult ImGuiCollaspingHeader(Context ctx)
+static HandlerResult ImGuiCollapsingHeader(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
@@ -814,6 +814,66 @@ static HandlerResult ImGuiEndFrame(Context ctx)
 	return HR_CONTINUE;
 }
 
+static HandlerResult ImGuiIsItemActive(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetStringParam(ctx, buf, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData(buf, 0, ImGui::IsItemActive());
+	};
+
+	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	return HR_CONTINUE;
+}
+
+static HandlerResult ImGuiIsItemHovered(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetStringParam(ctx, buf, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData(buf, 0, ImGui::IsItemHovered());
+	};
+
+	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	return HR_CONTINUE;
+}
+
+static HandlerResult ImGuiIsItemClicked(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetStringParam(ctx, buf, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData(buf, 0, ImGui::IsItemClicked());
+	};
+
+	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	return HR_CONTINUE;
+}
+
+static HandlerResult ImGuiIsItemFocused(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetStringParam(ctx, buf, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData(buf, 0, ImGui::IsItemFocused());
+	};
+
+	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	return HR_CONTINUE;
+}
+
 void OpcodeMgr::RegisterCommands()
 {
 	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame, "imgui");
@@ -867,9 +927,8 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_PUSH_ITEM_WIDTH", ImGuiPushItemWidth, "imgui");
 	RegisterCommand("IMGUI_POP_ITEM_WIDTH", ImGuiPopItemWidth, "imgui");
 
-	RegisterCommand("IMGUI_COLLASPING_HEADER", ImGuiCollaspingHeader, "imgui");
+	RegisterCommand("IMGUI_COLLAPSING_HEADER", ImGuiCollapsingHeader, "imgui");
 
-	// Below commands don't work yet!
 	RegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt, "imgui");
 	RegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat, "imgui");
 	RegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt, "imgui");
@@ -877,4 +936,9 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText, "imgui");
 	RegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton, "imgui");
 	RegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker, "imgui");
+
+	RegisterCommand("IMGUI_IS_ITEM_ACTIVE", ImGuiIsItemActive, "imgui");
+	RegisterCommand("IMGUI_IS_ITEM_CLICKED", ImGuiIsItemClicked, "imgui");
+	RegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused, "imgui");
+	RegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered, "imgui");
 }

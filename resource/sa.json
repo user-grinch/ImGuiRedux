@@ -50094,7 +50094,7 @@
           ],
           "output": [
             {
-              "name": "isCollasped",
+              "name": "isCollapsed",
               "type": "bool",
               "source": "var_any"
             },
@@ -51158,11 +51158,11 @@
             }
           ],
           "id": "0C29",
-          "name": "IMGUI_COLLASPING_HEADER",
+          "name": "IMGUI_COLLAPSING_HEADER",
           "num_params": 1,
-          "short_desc": "Adds a ImGui collasping header widget",
+          "short_desc": "Adds a ImGui collapsing header widget",
           "class": "ImGui",
-          "member": "CollaspingHeader",
+          "member": "CollapsingHeader",
           "attrs": {
             "is_static": true
           },
@@ -51490,6 +51490,126 @@
           "short_desc": "Ends unique ImGui frame.\nUse the same ID as BeginFrame(ID)",
           "class": "ImGui",
           "member": "EndFrame",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "uniqueID",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "state",
+              "type": "bool",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C33",
+          "name": "IMGUI_IS_ITEM_ACTIVE",
+          "num_params": 1,
+          "short_desc": "Returns whether the previous ImGui widget is in active state",
+          "class": "ImGui",
+          "member": "IsItemActive",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "uniqueID",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "state",
+              "type": "bool",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C34",
+          "name": "IMGUI_IS_ITEM_CLICKED",
+          "num_params": 1,
+          "short_desc": "Returns whether the previous ImGui widget is clicked",
+          "class": "ImGui",
+          "member": "IsItemClicked",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "uniqueID",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "state",
+              "type": "bool",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C35",
+          "name": "IMGUI_IS_ITEM_FOCUSED",
+          "num_params": 1,
+          "short_desc": "Returns whether the previous ImGui widget is focused",
+          "class": "ImGui",
+          "member": "IsItemFocused",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "uniqueID",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "state",
+              "type": "bool",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C36",
+          "name": "IMGUI_IS_ITEM_HOVERED",
+          "num_params": 1,
+          "short_desc": "Returns whether the previous ImGui widget is hovered with mouse",
+          "class": "ImGui",
+          "member": "IsItemHovered",
           "attrs": {
             "is_static": true
           },

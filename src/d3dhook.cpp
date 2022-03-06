@@ -91,6 +91,7 @@ void D3dHook::ProcessFrame(void* ptr)
             style->ScrollbarSize = 12 * scaleX;
             style->IndentSpacing = 20 * scaleX;
             style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
+            style->Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
 
             fScreenSize = ImVec2((float)width, (float)height);
         }
@@ -191,9 +192,8 @@ void D3dHook::ProcessMouse()
             }
 
             // ClearMouseStates
-            int NewMouseState = 0xB73418;
-            injector::WriteMemory<float>(NewMouseState + 12, 0); // X
-            injector::WriteMemory<float>(NewMouseState + 16, 0); // Y
+            injector::WriteMemory<float>(0xB73418 + 12, 0); // X
+            injector::WriteMemory<float>(0xB73418 + 16, 0); // Y
 
             reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistory();
             reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
@@ -212,9 +212,8 @@ void D3dHook::ProcessMouse()
             }
 
             // ClearMouseStates
-            int NewMouseState = 0x94D788;
-            injector::WriteMemory<float>(NewMouseState + 8, 0); // X
-            injector::WriteMemory<float>(NewMouseState + 12, 0);// Y
+            injector::WriteMemory<float>(0x94D788 + 8, 0); // X
+            injector::WriteMemory<float>(0x94D788 + 12, 0);// Y
 
             reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistory();
             reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
@@ -233,9 +232,8 @@ void D3dHook::ProcessMouse()
             }
 
             // ClearMouseStates
-            int NewMouseState = 0x8809F0;
-            injector::WriteMemory<float>(NewMouseState + 8, 0); // X
-            injector::WriteMemory<float>(NewMouseState + 12, 0);// Y
+            injector::WriteMemory<float>(0x8809F0 + 8, 0); // X
+            injector::WriteMemory<float>(0x8809F0 + 12, 0);// Y
             
             int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
             reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();
