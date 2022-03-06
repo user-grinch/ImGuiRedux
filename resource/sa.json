@@ -50094,7 +50094,7 @@
           ],
           "output": [
             {
-              "name": "rtn_state",
+              "name": "isCollasped",
               "type": "bool",
               "source": "var_any"
             },
@@ -50149,11 +50149,6 @@
             }
           ],
           "output": [
-            {
-              "name": "isClicked",
-              "type": "int",
-              "source": "var_any"
-            },
             {
               "name": "isChecked",
               "type": "int",
@@ -50962,7 +50957,7 @@
           ],
           "output": [
             {
-              "name": "rtn",
+              "name": "active",
               "type": "bool",
               "source": "var_any"
             }
@@ -51005,11 +51000,19 @@
             {
               "name": "text",
               "type": "string"
+            },
+            {
+              "name": "selected",
+              "type": "bool"
+            },
+            {
+              "name": "enabled",
+              "type": "bool"
             }
           ],
           "output": [
             {
-              "name": "rtn",
+              "name": "clicked",
               "type": "bool",
               "source": "var_any"
             }
@@ -51039,7 +51042,7 @@
           ],
           "output": [
             {
-              "name": "rtn",
+              "name": "clicked",
               "type": "bool",
               "source": "var_any"
             }
@@ -51149,7 +51152,7 @@
           ],
           "output": [
             {
-              "name": "rtn",
+              "name": "open",
               "type": "bool",
               "source": "var_any"
             }
@@ -51177,7 +51180,7 @@
               "type": "string"
             },
             {
-              "name": "val",
+              "name": "initValue",
               "type": "int"
             },
             {
@@ -51190,11 +51193,6 @@
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "val",
               "type": "int",
@@ -51224,7 +51222,7 @@
               "type": "string"
             },
             {
-              "name": "val",
+              "name": "initValue",
               "type": "float"
             },
             {
@@ -51237,11 +51235,6 @@
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "val",
               "type": "float",
@@ -51271,16 +51264,19 @@
               "type": "string"
             },
             {
-              "name": "val",
+              "name": "initValue",
+              "type": "float"
+            },
+            {
+              "name": "min",
+              "type": "float"
+            },
+            {
+              "name": "max",
               "type": "float"
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "val",
               "type": "float",
@@ -51289,7 +51285,7 @@
           ],
           "id": "0C2C",
           "name": "IMGUI_INPUT_FLOAT",
-          "num_params": 2,
+          "num_params": 4,
           "short_desc": "ImGui float input widget.",
           "class": "ImGui",
           "member": "InputFloat",
@@ -51310,16 +51306,19 @@
               "type": "string"
             },
             {
-              "name": "val",
+              "name": "initValue",
+              "type": "int"
+            },
+            {
+              "name": "min",
+              "type": "int"
+            },
+            {
+              "name": "max",
               "type": "int"
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "val",
               "type": "int",
@@ -51328,7 +51327,7 @@
           ],
           "id": "0C2D",
           "name": "IMGUI_INPUT_INT",
-          "num_params": 2,
+          "num_params": 4,
           "short_desc": "ImGui int input widget.",
           "class": "ImGui",
           "member": "InputInt",
@@ -51347,18 +51346,9 @@
             {
               "name": "label",
               "type": "string"
-            },
-            {
-              "name": "text",
-              "type": "string"
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "text",
               "type": "string",
@@ -51367,7 +51357,7 @@
           ],
           "id": "0C2E",
           "name": "IMGUI_INPUT_TEXT",
-          "num_params": 2,
+          "num_params": 1,
           "short_desc": "ImGui text input widget.",
           "class": "ImGui",
           "member": "InputText",
@@ -51388,7 +51378,7 @@
               "type": "string"
             },
             {
-              "name": "val",
+              "name": "selectedBtn",
               "type": "int"
             },
             {
@@ -51397,11 +51387,6 @@
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "val",
               "type": "int",
@@ -51429,34 +51414,9 @@
             {
               "name": "label",
               "type": "string"
-            },
-            {
-              "name": "red",
-              "type": "float"
-            },
-            {
-              "name": "green",
-              "type": "float"
-            },
-            {
-              "name": "blue",
-              "type": "float"
-            },
-            {
-              "name": "alpha",
-              "type": "float"
-            },
-            {
-              "name": "type",
-              "type": "int"
             }
           ],
           "output": [
-            {
-              "name": "rtn",
-              "type": "bool",
-              "source": "var_any"
-            },
             {
               "name": "red",
               "type": "float",
@@ -51480,7 +51440,7 @@
           ],
           "id": "0C30",
           "name": "IMGUI_COLOR_PICKER",
-          "num_params": 6,
+          "num_params": 2,
           "short_desc": "ImGui color picker widget (0.0f-1.0f)",
           "class": "ImGui",
           "member": "ColorPicker",

@@ -109,29 +109,19 @@ static HandlerResult ImGuiCheckbox(Context ctx)
 	data->imgui += [=]()
 	{
 		bool check = state;
-		bool clicked = ImGui::Checkbox(buf, &check);
 
-		/* 	
-			FK THIS SHIT
-			TOOK ME SO LONG TO FIND THIS FIX
-			TODO: Improve ltr
-		*/
-		if (clicked)
+		if (ImGui::Checkbox(buf, &check))
 		{
-			data->SetData(buf, 1, check);
+			data->SetData(buf, 0, check);
 		}
 		else
 		{
-			data->SetData(buf, 1, data->GetData(buf, 1, false));
+			data->SetData(buf, 0, data->GetData(buf, 0, false));
 		}
-		
-		data->SetData(buf, 0, clicked);
 	};
-	bool clicked = data->GetData(buf, 0, false);
-	bool check = data->GetData(buf, 1, false);
+	bool check = data->GetData(buf, 0, false);
 
-	SetIntParam(ctx, clicked ? 1 : 0);
-	SetIntParam(ctx, check ? 1 : 0);
+	SetIntParam(ctx, check);
 	return HR_CONTINUE;
 }
 
@@ -612,23 +602,19 @@ static HandlerResult ImGuiSliderInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	int val = GetIntParam(ctx);
+	int initVal = GetIntParam(ctx);
 	int min = GetIntParam(ctx);
 	int max = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
-
 	data->imgui += [=]()
 	{
-		int value = val;
-		bool rtn = ImGui::SliderInt(buf, &value, min, max);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, value);
+		int value = data->GetData(buf, 0, initVal);
+		ImGui::SliderInt(buf, &value, min, max);
+		data->SetData(buf, 0, value);
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	int value = data->GetData<int>(buf, 1, 0);
-	SetIntParam(ctx, rtn);
+	int value = data->GetData(buf, 0, initVal);
 	SetIntParam(ctx, value);
 	return HR_CONTINUE;
 }
@@ -637,47 +623,52 @@ static HandlerResult ImGuiSliderFloat(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	float val = GetFloatParam(ctx);
+	float initVal = GetFloatParam(ctx);
 	float min = GetFloatParam(ctx);
 	float max = GetFloatParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
-
 	data->imgui += [=]()
 	{
-		float value = val;
-		bool rtn = ImGui::SliderFloat(buf, &value, min, max);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, value);
+		float value = data->GetData(buf, 0, initVal);
+		ImGui::SliderFloat(buf, &value, min, max);
+		data->SetData(buf, 0, value);
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	float value = data->GetData(buf, 1, 0.0f);
-	SetFloatParam(ctx, rtn);
+	float value = data->GetData(buf, 0, initVal);
 	SetFloatParam(ctx, value);
 	return HR_CONTINUE;
 }
-
 
 static HandlerResult ImGuiInputFloat(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	float val = GetFloatParam(ctx);
+	float initVal = GetFloatParam(ctx);
+	float min = GetFloatParam(ctx);
+	float max = GetFloatParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
-
 	data->imgui += [=]()
 	{
-		float value = val;
-		bool rtn = ImGui::InputFloat(buf, &value);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, value);
+		float value = data->GetData(buf, 0, initVal);
+		if (ImGui::InputFloat(buf, &value))
+		{
+			if (value < min) 
+			{
+				value = min;
+			}
+
+			if (value > max) 
+			{
+				value = max;
+			}
+		}
+
+		data->SetData(buf, 0, value);
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	float value = data->GetData(buf, 1, 0.0f);
-	SetFloatParam(ctx, rtn);
+	float value = data->GetData(buf, 0, initVal);
 	SetFloatParam(ctx, value);
 	return HR_CONTINUE;
 }
@@ -686,44 +677,52 @@ static HandlerResult ImGuiInputInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	int val = GetIntParam(ctx);
+	int initVal = GetIntParam(ctx);
+	int min = GetIntParam(ctx);
+	int max = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
-
 	data->imgui += [=]()
 	{
-		int value = val;
-		bool rtn = ImGui::InputInt(buf, &value);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, value);
+		int value = data->GetData(buf, 0, initVal);
+		if (ImGui::InputInt(buf, &value))
+		{
+			if (value < min) 
+			{
+				value = min;
+			}
+
+			if (value > max) 
+			{
+				value = max;
+			}
+		}
+
+		data->SetData(buf, 0, value);
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	int value = data->GetData(buf, 1, 0);
-	SetIntParam(ctx, rtn);
+	int value = data->GetData(buf, 0, initVal);
 	SetIntParam(ctx, value);
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiInputText(Context ctx)
 {
-	char label[STR_MAX_LEN], buf[STR_MAX_LEN];
-	GetStringParam(ctx, label, STR_MAX_LEN);
+	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
-
 	data->imgui += [=]()
 	{
-		bool rtn = ImGui::InputText(label, (char*)buf, STR_MAX_LEN);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, std::string(buf));
+		std::string str = data->GetData(buf, 0, std::string(""));
+		if (ImGui::InputText(buf, &str))
+		{
+			data->SetData(buf, 0, str);
+		}
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	int value = data->GetData(buf, 1, 0);
-	SetIntParam(ctx, rtn);
-	SetIntParam(ctx, value);
+	std::string value = data->GetData(buf, 0, std::string(""));
+	SetStringParam(ctx, (char*)&value[0], (unsigned char)value.size());
 	return HR_CONTINUE;
 }
 
@@ -731,34 +730,29 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-
-	float col[4];
-	col[0] = GetFloatParam(ctx);
-	col[1] = GetFloatParam(ctx);
-	col[2] = GetFloatParam(ctx);
-	col[3] = GetFloatParam(ctx);
-	int type = GetIntParam(ctx);
-
 	ScriptExData* data = ScriptExData::Get();
 
 	data->imgui += [=]()
 	{
-		bool rtn = (type == 0) ? ImGui::ColorEdit4(buf, (float*)&col) : ImGui::ColorPicker4(buf, (float*)&col);
+		float col[4];
+		col[0] = data->GetData(buf, 0, 0.0f);
+		col[1] = data->GetData(buf, 1, 0.0f);
+		col[2] = data->GetData(buf, 2, 0.0f);
+		col[3] = data->GetData(buf, 3, 0.0f);
 
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, rtn);
-		data->SetData(buf, 2, rtn);
-		data->SetData(buf, 3, rtn);
-		data->SetData(buf, 4, rtn);
+		ImGui::ColorEdit4(buf, (float*)&col);
+		
+		data->SetData(buf, 0, col[0]);
+		data->SetData(buf, 1, col[1]);
+		data->SetData(buf, 2, col[2]);
+		data->SetData(buf, 3, col[3]);
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
-	float r = data->GetData(buf, 1, 0.0f);
+	float r = data->GetData(buf, 0, 0.0f);
 	float g = data->GetData(buf, 1, 0.0f);
-	float b = data->GetData(buf, 1, 0.0f);
-	float a = data->GetData(buf, 1, 0.0f);
+	float b = data->GetData(buf, 2, 0.0f);
+	float a = data->GetData(buf, 3, 0.0f);
 
-	SetIntParam(ctx, rtn);
 	SetFloatParam(ctx, r);
 	SetFloatParam(ctx, g);
 	SetFloatParam(ctx, b);
@@ -770,23 +764,38 @@ static HandlerResult ImGuiRadioButton(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetStringParam(ctx, buf, STR_MAX_LEN);
-	int val = GetIntParam(ctx);
-	int btn = GetIntParam(ctx);
+	int curSelectedBtn = GetIntParam(ctx);
+	int btnNo = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 
 	data->imgui += [=]()
 	{
-		int value = val;
-		bool rtn = ImGui::RadioButton(buf, &value, btn);
-		data->SetData(buf, 0, rtn);
-		data->SetData(buf, 1, value);
+		int value = curSelectedBtn;
+		bool clicked = ImGui::RadioButton(buf, &value, btnNo);
+		data->SetData(buf, 0, clicked);
+
+		if (clicked)
+		{
+			data->SetData(buf, 1, btnNo);
+		}
+		else
+		{
+			data->SetData(buf, 1, value);
+		}
 	};
 
-	bool rtn = data->GetData(buf, 0, false);
+	bool clicked = data->GetData(buf, 0, false);
 	int value = data->GetData(buf, 1, 0);
-	SetIntParam(ctx, rtn);
-	SetIntParam(ctx, value);
+
+	if (clicked)
+	{
+		SetIntParam(ctx, value);
+	}
+	else
+	{
+		SetIntParam(ctx, curSelectedBtn);
+	}
 	return HR_CONTINUE;
 }
 
@@ -860,6 +869,7 @@ void OpcodeMgr::RegisterCommands()
 
 	RegisterCommand("IMGUI_COLLASPING_HEADER", ImGuiCollaspingHeader, "imgui");
 
+	// Below commands don't work yet!
 	RegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt, "imgui");
 	RegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat, "imgui");
 	RegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt, "imgui");
@@ -867,5 +877,4 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText, "imgui");
 	RegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton, "imgui");
 	RegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker, "imgui");
-
 }

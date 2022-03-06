@@ -1,9 +1,10 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_REDUX_VERSION 0.1
+#define IMGUI_REDUX_VERSION 0.1f
 
 #include "cleo/cleo_redux_sdk.h"
 #include "imgui/imgui.h"
+#include "imgui/imgui_stdlib.h"
 #include "scriptextender.hpp"
 
 enum class eRenderer
