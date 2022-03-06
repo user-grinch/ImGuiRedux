@@ -207,12 +207,12 @@ void D3dHook::ProcessMouse()
         {
             if (mouseShown)
             {
-                injector::WriteMemory<unsigned char>(0x6020A0, 0xC3);
-                injector::MakeNOP(0x4AB6CA, 5);
+                injector::WriteMemory<unsigned char>(0x6020A0, 0xC3, true);
+                injector::MakeNOP(0x4AB6CA, 5, true);
             }
             else
             {
-                injector::WriteMemory<unsigned char>(0x6020A0, 0x53);
+                injector::WriteMemory<unsigned char>(0x6020A0, 0x53, true);
                 injector::WriteMemoryRaw(0x4AB6CA, (char*)"\xE8\x51\x21\x00\x00", 5, true);
             }
 
@@ -227,12 +227,12 @@ void D3dHook::ProcessMouse()
         {
             if (mouseShown)
             {
-                injector::WriteMemory<unsigned char>(0x580D20, 0xC3);
-                injector::MakeNOP(0x49272F, 5);
+                injector::WriteMemory<unsigned char>(0x580D20, 0xC3, true);
+                injector::MakeNOP(0x49272F, 5, true);
             }
             else
             {
-                injector::WriteMemory<unsigned char>(0x580D20, 0x53);
+                injector::WriteMemory<unsigned char>(0x580D20, 0x53, true);
                 injector::WriteMemoryRaw(0x49272F, (char*)"\xE8\x6C\xF5\xFF\xFF", 5, true);
             }
 

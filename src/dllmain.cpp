@@ -16,17 +16,17 @@ void ImGuiThread(void* param)
 	*/
 	if (gGameVer <= eGameVer::SA)
 	{
-		char moduleName[32] = "SilentPatchSA.asi";
+		std::string moduleName = "SilentPatchSA.asi";
 		if (gGameVer == eGameVer::VC)
 		{
-			strcpy(moduleName, "SilentPatchVC.asi");
+			moduleName = "SilentPatchVC.asi";
 		}
 		else if (gGameVer == eGameVer::III)
 		{
-			strcpy(moduleName, "SilentPatchIII.asi");
+			moduleName = "SilentPatchIII.asi";
 		}
 
-		if (!GetModuleHandle(moduleName))
+		if (!GetModuleHandle(moduleName.c_str()))
 		{
 			Log("[ImGuiRedux] SilentPatch not found. Please install it from here https://gtaforums.com/topic/669045-silentpatch/");
 			int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
@@ -64,7 +64,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 			case GTA3:
 			{
 				// III 1.0 US
-				if (gvm.IsIII() && gvm.IsUS()
+				if (gvm.IsIII()
 					&& gvm.GetMajorVersion() == 1
 					&& gvm.GetMinorVersion() == 0
 					)
@@ -76,7 +76,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 			case VC:
 			{
 				// VC 1.0 US
-				if (gvm.IsVC() && gvm.IsUS()
+				if (gvm.IsVC() 
 					&& gvm.GetMajorVersion() == 1
 					&& gvm.GetMinorVersion() == 0
 					)

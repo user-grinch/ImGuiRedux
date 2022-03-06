@@ -50227,10 +50227,6 @@
               "type": "float"
             },
             {
-              "name": "flags",
-              "type": "int"
-            },
-            {
               "name": "width",
               "type": "float"
             },
@@ -50241,7 +50237,7 @@
           ],
           "id": "0C04",
           "name": "IMGUI_COLOR_BUTTON",
-          "num_params": 8,
+          "num_params": 7,
           "short_desc": "ImGui button widget with custom colors",
           "class": "ImGui",
           "member": "ColorButton",

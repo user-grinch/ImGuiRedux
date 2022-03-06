@@ -22,9 +22,12 @@ while (true)
             ImGui.Text("THIS IS A TEST")
         }
         
-
         // Input and Slider
         var float_ = ImGui.InputFloat("INPUT", 69.9, 0.0, 100.0)
+        if(ImGui.IsItemHovered("RandomText"))
+        {
+            ImGui.Text("Hovered!")
+        }
         var slider_ = ImGui.SliderInt("Slider", 5, 0, 10)
         var str = "Input: " + float_.toFixed(2) + " Slider: " + slider_
         ImGui.Text(str) 
@@ -46,11 +49,11 @@ while (true)
 
         // Color button and picker
         var col = ImGui.ColorPicker("Color Picker", 0)
-        ImGui.ColorButton("COLORBTN", col.red, col.green, col.blue, col.alpha)
+        ImGui.ColorButton("COLORBTN", col.red, col.green, col.blue, col.alpha, 70.0, 30.0)
         
         
         ImGui.Dummy(0, 30)
-        if (ImGui.CollaspingHeader("Collasping Header"))
+        if (ImGui.CollapsingHeader("Collapsing Header"))
         {
             if (ImGui.MenuItem("Menu Item1", false, true))
             {

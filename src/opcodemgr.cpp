@@ -86,7 +86,6 @@ static HandlerResult ImGuiColorButton(Context ctx)
 	char buf[STR_MAX_LEN];
 	ImVec4 rgba;
 	ImVec2 size;
-	int flags;
 
 	// label, r, g, b, a, width, height
 	GetString(ctx, buf, STR_MAX_LEN);
@@ -94,14 +93,13 @@ static HandlerResult ImGuiColorButton(Context ctx)
 	rgba.y = GetFloatParam(ctx);
 	rgba.z = GetFloatParam(ctx);
 	rgba.w = GetFloatParam(ctx);
-	flags = GetIntParam(ctx);
 	size.x = GetFloatParam(ctx);
 	size.y = GetFloatParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		bool isPressed = ImGui::ColorButton(buf, rgba, flags, ImVec2(size.x, size.y));
+		bool isPressed = ImGui::ColorButton(buf, rgba, NULL, ImVec2(size.x, size.y));
 		data->SetData(buf, 0, isPressed);
 	};
 
