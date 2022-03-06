@@ -86,13 +86,18 @@ void D3dHook::ProcessFrame(void* ptr)
             float scaleX = width / 1366.0f;
             float scaleY = height / 768.0f;
 
+            style->ChildBorderSize = 0;
+            style->WindowBorderSize = 0;
+            style->FrameBorderSize = 0;
+            style->TabBorderSize = 0;
+            style->PopupBorderSize = 0;
             style->FramePadding = ImVec2(5 * scaleX, 5 * scaleY);
             style->ItemSpacing = ImVec2(8 * scaleX, 4 * scaleY);
             style->ScrollbarSize = 12 * scaleX;
             style->IndentSpacing = 20 * scaleX;
             style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
             style->Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
-
+            style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             fScreenSize = ImVec2((float)width, (float)height);
         }
 

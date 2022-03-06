@@ -1,13 +1,24 @@
 #include "pch.h"
 #include "opcodemgr.h"
 
+/*
+	Appending BeginFrame uniqueID to widget names
+	This ensures scripts won't clash with each other
+*/
+static void GetString(Context ctx, char* label, unsigned char length)
+{
+	GetStringParam(ctx, label, STR_MAX_LEN);
+	strcat(label, "##");
+	strcat(label, ScriptExData::GetCurrentScript().c_str());
+}
+
 static HandlerResult ImGuiBegin(Context ctx)
 {
 	char label[STR_MAX_LEN];
 	bool closedFlag;
 	int windowFlags;
 
-	GetStringParam(ctx, label, STR_MAX_LEN);
+	GetString(ctx, label, STR_MAX_LEN);
 	closedFlag = (GetIntParam(ctx) == 0);
 	windowFlags = GetIntParam(ctx);
 
@@ -33,7 +44,7 @@ static HandlerResult ImGuiButton(Context ctx)
 	char buf[STR_MAX_LEN];
 	ImVec2 size;
 
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	size.x = GetFloatParam(ctx);
 	size.y = GetFloatParam(ctx);
 
@@ -54,7 +65,7 @@ static HandlerResult ImGuiInvisibleButton(Context ctx)
 	char buf[STR_MAX_LEN];
 	ImVec2 size;
 
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	size.x = GetFloatParam(ctx);
 	size.y = GetFloatParam(ctx);
 
@@ -78,7 +89,7 @@ static HandlerResult ImGuiColorButton(Context ctx)
 	int flags;
 
 	// label, r, g, b, a, width, height
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	rgba.x = GetFloatParam(ctx);
 	rgba.y = GetFloatParam(ctx);
 	rgba.z = GetFloatParam(ctx);
@@ -102,7 +113,7 @@ static HandlerResult ImGuiColorButton(Context ctx)
 static HandlerResult ImGuiCheckbox(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	bool state = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
@@ -199,7 +210,12 @@ static HandlerResult ImGuiSeparator(Context ctx)
 
 static HandlerResult ImGuiGetFramerate(Context ctx)
 {
-	SetIntParam(ctx, OpcodeMgr::nFPS);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData("__framerate__", 0, (int)ImGui::GetIO().Framerate);
+	};
+	SetIntParam(ctx, data->GetData("__framerate__", 0, 0));
 	return HR_CONTINUE;
 }
 
@@ -312,7 +328,7 @@ static HandlerResult ImGuiText(Context ctx)
 static HandlerResult ImGuiTextDisabled(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -325,7 +341,7 @@ static HandlerResult ImGuiTextDisabled(Context ctx)
 static HandlerResult ImGuiTextWrapped(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -338,7 +354,7 @@ static HandlerResult ImGuiTextWrapped(Context ctx)
 static HandlerResult ImGuiBulletText(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -351,7 +367,7 @@ static HandlerResult ImGuiBulletText(Context ctx)
 static HandlerResult ImGuiTextColored(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	ImVec4 col;
 	col.x = GetFloatParam(ctx);
 	col.y = GetFloatParam(ctx);
@@ -369,7 +385,7 @@ static HandlerResult ImGuiTextColored(Context ctx)
 static HandlerResult ImGuiSetTooltip(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -382,25 +398,36 @@ static HandlerResult ImGuiSetTooltip(Context ctx)
 static HandlerResult ImGuiSetCursorVisible(Context ctx)
 {
 	bool flag = GetIntParam(ctx);
-	ScriptExData* data = ScriptExData::Get();
-	data->imgui += [=]()
+
+	// Only update if cursor needs to be shown
+	// Hidden by default
+	if (flag)
 	{
-		data->SetCursorVisible(flag);
-	};
+		ScriptExData* data = ScriptExData::Get();
+		data->imgui += [=]()
+		{
+			data->SetCursorVisible(flag);
+		};
+	}
 	
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiGetFrameHeight(Context ctx)
 {
-	SetFloatParam(ctx, OpcodeMgr::frameHeight);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight());
+	};
+	SetFloatParam(ctx, data->GetData("__frameHeight__", 0, 0.0f));
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiGetWindowSize(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -419,7 +446,7 @@ static HandlerResult ImGuiGetWindowSize(Context ctx)
 static HandlerResult ImGuiGetWindowPos(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -438,7 +465,7 @@ static HandlerResult ImGuiGetWindowPos(Context ctx)
 static HandlerResult ImGuiCalcTextSize(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -457,7 +484,7 @@ static HandlerResult ImGuiCalcTextSize(Context ctx)
 static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -473,7 +500,7 @@ static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx)
 static HandlerResult ImGuiBeginMainMenuBar(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -500,7 +527,7 @@ static HandlerResult ImGuiEndMainMenuBar(Context ctx)
 static HandlerResult ImGuiMenuItem(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	bool selected = (GetIntParam(ctx) != 0);
 	bool enabled = (GetIntParam(ctx) != 0);
 
@@ -518,7 +545,7 @@ static HandlerResult ImGuiMenuItem(Context ctx)
 static HandlerResult ImGuiSelectable(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	bool selected = (GetIntParam(ctx) != 0);
 
 	ScriptExData* data = ScriptExData::Get();
@@ -535,7 +562,7 @@ static HandlerResult ImGuiSelectable(Context ctx)
 static HandlerResult ImGuiBeginChild(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -585,7 +612,7 @@ static HandlerResult ImGuiPopItemWidth(Context ctx)
 static HandlerResult ImGuiCollapsingHeader(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -601,7 +628,7 @@ static HandlerResult ImGuiCollapsingHeader(Context ctx)
 static HandlerResult ImGuiSliderInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	int initVal = GetIntParam(ctx);
 	int min = GetIntParam(ctx);
 	int max = GetIntParam(ctx);
@@ -622,7 +649,7 @@ static HandlerResult ImGuiSliderInt(Context ctx)
 static HandlerResult ImGuiSliderFloat(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	float initVal = GetFloatParam(ctx);
 	float min = GetFloatParam(ctx);
 	float max = GetFloatParam(ctx);
@@ -643,7 +670,7 @@ static HandlerResult ImGuiSliderFloat(Context ctx)
 static HandlerResult ImGuiInputFloat(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	float initVal = GetFloatParam(ctx);
 	float min = GetFloatParam(ctx);
 	float max = GetFloatParam(ctx);
@@ -676,7 +703,7 @@ static HandlerResult ImGuiInputFloat(Context ctx)
 static HandlerResult ImGuiInputInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	int initVal = GetIntParam(ctx);
 	int min = GetIntParam(ctx);
 	int max = GetIntParam(ctx);
@@ -709,7 +736,7 @@ static HandlerResult ImGuiInputInt(Context ctx)
 static HandlerResult ImGuiInputText(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -729,7 +756,7 @@ static HandlerResult ImGuiInputText(Context ctx)
 static HandlerResult ImGuiColorPicker(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	ScriptExData* data = ScriptExData::Get();
 
 	data->imgui += [=]()
@@ -763,7 +790,7 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 static HandlerResult ImGuiRadioButton(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	int curSelectedBtn = GetIntParam(ctx);
 	int btnNo = GetIntParam(ctx);
 
@@ -802,7 +829,7 @@ static HandlerResult ImGuiRadioButton(Context ctx)
 static HandlerResult ImGuiBeginFrame(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 	ScriptExData::SetCurrentScript(std::string(buf));
 
 	return HR_CONTINUE;
@@ -817,7 +844,7 @@ static HandlerResult ImGuiEndFrame(Context ctx)
 static HandlerResult ImGuiIsItemActive(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -825,14 +852,14 @@ static HandlerResult ImGuiIsItemActive(Context ctx)
 		data->SetData(buf, 0, ImGui::IsItemActive());
 	};
 
-	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	SetIntParam(ctx, data->GetData(buf, 0, false));
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemHovered(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -840,14 +867,15 @@ static HandlerResult ImGuiIsItemHovered(Context ctx)
 		data->SetData(buf, 0, ImGui::IsItemHovered());
 	};
 
-	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	SetIntParam(ctx, data->GetData(buf, 0, false));
+	UpdateCompareFlag(ctx, data->GetData(buf, 0, 0));
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemClicked(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -855,14 +883,14 @@ static HandlerResult ImGuiIsItemClicked(Context ctx)
 		data->SetData(buf, 0, ImGui::IsItemClicked());
 	};
 
-	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	SetIntParam(ctx, data->GetData(buf, 0, false));
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemFocused(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetStringParam(ctx, buf, STR_MAX_LEN);
+	GetString(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -870,7 +898,7 @@ static HandlerResult ImGuiIsItemFocused(Context ctx)
 		data->SetData(buf, 0, ImGui::IsItemFocused());
 	};
 
-	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	SetIntParam(ctx, data->GetData(buf, 0, false));
 	return HR_CONTINUE;
 }
 

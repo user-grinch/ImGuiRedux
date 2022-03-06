@@ -50,7 +50,7 @@ private:
     */
     Table<std::string, std::vector<std::any>> frame_cache;
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
-    static inline bool show_cursor; // global cursor state flag
+    static inline bool showCursor; // global cursor state flag
     static inline std::string curScriptID; // current script identifier
 
 public:
@@ -60,6 +60,11 @@ public:
     static void SetCurrentScript(std::string id)
     {
         curScriptID = id;
+    }
+
+    static std::string GetCurrentScript()
+    {
+        return curScriptID;
     }
     
     static ScriptExData* Get()
@@ -111,17 +116,13 @@ public:
 
     static void SetCursorVisible(bool flag)
     {
-        show_cursor = flag;
+        showCursor = flag;
     }
 
     static void DrawFrames()
     {
         // reset stuff
-        show_cursor = false;
-        ImGuiStyle::ImGuiStyle();
-
-        OpcodeMgr::nFPS = (size_t)ImGui::GetIO().Framerate;
-        OpcodeMgr::frameHeight = ImGui::GetFrameHeight();
+        showCursor = false;
 
         // draw frames
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
@@ -131,6 +132,6 @@ public:
         }
 
         // update stuff
-        D3dHook::SetMouseState(show_cursor);
+        D3dHook::SetMouseState(showCursor);
     }
 };

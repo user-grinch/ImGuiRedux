@@ -39,11 +39,7 @@ void ImGuiThread(void* param)
 		}
 	}
 
-	if (D3dHook::InjectHook(&ScriptExData::DrawFrames))
-	{
-		OpcodeMgr::bImGuiHooked = true;
-	}
-	else
+	if (!D3dHook::InjectHook(&ScriptExData::DrawFrames))
 	{
 		Log("[ImGuiRedux] Failed to inject dxhook.");
 		MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
