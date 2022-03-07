@@ -98,6 +98,7 @@ void D3dHook::ProcessFrame(void* ptr)
             style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
             style->Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+            style->WindowTitleAlign = ImVec2(0.5f, 0.5f);
             fScreenSize = ImVec2((float)width, (float)height);
         }
 

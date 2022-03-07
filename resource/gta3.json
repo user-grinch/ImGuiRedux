@@ -29163,10 +29163,6 @@
             {
               "name": "windowState",
               "type": "bool"
-            },
-            {
-              "name": "ImGuiWindowFlags",
-              "type": "int"
             }
           ],
           "output": [
@@ -29372,11 +29368,15 @@
             {
               "name": "y",
               "type": "float"
+            },
+            {
+              "name": "ImGuiCond",
+              "type": "int"
             }
           ],
           "id": "0C06",
           "name": "IMGUI_SET_WINDOW_POS",
-          "num_params": 2,
+          "num_params": 3,
           "short_desc": "Sets the current ImGui window position.\nMust be called inside Begin()...End()",
           "class": "ImGui",
           "member": "SetWindowPos",
@@ -29400,11 +29400,15 @@
             {
               "name": "height",
               "type": "float"
+            },
+            {
+              "name": "ImGuiCond",
+              "type": "int"
             }
           ],
           "id": "0C07",
           "name": "IMGUI_SET_WINDOW_SIZE",
-          "num_params": 2,
+          "num_params": 3,
           "short_desc": "Sets the current ImGui window size.\nMust be called inside Begin()...End()",
           "class": "ImGui",
           "member": "SetWindowSize",
@@ -29428,6 +29432,10 @@
             {
               "name": "y",
               "type": "float"
+            },
+            {
+              "name": "ImGuiCond",
+              "type": "int"
             }
           ],
           "id": "0C08",
@@ -29456,11 +29464,15 @@
             {
               "name": "height",
               "type": "float"
+            },
+            {
+              "name": "ImGuiCond",
+              "type": "int"
             }
           ],
           "id": "0C09",
           "name": "IMGUI_SET_NEXT_WINDOW_SIZE",
-          "num_params": 2,
+          "num_params": 3,
           "short_desc": "Sets the current ImGui window size.\nApplies to the next window ( aka Begin() )",
           "class": "ImGui",
           "member": "SetNextWindowSize",
@@ -29580,11 +29592,27 @@
             {
               "name": "text",
               "type": "string"
+            },
+            {
+              "name": "red",
+              "type": "float"
+            },
+            {
+              "name": "green",
+              "type": "float"
+            },
+            {
+              "name": "blue",
+              "type": "float"
+            },
+            {
+              "name": "alpha",
+              "type": "float"
             }
           ],
           "id": "0C0E",
           "name": "IMGUI_TEXT_COLORED",
-          "num_params": 1,
+          "num_params": 4,
           "short_desc": "Creates a ImGui text line widget with predefined RGBA colors (0.0f-1.0f)",
           "class": "ImGui",
           "member": "TextColored",
@@ -30537,7 +30565,7 @@
           "id": "0C31",
           "name": "IMGUI_BEGIN_FRAME",
           "num_params": 1,
-          "short_desc": "Creates a unique ImGui frame with it's own space in memory.\nEnd it with EndFrame(same_id)\nMUST BE UNIQUE!!!",
+          "short_desc": "Creates a unique ImGui frame with it's own space in memory.\nEnd it with EndFrame()\nMUST BE UNIQUE!!!",
           "class": "ImGui",
           "member": "BeginFrame",
           "attrs": {
@@ -30551,16 +30579,10 @@
           ]
         },
         {
-          "input": [
-            {
-              "name": "uniqueID",
-              "type": "string"
-            }
-          ],
           "id": "0C32",
           "name": "IMGUI_END_FRAME",
-          "num_params": 1,
-          "short_desc": "Ends unique ImGui frame.\nUse the same ID as BeginFrame(ID)",
+          "num_params": 0,
+          "short_desc": "Ends unique ImGui frame",
           "class": "ImGui",
           "member": "EndFrame",
           "attrs": {
@@ -30683,6 +30705,100 @@
           "short_desc": "Returns whether the previous ImGui widget is hovered with mouse",
           "class": "ImGui",
           "member": "IsItemHovered",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "uniqueID",
+              "type": "string"
+            },
+            {
+              "name": "count",
+              "type": "int"
+            },
+            {
+              "name": "spacing",
+              "type": "bool"
+            }
+          ],
+          "output": [
+            {
+              "name": "x",
+              "type": "float",
+              "source": "var_any"
+            },
+            {
+              "name": "y",
+              "type": "float",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C37",
+          "name": "IMGUI_GET_SCALING_SIZE",
+          "num_params": 3,
+          "short_desc": "Returns width and height scaling factor based on window size",
+          "class": "ImGui",
+          "member": "GetScalingSize",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "label",
+              "type": "string"
+            },
+            {
+              "name": "enabled",
+              "type": "bool"
+            }
+          ],
+          "output": [
+            {
+              "name": "state",
+              "type": "bool",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C38",
+          "name": "IMGUI_BEGIN_MENU",
+          "num_params": 2,
+          "short_desc": "Creates a new ImGui menu",
+          "class": "ImGui",
+          "member": "BeginMenu",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "id": "0C39",
+          "name": "IMGUI_END_MENU",
+          "num_params": 0,
+          "short_desc": "End ImGui menu",
+          "class": "ImGui",
+          "member": "EndMenu",
           "attrs": {
             "is_static": true
           },
