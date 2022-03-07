@@ -12,7 +12,7 @@ while (true)
     ImGui.SetCursorVisible(isOpen)
     if (isOpen)
     {
-        var windowValue = ImGui.Begin("MyWindow", isOpen, 0)
+        var windowValue = ImGui.Begin("MyWindow", isOpen)
         
 
         // Checkbox
@@ -28,8 +28,8 @@ while (true)
         {
             ImGui.Text("Hovered!")
         }
-        var slider_ = ImGui.SliderInt("Slider", 5, 0, 10)
-        var str = "Input: " + float_.toFixed(2) + " Slider: " + slider_
+        var slider = ImGui.SliderInt("Slider", 5, 0, 10)
+        var str = "Input: " + float_.toFixed(2) + " Slider: " + slider
         ImGui.Text(str) 
 
         var text = ImGui.InputText("TEST")

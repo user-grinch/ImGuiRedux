@@ -30819,7 +30819,7 @@
               "type": "string"
             },
             {
-              "name": "windowCloseFlag",
+              "name": "windowState",
               "type": "bool"
             },
             {

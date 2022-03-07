@@ -19,22 +19,22 @@ static HandlerResult ImGuiBegin(Context ctx)
 	int windowFlags;
 
 	GetString(ctx, label, STR_MAX_LEN);
-	closedFlag = (GetIntParam(ctx) == 0);
+	closedFlag = GetIntParam(ctx);
 	windowFlags = GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
 		bool isClosed;
-		bool rtn = ImGui::Begin(label, &isClosed, windowFlags);
-		data->SetData(label, 0, rtn);
+		bool isCollapsed = ImGui::Begin(label, &isClosed, windowFlags);
+		data->SetData(label, 0, isCollapsed);
 		data->SetData(label, 1, isClosed);
 	};
 
-	bool rtn = data->GetData<bool>(label, 0, false);
+	bool isCollapsed = data->GetData<bool>(label, 0, false);
 	bool openFlag = data->GetData<bool>(label, 1, false);
 
-	SetIntParam(ctx, rtn);
+	SetIntParam(ctx, isCollapsed);
 	SetIntParam(ctx, openFlag);
 	return HR_CONTINUE;
 }
@@ -902,69 +902,69 @@ static HandlerResult ImGuiIsItemFocused(Context ctx)
 
 void OpcodeMgr::RegisterCommands()
 {
-	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame, "imgui");
-	RegisterCommand("IMGUI_END_FRAME", ImGuiEndFrame, "imgui");
+	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame);
+	RegisterCommand("IMGUI_END_FRAME", ImGuiEndFrame);
 
-	RegisterCommand("IMGUI_BEGIN", ImGuiBegin, "imgui");
-	RegisterCommand("IMGUI_END", ImGuiEnd, "imgui");
+	RegisterCommand("IMGUI_BEGIN", ImGuiBegin);
+	RegisterCommand("IMGUI_END", ImGuiEnd);
 
-	RegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos, "imgui");
-	RegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowPos, "imgui");
-	RegisterCommand("IMGUI_SET_NEXT_WINDOW_POS", ImGuiSetNextWindowPos, "imgui");
-	RegisterCommand("IMGUI_SET_NEXT_WINDOW_SIZE", ImGuiSetNextWindowPos, "imgui");
-	RegisterCommand("IMGUI_DUMMY", ImGuiDummy, "imgui");
+	RegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos);
+	RegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowPos);
+	RegisterCommand("IMGUI_SET_NEXT_WINDOW_POS", ImGuiSetNextWindowPos);
+	RegisterCommand("IMGUI_SET_NEXT_WINDOW_SIZE", ImGuiSetNextWindowPos);
+	RegisterCommand("IMGUI_DUMMY", ImGuiDummy);
 
-	RegisterCommand("IMGUI_TEXT", ImGuiText, "imgui");
-	RegisterCommand("IMGUI_TEXT_DISABLED", ImGuiTextDisabled, "imgui");
-	RegisterCommand("IMGUI_TEXT_WRAPPED", ImGuiTextWrapped, "imgui");
-	RegisterCommand("IMGUI_TEXT_COLORED", ImGuiTextColored, "imgui");
-	RegisterCommand("IMGUI_BULLET_TEXT", ImGuiBulletText, "imgui");
-	RegisterCommand("IMGUI_SET_TOOLTIP", ImGuiSetTooltip, "imgui");
+	RegisterCommand("IMGUI_TEXT", ImGuiText);
+	RegisterCommand("IMGUI_TEXT_DISABLED", ImGuiTextDisabled);
+	RegisterCommand("IMGUI_TEXT_WRAPPED", ImGuiTextWrapped);
+	RegisterCommand("IMGUI_TEXT_COLORED", ImGuiTextColored);
+	RegisterCommand("IMGUI_BULLET_TEXT", ImGuiBulletText);
+	RegisterCommand("IMGUI_SET_TOOLTIP", ImGuiSetTooltip);
 
-	RegisterCommand("IMGUI_BUTTON", ImGuiButton, "imgui");
-	RegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton, "imgui");
-	RegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton, "imgui");
+	RegisterCommand("IMGUI_BUTTON", ImGuiButton);
+	RegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton);
+	RegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton);
 
-	RegisterCommand("IMGUI_CHECKBOX", ImGuiCheckbox, "imgui");
+	RegisterCommand("IMGUI_CHECKBOX", ImGuiCheckbox);
 
-	RegisterCommand("IMGUI_SAMELINE", ImGuiSameLine, "imgui");
-	RegisterCommand("IMGUI_NEWLINE", ImGuiNewLine, "imgui");
-	RegisterCommand("IMGUI_COLUMNS", ImGuiColumns, "imgui");
-	RegisterCommand("IMGUI_NEXT_COLUMN", ImGuiNextColumn, "imgui");
-	RegisterCommand("IMGUI_SPACING", ImGuiSpacing, "imgui");
-	RegisterCommand("IMGUI_SEPARATOR", ImGuiSeparator, "imgui");
+	RegisterCommand("IMGUI_SAMELINE", ImGuiSameLine);
+	RegisterCommand("IMGUI_NEWLINE", ImGuiNewLine);
+	RegisterCommand("IMGUI_COLUMNS", ImGuiColumns);
+	RegisterCommand("IMGUI_NEXT_COLUMN", ImGuiNextColumn);
+	RegisterCommand("IMGUI_SPACING", ImGuiSpacing);
+	RegisterCommand("IMGUI_SEPARATOR", ImGuiSeparator);
 
-	RegisterCommand("IMGUI_GET_FRAMERATE", ImGuiGetFramerate, "imgui");
-	RegisterCommand("IMGUI_GET_VERSION", ImGuiGetVersion, "imgui");
-	RegisterCommand("IMGUI_GET_REDUX_VERSION", ImGuiGetReduxVersion, "imgui");
+	RegisterCommand("IMGUI_GET_FRAMERATE", ImGuiGetFramerate);
+	RegisterCommand("IMGUI_GET_VERSION", ImGuiGetVersion);
+	RegisterCommand("IMGUI_GET_REDUX_VERSION", ImGuiGetReduxVersion);
 
-	RegisterCommand("IMGUI_SET_CURSOR_VISIBLE", ImGuiSetCursorVisible, "imgui");
-	RegisterCommand("IMGUI_GET_FRAME_HEIGHT", ImGuiGetFrameHeight, "imgui");
-	RegisterCommand("IMGUI_GET_WINDOW_POS", ImGuiGetWindowPos, "imgui");
-	RegisterCommand("IMGUI_GET_WINDOW_SIZE", ImGuiGetWindowSize, "imgui");
-	RegisterCommand("IMGUI_CALC_TEXT_SIZE", ImGuiCalcTextSize, "imgui");
-	RegisterCommand("IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH", ImGuiGetWindowContentRegionWidth, "imgui");
-	RegisterCommand("IMGUI_BEGIN_MAINMENUBAR", ImGuiBeginMainMenuBar, "imgui");
-	RegisterCommand("IMGUI_END_MAINMENUBAR", ImGuiEndMainMenuBar, "imgui");
-	RegisterCommand("IMGUI_MENU_ITEM", ImGuiMenuItem, "imgui");
-	RegisterCommand("IMGUI_SELECTABLE", ImGuiSelectable, "imgui");
-	RegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChild, "imgui");
-	RegisterCommand("IMGUI_END_CHILD", ImGuiEndChild, "imgui");
-	RegisterCommand("IMGUI_PUSH_ITEM_WIDTH", ImGuiPushItemWidth, "imgui");
-	RegisterCommand("IMGUI_POP_ITEM_WIDTH", ImGuiPopItemWidth, "imgui");
+	RegisterCommand("IMGUI_SET_CURSOR_VISIBLE", ImGuiSetCursorVisible);
+	RegisterCommand("IMGUI_GET_FRAME_HEIGHT", ImGuiGetFrameHeight);
+	RegisterCommand("IMGUI_GET_WINDOW_POS", ImGuiGetWindowPos);
+	RegisterCommand("IMGUI_GET_WINDOW_SIZE", ImGuiGetWindowSize);
+	RegisterCommand("IMGUI_CALC_TEXT_SIZE", ImGuiCalcTextSize);
+	RegisterCommand("IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH", ImGuiGetWindowContentRegionWidth);
+	RegisterCommand("IMGUI_BEGIN_MAINMENUBAR", ImGuiBeginMainMenuBar);
+	RegisterCommand("IMGUI_END_MAINMENUBAR", ImGuiEndMainMenuBar);
+	RegisterCommand("IMGUI_MENU_ITEM", ImGuiMenuItem);
+	RegisterCommand("IMGUI_SELECTABLE", ImGuiSelectable);
+	RegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChild);
+	RegisterCommand("IMGUI_END_CHILD", ImGuiEndChild);
+	RegisterCommand("IMGUI_PUSH_ITEM_WIDTH", ImGuiPushItemWidth);
+	RegisterCommand("IMGUI_POP_ITEM_WIDTH", ImGuiPopItemWidth);
 
-	RegisterCommand("IMGUI_COLLAPSING_HEADER", ImGuiCollapsingHeader, "imgui");
+	RegisterCommand("IMGUI_COLLAPSING_HEADER", ImGuiCollapsingHeader);
 
-	RegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt, "imgui");
-	RegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat, "imgui");
-	RegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt, "imgui");
-	RegisterCommand("IMGUI_INPUT_FLOAT", ImGuiInputFloat, "imgui");
-	RegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText, "imgui");
-	RegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton, "imgui");
-	RegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker, "imgui");
+	RegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt);
+	RegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat);
+	RegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt);
+	RegisterCommand("IMGUI_INPUT_FLOAT", ImGuiInputFloat);
+	RegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText);
+	RegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton);
+	RegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker);
 
-	RegisterCommand("IMGUI_IS_ITEM_ACTIVE", ImGuiIsItemActive, "imgui");
-	RegisterCommand("IMGUI_IS_ITEM_CLICKED", ImGuiIsItemClicked, "imgui");
-	RegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused, "imgui");
-	RegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered, "imgui");
+	RegisterCommand("IMGUI_IS_ITEM_ACTIVE", ImGuiIsItemActive);
+	RegisterCommand("IMGUI_IS_ITEM_CLICKED", ImGuiIsItemClicked);
+	RegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused);
+	RegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered);
 }

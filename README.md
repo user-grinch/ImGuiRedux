@@ -1,7 +1,7 @@
 # ImGuiRedux
 [Dear ImGui](https://github.com/ocornut/imgui) bindings for [CLEORedux](https://re.cleo.li/).
 
-Example script [here](https://github.com/user-grinch/ImGuiRedux/resource/test[imgui].js).
+Example script [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/test%5Bimgui%5D.js).
 Download from [here](https://github.com/user-grinch/ImGuiRedux/releases)
 
 ## Supported Games
