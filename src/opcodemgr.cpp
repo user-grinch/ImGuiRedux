@@ -18,22 +18,26 @@ static HandlerResult ImGuiBegin(Context ctx)
 
 	GetString(ctx, label, STR_MAX_LEN);
 	bool closedFlag = GetIntParam(ctx);
-	int windowFlags = GetIntParam(ctx);
+	bool noTitleBar = GetIntParam(ctx);
+	bool noResize = GetIntParam(ctx);
+	bool noMove = GetIntParam(ctx);
+	bool autoResize = GetIntParam(ctx);
 
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+	if (noTitleBar) flags |= ImGuiWindowFlags_NoTitleBar;
+	if (noResize) flags |= ImGuiWindowFlags_NoResize;
+	if (noMove) flags |= ImGuiWindowFlags_NoMove;
+	if (autoResize) flags |= ImGuiWindowFlags_AlwaysAutoResize;
+		
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		bool isClosed;
-		bool isCollapsed = ImGui::Begin(label, &isClosed, windowFlags);
-		data->SetData(label, 0, isCollapsed);
-		data->SetData(label, 1, isClosed);
+		bool isClosed = closedFlag;
+		ImGui::Begin(label, &isClosed, flags);
+		data->SetData(label, 0, isClosed);
 	};
 
-	bool isCollapsed = data->GetData<bool>(label, 0, false);
-	bool openFlag = data->GetData<bool>(label, 1, false);
-
-	SetIntParam(ctx, isCollapsed);
-	SetIntParam(ctx, openFlag);
+	SetIntParam(ctx, data->GetData<bool>(label, 0, false));
 	return HR_CONTINUE;
 }
 
@@ -509,33 +513,6 @@ static HandlerResult ImGuiBeginMainMenuBar(Context ctx)
 	return HR_CONTINUE;
 }
 
-static HandlerResult ImGuiBeginMenu(Context ctx)
-{
-	char buf[STR_MAX_LEN];
-	GetString(ctx, buf, STR_MAX_LEN);
-	int enabled = GetIntParam(ctx);
-	ScriptExData* data = ScriptExData::Get();
-	data->imgui += [=]()
-	{
-		bool state = ImGui::BeginMenu(buf, enabled);
-		data->SetData(buf, 0, state);
-	};
-
-	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
-}
-
-static HandlerResult ImGuiEndMenu(Context ctx)
-{
-	ScriptExData* data = ScriptExData::Get();
-	data->imgui += [=]()
-	{
-		ImGui::EndMenu();
-	};
-
-	return HR_CONTINUE;
-}
-
 static HandlerResult ImGuiEndMainMenuBar(Context ctx)
 {
 	ScriptExData* data = ScriptExData::Get();
@@ -976,8 +953,6 @@ void OpcodeMgr::RegisterCommands()
 
 	RegisterCommand("IMGUI_BEGIN", ImGuiBegin);
 	RegisterCommand("IMGUI_END", ImGuiEnd);
-	RegisterCommand("IMGUI_BEGIN_MENU", ImGuiBeginMenu);
-	RegisterCommand("IMGUI_END_MENU", ImGuiEndMenu);
 
 	RegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos);
 	RegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowPos);

@@ -29161,25 +29161,36 @@
               "type": "string"
             },
             {
-              "name": "windowState",
+              "name": "state",
+              "type": "bool"
+            },
+            {
+              "name": "noTitleBar",
+              "type": "bool"
+            },
+            {
+              "name": "noResize",
+              "type": "bool"
+            },
+            {
+              "name": "noMove",
+              "type": "bool"
+            },
+            {
+              "name": "autoResize",
               "type": "bool"
             }
           ],
           "output": [
             {
-              "name": "isCollapsed",
-              "type": "bool",
-              "source": "var_any"
-            },
-            {
-              "name": "isOpen",
+              "name": "state",
               "type": "bool",
               "source": "var_any"
             }
           ],
           "id": "0C00",
           "name": "IMGUI_BEGIN",
-          "num_params": 3,
+          "num_params": 6,
           "short_desc": "Creates a new ImGui window",
           "class": "ImGui",
           "member": "Begin",
@@ -30748,57 +30759,6 @@
           "short_desc": "Returns width and height scaling factor based on window size",
           "class": "ImGui",
           "member": "GetScalingSize",
-          "attrs": {
-            "is_static": true
-          },
-          "platforms": [
-            "pc"
-          ],
-          "versions": [
-            "1.0"
-          ]
-        },
-        {
-          "input": [
-            {
-              "name": "label",
-              "type": "string"
-            },
-            {
-              "name": "enabled",
-              "type": "bool"
-            }
-          ],
-          "output": [
-            {
-              "name": "state",
-              "type": "bool",
-              "source": "var_any"
-            }
-          ],
-          "id": "0C38",
-          "name": "IMGUI_BEGIN_MENU",
-          "num_params": 2,
-          "short_desc": "Creates a new ImGui menu",
-          "class": "ImGui",
-          "member": "BeginMenu",
-          "attrs": {
-            "is_static": true
-          },
-          "platforms": [
-            "pc"
-          ],
-          "versions": [
-            "1.0"
-          ]
-        },
-        {
-          "id": "0C39",
-          "name": "IMGUI_END_MENU",
-          "num_params": 0,
-          "short_desc": "End ImGui menu",
-          "class": "ImGui",
-          "member": "EndMenu",
           "attrs": {
             "is_static": true
           },

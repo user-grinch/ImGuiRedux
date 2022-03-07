@@ -7,7 +7,6 @@
 const TOGGLE_KEY = 116 // F5
 var gShowWindow = false
 var gVersionInfo = false
-var gMainMenuBar = false
 var gRadioBtn = 1
 
 while (true) 
@@ -28,31 +27,12 @@ while (true)
     ImGui.BeginFrame("IMGUI_DEMO")
     ImGui.SetCursorVisible(gShowWindow)
 
-    // Crashes atm
-    // if (gMainMenuBar)
-    // {
-    //     if (ImGui.BeginMainMenuBar("MMB"))
-    //     {
-    //         if (ImGui.BeginMenu("File", true))
-    //         {
-    //             ImGui.MenuItem("New")
-    //             ImGui.MenuItem("Close")
-    //             ImGui.EndMenu();
-    //         }
-    //         if (ImGui.BeginMenu("Edit", true))
-    //         {
-    //             ImGui.MenuItem("Option 1")
-    //             ImGui.MenuItem("Option 2")
-    //             ImGui.EndMenu();
-    //         }
-    //         ImGui.EndMainMenuBar()
-    //     }
-    // }
-
     if (gShowWindow)
     {
         ImGui.SetNextWindowSize(350, 600, 2) // 2 = ImGuiCond_Once
-        let windowValue = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0)
+        let window = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0)
+        gShowWindow = window.isOpen
+
 
         let reduxVer = ImGui.GetReduxVersion()
         let imguiVer = ImGui.GetVersion()
@@ -61,7 +41,6 @@ while (true)
 
         // A basic column example
         gVersionInfo = ImGui.Checkbox("Show version info", gVersionInfo)
-        gMainMenuBar = ImGui.Checkbox("Show main menubar", gMainMenuBar)
 
         if (gVersionInfo)
         {   
@@ -179,7 +158,6 @@ while (true)
         ImGui.EndChild()
     
         ImGui.End()
-        gShowWindow = windowValue.isOpen
     }  
     ImGui.EndFrame()  
 
