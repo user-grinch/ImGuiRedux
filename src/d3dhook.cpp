@@ -59,20 +59,40 @@ void D3dHook::ProcessFrame(void* ptr)
         ProcessMouse();
 
         // Scale the menu if game resolution changed
-        RECT rect;
-        GetWindowRect(GetForegroundWindow(), &rect);
-        int width = rect.right - rect.left;
-        int height = rect.bottom - rect.top;
+        int height, width, RsGlobal;
+        if (gGameVer == eGameVer::III)
+        {
+            RsGlobal = 0x8F4360;
+            width = injector::ReadMemory<int>(RsGlobal + 4, 0);      // width
+            height = injector::ReadMemory<int>(RsGlobal + 8, 0);    // height
+        }
+        else if (gGameVer == eGameVer::VC)
+        {
+            RsGlobal = 0x9B48D8;
+            width = injector::ReadMemory<int>(RsGlobal + 4, 0);      // width
+            height = injector::ReadMemory<int>(RsGlobal + 8, 0);    // height
+        }
+        else if (gGameVer == eGameVer::SA)
+        {
+            RsGlobal = 0xC17040;
+            width = injector::ReadMemory<int>(RsGlobal + 4, 0);      // width
+            height = injector::ReadMemory<int>(RsGlobal + 8, 0);    // height
+        }   
+        else
+        {
+            // TODO DE
+            // This was crashing during window tab+alt
+            // probably need to replace this later
+
+            RECT rect;
+            GetWindowRect(GetForegroundWindow(), &rect);
+            width = rect.right - rect.left;
+            height = rect.bottom - rect.top;
+        }
         
         static ImVec2 fScreenSize = ImVec2(-1, -1);
         if (fScreenSize.x != width && fScreenSize.y != height)
         {
-            ImGuiIO& io = ImGui::GetIO();
-            io.Fonts->Clear();
-            float fontSize = height / 54.85f;
-            io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/trebucbd.ttf", fontSize);
-            io.Fonts->Build();
-
             if (gRenderer == eRenderer::Dx9)
             {
                 ImGui_ImplDX9_InvalidateDeviceObjects();
@@ -81,6 +101,12 @@ void D3dHook::ProcessFrame(void* ptr)
             {
                 ImGui_ImplDX11_InvalidateDeviceObjects();
             }
+            
+            ImGuiIO& io = ImGui::GetIO();
+            io.Fonts->Clear();
+            float fontSize = height / 54.85f;
+            io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/trebucbd.ttf", fontSize);
+            io.Fonts->Build();
 
             ImGuiStyle* style = &ImGui::GetStyle();
             float scaleX = width / 1366.0f;
