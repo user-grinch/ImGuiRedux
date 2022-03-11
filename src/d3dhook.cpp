@@ -93,7 +93,7 @@ void D3dHook::ProcessFrame(void* ptr)
         static ImVec2 fScreenSize = ImVec2(-1, -1);
         if (fScreenSize.x != width && fScreenSize.y != height)
         {
-            if (gRenderer == eRenderer::Dx9)
+            if (gRenderer == eRenderer::DX9)
             {
                 ImGui_ImplDX9_InvalidateDeviceObjects();
             }
@@ -129,7 +129,7 @@ void D3dHook::ProcessFrame(void* ptr)
         }
 
         ImGui_ImplWin32_NewFrame();
-        if (gRenderer == eRenderer::Dx9)
+        if (gRenderer == eRenderer::DX9)
         {
             ImGui_ImplDX9_NewFrame();
         }
@@ -148,7 +148,7 @@ void D3dHook::ProcessFrame(void* ptr)
         ImGui::EndFrame();
         ImGui::Render();
 
-        if (gRenderer == eRenderer::Dx9)
+        if (gRenderer == eRenderer::DX9)
         {
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         }
@@ -167,7 +167,7 @@ void D3dHook::ProcessFrame(void* ptr)
             injector::MakeNOP(0x00531155, 5); // shift trigger fix
         }
 
-        if (gRenderer == eRenderer::Dx9)
+        if (gRenderer == eRenderer::DX9)
         {
             ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr));
         }
@@ -294,7 +294,7 @@ bool D3dHook::InjectHook(void *pCallback)
     */
     if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
-        gRenderer = eRenderer::Dx9;
+        gRenderer = eRenderer::DX9;
         hookInjected = true;
         kiero::bind(16, (void**)&oReset, hkReset);
         kiero::bind(42, (void**)&oEndScene, hkEndScene);
@@ -305,14 +305,14 @@ bool D3dHook::InjectHook(void *pCallback)
 
         if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
         {
-            gRenderer = eRenderer::Dx11;
+            gRenderer = eRenderer::DX11;
             kiero::bind(8, (void**)&oPresent, hkPresent);
             pCallbackFunc = pCallback;
             hookInjected = true;
         }
         else
         {
-            gRenderer = eRenderer::Unknown;
+            gRenderer = eRenderer::UNKNOWN;
         }
     }
 
