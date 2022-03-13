@@ -74,24 +74,24 @@ while (true)
             ImGui.Spacing()
             
             size = ImGui.GetScalingSize("S1", 3, false)
-            if (ImGui.ColorButton("CB 1", 1.0, 0.0, 0.0, 1.0, size.x, size.y))
+            if (ImGui.ButtonColored("CB 1", 1.0, 0.0, 0.0, 1.0, size.x, size.y))
             {
                 showTextBox("Color button 1 was pressed")
             }
             ImGui.SameLine()
-            if (ImGui.ColorButton("CB 2", 0.0, 1.0, 0.0, 1.0, size.x, size.y))
+            if (ImGui.ButtonColored("CB 2", 0.0, 1.0, 0.0, 1.0, size.x, size.y))
             {
                 showTextBox("Color button 2 was pressed")
             }
             ImGui.SameLine()
-            if (ImGui.ColorButton("CB 3", 0.0, 0.0, 1.0, 1.0, size.x, size.y))
+            if (ImGui.ButtonColored("CB 3", 0.0, 0.0, 1.0, 1.0, size.x, size.y))
             {
                 showTextBox("Color button 3 was pressed")
             }
             
             size = ImGui.GetScalingSize("S2", 1, false)
             ImGui.Text("Tip: Click the below area")
-            if (ImGui.InvisibleButton("Invis button", size.x, size.y))
+            if (ImGui.ButtonInvisible("Invis button", size.x, size.y))
             {
                 showTextBox("Invisible button was pressed")
             }
@@ -131,7 +131,7 @@ while (true)
             let text = ImGui.InputText("Text input widget")
             ImGui.Spacing()
             var col = ImGui.ColorPicker("Color Picker", 0)
-            ImGui.ColorButton("COLORBTN", col.red, col.green, col.blue, col.alpha, 70.0, 30.0)
+            ImGui.ButtonColored("COLORBTN", col.red, col.green, col.blue, col.alpha, 70.0, 30.0)
 
             ImGui.Dummy(0, 10)
             ImGui.Text("Text input: " + text)
@@ -148,7 +148,7 @@ while (true)
             ImGui.Text("A little brown fox jumps over the lazy dog")
             ImGui.TextDisabled("A little brown fox jumps over the lazy dog")
             ImGui.TextColored("A little brown fox jumps over the lazy dog", 1.0, 0.0, 0.0, 1.0)
-            ImGui.BulletText("A little brown fox jumps over the lazy dog")
+            ImGui.TextWithBullet("A little brown fox jumps over the lazy dog")
             ImGui.Spacing()
             ImGui.TextWrapped("A little brown fox jumps over the lazy dog. A little brown fox jumps over the lazy dog. A little brown fox jumps over the lazy dog")
             ImGui.Separator()

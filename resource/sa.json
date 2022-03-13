@@ -50247,7 +50247,7 @@
           "num_params": 7,
           "short_desc": "ImGui button widget with custom colors",
           "class": "ImGui",
-          "member": "ColorButton",
+          "member": "ButtonColored",
           "attrs": {
             "is_static": true,
             "is_condition": true
@@ -50280,7 +50280,7 @@
           "num_params": 3,
           "short_desc": "ImGui invisible button widget",
           "class": "ImGui",
-          "member": "InvisibleButton",
+          "member": "ButtonInvisible",
           "attrs": {
             "is_static": true,
             "is_condition": true
@@ -50573,7 +50573,7 @@
           "num_params": 1,
           "short_desc": "Creates a ImGui text line widget with bullet point.",
           "class": "ImGui",
-          "member": "BulletText",
+          "member": "TextWithBullet",
           "attrs": {
             "is_static": true
           },
