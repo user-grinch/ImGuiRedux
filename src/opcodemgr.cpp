@@ -227,7 +227,7 @@ static HandlerResult ImGuiGetVersion(Context ctx)
 	return HR_CONTINUE;
 }
 
-static HandlerResult ImGuiGetReduxVersion(Context ctx)
+static HandlerResult ImGuiGetPluginVersion(Context ctx)
 {
 	SetFloatParam(ctx, IMGUI_REDUX_VERSION);
 	return HR_CONTINUE;
@@ -980,9 +980,9 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_SPACING", ImGuiSpacing);
 	RegisterCommand("IMGUI_SEPARATOR", ImGuiSeparator);
 
-	RegisterCommand("IMGUI_GET_FRAMERATE", ImGuiGetFramerate);
+	RegisterCommand("GET_FRAMERATE", ImGuiGetFramerate);
 	RegisterCommand("IMGUI_GET_VERSION", ImGuiGetVersion);
-	RegisterCommand("IMGUI_GET_REDUX_VERSION", ImGuiGetReduxVersion);
+	RegisterCommand("IMGUI_GET_PLUGIN_VERSION", ImGuiGetPluginVersion);
 
 	RegisterCommand("IMGUI_SET_CURSOR_VISIBLE", ImGuiSetCursorVisible);
 	RegisterCommand("IMGUI_GET_FRAME_HEIGHT", ImGuiGetFrameHeight);
