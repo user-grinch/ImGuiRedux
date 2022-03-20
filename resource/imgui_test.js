@@ -34,9 +34,9 @@ while (true)
         gShowWindow = window.isOpen
 
 
-        let reduxVer = ImGui.GetReduxVersion()
+        let reduxVer = ImGui.GetPluginVersion()
         let imguiVer = ImGui.GetVersion()
-        let fps = ImGui.GetFramerate()
+        let fps = Game.GetFramerate()
         
 
         // A basic column example
