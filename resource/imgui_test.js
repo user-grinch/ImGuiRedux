@@ -8,6 +8,8 @@ const TOGGLE_KEY = 116 // F5
 var gShowWindow = false
 var gVersionInfo = false
 var gRadioBtn = 1
+var gTimerExample = false
+var gPrevTimer = 0
 
 while (true) 
 {
@@ -30,9 +32,7 @@ while (true)
     if (gShowWindow)
     {
         ImGui.SetNextWindowSize(350, 600, 2) // 2 = ImGuiCond_Once
-        let window = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0)
-        gShowWindow = window.isOpen
-
+        gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0)
 
         let reduxVer = ImGui.GetPluginVersion()
         let imguiVer = ImGui.GetVersion()
@@ -41,6 +41,7 @@ while (true)
 
         // A basic column example
         gVersionInfo = ImGui.Checkbox("Show version info", gVersionInfo)
+        gTimerExample = ImGui.Checkbox("Show timer example", gTimerExample)
 
         if (gVersionInfo)
         {   
@@ -161,14 +162,21 @@ while (true)
     }  
     ImGui.EndFrame()  
 
-
+    
+    // Timer example
+    // This code has 5 second delay
+    if (gTimerExample && (TIMERA - gPrevTimer > 5000))
+    {
+        showTextBox("Timer test message")
+        gPrevTimer = TIMERA
+    }
 
     if (Pad.IsKeyPressed(TOGGLE_KEY)) 
     {
         gShowWindow = !gShowWindow
         while (Pad.IsKeyPressed(TOGGLE_KEY)) 
         {
-            wait(10)
+            wait(100)
         }
     }
 }
