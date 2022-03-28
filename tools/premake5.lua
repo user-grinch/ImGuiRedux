@@ -3,16 +3,6 @@
 -- Premake Project Generator
 ----------------------------
 
--- Environment vars
-----------------------------
--- Should get picked up automatically if you installed them properly
-DX9SDK_DIR = os.getenv("DIRECTX9_SDK_DIR")
-
-if (DX9SDK_DIR == nil) then
-    error("DIRECTX9_SDK_DIR environment variable not set")
-end
-
-----------------------------
 
 workspace "ImGuiRedux"
     configurations { "Debug", "Release" }
