@@ -1,0 +1,28 @@
+name: Build ImGuiRedux
+on: push
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.0.0
+      - name: Setup premake
+        uses: abel0b/setup-premake@v2
+        with:
+          version: "5.0.0-beta1"
+      - name: Configure build
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: Win32 
+      - name: Build plugin
+        run: |
+          cd tools
+          premake5 vs2022
+          cd ../build
+          MsBuild ImGuiRedux.sln /property:Configuration=Release /p:Platform="Win32" /t:ImGuiRedux
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ImGuiRedux
+          path: build\bin\ImGuiRedux.cleo
+        
