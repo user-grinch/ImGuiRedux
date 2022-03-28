@@ -955,7 +955,7 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_END", ImGuiEnd);
 
 	RegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos);
-	RegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowPos);
+	RegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowSize);
 	RegisterCommand("IMGUI_SET_NEXT_WINDOW_POS", ImGuiSetNextWindowPos);
 	RegisterCommand("IMGUI_SET_NEXT_WINDOW_SIZE", ImGuiSetNextWindowSize);
 	RegisterCommand("IMGUI_DUMMY", ImGuiDummy);
