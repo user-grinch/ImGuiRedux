@@ -32,7 +32,7 @@ while (true)
     if (gShowWindow)
     {
         ImGui.SetNextWindowSize(350, 600, 2) // 2 = ImGuiCond_Once
-        gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0)
+        gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0, false, false, false)
 
         let reduxVer = ImGui.GetPluginVersion()
         let imguiVer = ImGui.GetVersion()

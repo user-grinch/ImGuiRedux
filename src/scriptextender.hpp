@@ -20,8 +20,9 @@ private:
     */
     struct ImGuiFrame
     {
+        bool m_bRenderFrame;
         std::vector<std::function<void()>> frames;
-
+        
         ImGuiFrame& operator+=(std::function<void()> f)
         {
             frames.push_back(f);
@@ -64,7 +65,16 @@ public:
 
     static void SetCurrentScript(std::string id)
     {
-        curScriptID = id;
+        if (id == "")
+        {
+            Get()->imgui.m_bRenderFrame = true;
+            curScriptID = id;
+        }
+        else
+        {
+            curScriptID = id;
+            Get()->imgui.m_bRenderFrame = false;
+        }
     }
 
     static std::string GetCurrentScript()
@@ -132,8 +142,11 @@ public:
         // draw frames
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
         {
-            (*it)->imgui.DrawFrames();
-            (*it)->imgui.ClearFrames();
+            if ((*it)->imgui.m_bRenderFrame)
+            {
+                (*it)->imgui.DrawFrames();
+                (*it)->imgui.ClearFrames();
+            }
         }
 
         // update stuff

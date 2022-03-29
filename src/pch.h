@@ -1,6 +1,6 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_REDUX_VERSION 0.8f
+#define IMGUI_REDUX_VERSION 0.9f
 
 #include "cleo/cleo_redux_sdk.h"
 #include "imgui/imgui.h"

@@ -826,12 +826,12 @@ static HandlerResult ImGuiBeginFrame(Context ctx)
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
 	ScriptExData::SetCurrentScript(std::string(buf));
-
 	return HR_CONTINUE;
 }
 
 static HandlerResult ImGuiEndFrame(Context ctx)
 {
+	ScriptExData::Get()->imgui.m_bRenderFrame = true;
 	ScriptExData::SetCurrentScript("");
 	return HR_CONTINUE;
 }
