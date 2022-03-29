@@ -210,12 +210,7 @@ static HandlerResult ImGuiSeparator(Context ctx)
 
 static HandlerResult ImGuiGetFramerate(Context ctx)
 {
-	ScriptExData* data = ScriptExData::Get();
-	data->imgui += [=]()
-	{
-		data->SetData("__framerate__", 0, (int)ImGui::GetIO().Framerate);
-	};
-	SetIntParam(ctx, data->GetData("__framerate__", 0, 0));
+	SetIntParam(ctx, ScriptExData::GetGameFPS());
 	return HR_CONTINUE;
 }
 

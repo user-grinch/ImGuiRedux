@@ -41,7 +41,7 @@ private:
             frames.clear();
         }
     };
-
+	static inline size_t m_nFramerate;
     std::string ID; // script indentifier
     /*
     * Cached return data of previous frame
@@ -56,6 +56,11 @@ private:
 public:
 
     ImGuiFrame imgui;
+
+    static size_t GetGameFPS()
+    {
+        return m_nFramerate;
+    }
 
     static void SetCurrentScript(std::string id)
     {
@@ -133,5 +138,6 @@ public:
 
         // update stuff
         D3dHook::SetMouseState(showCursor);
+        m_nFramerate = (size_t)ImGui::GetIO().Framerate;
     }
 };
