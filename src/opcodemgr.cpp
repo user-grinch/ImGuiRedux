@@ -244,6 +244,19 @@ static HandlerResult ImGuiSetNextWindowPos(Context ctx)
 	return HR_CONTINUE;
 }
 
+static HandlerResult ImGuiSetNextWindowTransparency(Context ctx)
+{
+	float alpha = GetFloatParam(ctx);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		ImGui::SetNextWindowBgAlpha(alpha);
+	};
+
+	return HR_CONTINUE;
+}
+
 static HandlerResult ImGuiSetWindowPos(Context ctx)
 {
 	ImVec2 pos;
@@ -433,6 +446,22 @@ static HandlerResult ImGuiGetWindowSize(Context ctx)
 	};
 
 	ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
+	SetFloatParam(ctx, size.x);
+	SetFloatParam(ctx, size.y);
+	return HR_CONTINUE;
+}
+
+static HandlerResult ImGuiGetDisplaySize(Context ctx)
+{
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		ImVec2 size = ImGui::GetIO().DisplaySize;
+		data->SetData("__displayX__", 0, size.x);
+		data->SetData("__displayY__", 1, size.y);
+	};
+
+	ImVec2 size = { data->GetData("__displayX__", 0, 0.0f), data->GetData("__displayY__", 1, 0.0f) };
 	SetFloatParam(ctx, size.x);
 	SetFloatParam(ctx, size.y);
 	return HR_CONTINUE;
@@ -941,6 +970,7 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 	return HR_CONTINUE;
 }
 
+
 void OpcodeMgr::RegisterCommands()
 {
 	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame);
@@ -1009,5 +1039,6 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused);
 	RegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered);
 	RegisterCommand("IMGUI_GET_SCALING_SIZE", ImGuiGetScalingSize);
-	
+	RegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
+	RegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
 }
