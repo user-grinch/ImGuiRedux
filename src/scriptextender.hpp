@@ -20,7 +20,8 @@ private:
     */
     struct ImGuiFrame
     {
-        bool m_bRenderFrame;
+        bool m_bRender; // flag to check if we should render this frame
+
         std::vector<std::function<void()>> frames;
         
         ImGuiFrame& operator+=(std::function<void()> f)
@@ -67,13 +68,13 @@ public:
     {
         if (id == "")
         {
-            Get()->imgui.m_bRenderFrame = true;
+            Get()->imgui.m_bRender = true;
             curScriptID = id;
         }
         else
         {
             curScriptID = id;
-            Get()->imgui.m_bRenderFrame = false;
+            Get()->imgui.m_bRender = false;
         }
     }
 
@@ -142,7 +143,7 @@ public:
         // draw frames
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
         {
-            if ((*it)->imgui.m_bRenderFrame)
+            if ((*it)->imgui.m_bRender)
             {
                 (*it)->imgui.DrawFrames();
                 (*it)->imgui.ClearFrames();

@@ -58,6 +58,7 @@ void D3dHook::ProcessFrame(void* ptr)
     {
         ProcessMouse();
 
+
         // Scale the menu if game resolution changed
         int height, width, RsGlobal;
         if (gGameVer == eGameVer::III)
@@ -77,7 +78,7 @@ void D3dHook::ProcessFrame(void* ptr)
             RsGlobal = 0xC17040;
             width = injector::ReadMemory<int>(RsGlobal + 4, 0);      // width
             height = injector::ReadMemory<int>(RsGlobal + 8, 0);    // height
-        }   
+        }  
         else
         {
             // TODO DE
@@ -204,76 +205,81 @@ HRESULT D3dHook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 
 void D3dHook::ProcessMouse()
 {
-    static bool mouseState;
-    
-    if (mouseState != mouseShown)
+    static bool curState;
+    if (curState != mouseShown)
     {
         ImGui::GetIO().MouseDrawCursor = mouseShown;
 
-        if (gGameVer == eGameVer::SA)
+        /* 
+            Skip mouse patches on unknown host
+            ImGui menus should be interactive on game menu
+        */
+        if (gGameVer != eGameVer::UNKNOWN)
         {
-            if (mouseShown)
+            if (gGameVer == eGameVer::SA)
             {
-                injector::WriteMemory<unsigned char>(0x6194A0, 0xC3);
-                injector::MakeNOP(0x541DD7, 5);
-            }
-            else
+                if (mouseShown)
+                {
+                    injector::WriteMemory<unsigned char>(0x6194A0, 0xC3);
+                    injector::MakeNOP(0x541DD7, 5);
+                }
+                else
+                {
+                    injector::WriteMemory<unsigned char>(0x6194A0, 0xE9);
+                    injector::WriteMemoryRaw(0x541DD7, (char*)"\xE8\xE4\xD5\xFF\xFF", 5, false);
+                }
+
+                // ClearMouseStates
+                injector::WriteMemory<float>(0xB73418 + 12, 0); // X
+                injector::WriteMemory<float>(0xB73418 + 16, 0); // Y
+
+                reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistory();
+                reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
+            } 
+            else if (gGameVer == eGameVer::VC)
             {
-                injector::WriteMemory<unsigned char>(0x6194A0, 0xE9);
-                injector::WriteMemoryRaw(0x541DD7, (char*)"\xE8\xE4\xD5\xFF\xFF", 5, false);
+                if (mouseShown)
+                {
+                    injector::WriteMemory<unsigned char>(0x6020A0, 0xC3, true);
+                    injector::MakeNOP(0x4AB6CA, 5, true);
+                }
+                else
+                {
+                    injector::WriteMemory<unsigned char>(0x6020A0, 0x53, true);
+                    injector::WriteMemoryRaw(0x4AB6CA, (char*)"\xE8\x51\x21\x00\x00", 5, true);
+                }
+
+                // ClearMouseStates
+                injector::WriteMemory<float>(0x94D788 + 8, 0); // X
+                injector::WriteMemory<float>(0x94D788 + 12, 0);// Y
+
+                reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistory();
+                reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
             }
-
-            // ClearMouseStates
-            injector::WriteMemory<float>(0xB73418 + 12, 0); // X
-            injector::WriteMemory<float>(0xB73418 + 16, 0); // Y
-
-            reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistory();
-            reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
-        } 
-        else if (gGameVer == eGameVer::VC)
-        {
-            if (mouseShown)
+            else if (gGameVer == eGameVer::III)
             {
-                injector::WriteMemory<unsigned char>(0x6020A0, 0xC3, true);
-                injector::MakeNOP(0x4AB6CA, 5, true);
-            }
-            else
-            {
-                injector::WriteMemory<unsigned char>(0x6020A0, 0x53, true);
-                injector::WriteMemoryRaw(0x4AB6CA, (char*)"\xE8\x51\x21\x00\x00", 5, true);
-            }
+                if (mouseShown)
+                {
+                    injector::WriteMemory<unsigned char>(0x580D20, 0xC3, true);
+                    injector::MakeNOP(0x49272F, 5, true);
+                }
+                else
+                {
+                    injector::WriteMemory<unsigned char>(0x580D20, 0x53, true);
+                    injector::WriteMemoryRaw(0x49272F, (char*)"\xE8\x6C\xF5\xFF\xFF", 5, true);
+                }
 
-            // ClearMouseStates
-            injector::WriteMemory<float>(0x94D788 + 8, 0); // X
-            injector::WriteMemory<float>(0x94D788 + 12, 0);// Y
-
-            reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistory();
-            reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
+                // ClearMouseStates
+                injector::WriteMemory<float>(0x8809F0 + 8, 0); // X
+                injector::WriteMemory<float>(0x8809F0 + 12, 0);// Y
+                
+                int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
+                reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();
+                reinterpret_cast<void(__cdecl*)()>(0x492720)(); // CPad::UpdatePads();
+            }
         }
-        else if (gGameVer == eGameVer::III)
-        {
-            if (mouseShown)
-            {
-                injector::WriteMemory<unsigned char>(0x580D20, 0xC3, true);
-                injector::MakeNOP(0x49272F, 5, true);
-            }
-            else
-            {
-                injector::WriteMemory<unsigned char>(0x580D20, 0x53, true);
-                injector::WriteMemoryRaw(0x49272F, (char*)"\xE8\x6C\xF5\xFF\xFF", 5, true);
-            }
 
-            // ClearMouseStates
-            injector::WriteMemory<float>(0x8809F0 + 8, 0); // X
-            injector::WriteMemory<float>(0x8809F0 + 12, 0);// Y
-            
-            int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
-            reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();
-            reinterpret_cast<void(__cdecl*)()>(0x492720)(); // CPad::UpdatePads();
-        }
-        // TODO DE 
-
-        mouseState = mouseShown;
+        curState = mouseShown;
     }
 }
 

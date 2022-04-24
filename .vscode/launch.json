@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Bully",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "E:/Bully - Scholarship Edition/Bully.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "F:/GTASanAndreas/",
+            "environment": [],
+            "console": "internalConsole"
+        },
+        {
             "name": "Launch SA",
             "type": "cppvsdbg",
             "request": "launch",

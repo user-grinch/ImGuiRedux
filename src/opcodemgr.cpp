@@ -38,7 +38,7 @@ static HandlerResult ImGuiBegin(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData<bool>(label, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiButton(Context ctx)
@@ -59,7 +59,7 @@ static HandlerResult ImGuiButton(Context ctx)
 
 	bool rtn = data->GetData(buf, 0, false);
 	UpdateCompareFlag(ctx, rtn);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiInvisibleButton(Context ctx)
@@ -80,7 +80,7 @@ static HandlerResult ImGuiInvisibleButton(Context ctx)
 
 	bool rtn = data->GetData(buf, 0, false);
 	UpdateCompareFlag(ctx, rtn);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiColorButton(Context ctx)
@@ -107,7 +107,7 @@ static HandlerResult ImGuiColorButton(Context ctx)
 
 	bool rtn = data->GetData(buf, 0, false);
 	UpdateCompareFlag(ctx, rtn);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiCheckbox(Context ctx)
@@ -133,7 +133,7 @@ static HandlerResult ImGuiCheckbox(Context ctx)
 	bool check = data->GetData(buf, 0, false);
 
 	SetIntParam(ctx, check);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiEnd(Context ctx)
@@ -143,7 +143,7 @@ static HandlerResult ImGuiEnd(Context ctx)
 	{
 		ImGui::End();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSameLine(Context ctx)
@@ -154,7 +154,7 @@ static HandlerResult ImGuiSameLine(Context ctx)
 	{
 		ImGui::SameLine();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiNewLine(Context ctx)
@@ -164,7 +164,7 @@ static HandlerResult ImGuiNewLine(Context ctx)
 	{
 		ImGui::NewLine();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiColumns(Context ctx)
@@ -175,7 +175,7 @@ static HandlerResult ImGuiColumns(Context ctx)
 	{
 		ImGui::Columns(count, NULL, false);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiNextColumn(Context ctx)
@@ -185,7 +185,7 @@ static HandlerResult ImGuiNextColumn(Context ctx)
 	{
 		ImGui::NextColumn();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSpacing(Context ctx)
@@ -195,7 +195,7 @@ static HandlerResult ImGuiSpacing(Context ctx)
 	{
 		ImGui::Spacing();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSeparator(Context ctx)
@@ -205,27 +205,27 @@ static HandlerResult ImGuiSeparator(Context ctx)
 	{
 		ImGui::Separator();
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetFramerate(Context ctx)
 {
 	SetIntParam(ctx, ScriptExData::GetGameFPS());
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetVersion(Context ctx)
 {
 	char* buf = (char*)ImGui::GetVersion();
 	unsigned char len = (unsigned char)strlen(buf);
-	SetStringParam(ctx, buf, len);
-	return HR_CONTINUE;
+	SetStringParam(ctx, buf);
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetPluginVersion(Context ctx)
 {
 	SetFloatParam(ctx, IMGUI_REDUX_VERSION);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetNextWindowPos(Context ctx)
@@ -241,7 +241,7 @@ static HandlerResult ImGuiSetNextWindowPos(Context ctx)
 		ImGui::SetNextWindowPos(pos, cond);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetNextWindowTransparency(Context ctx)
@@ -254,7 +254,7 @@ static HandlerResult ImGuiSetNextWindowTransparency(Context ctx)
 		ImGui::SetNextWindowBgAlpha(alpha);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetWindowPos(Context ctx)
@@ -270,7 +270,7 @@ static HandlerResult ImGuiSetWindowPos(Context ctx)
 		ImGui::SetWindowPos(pos, cond);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetNextWindowSize(Context ctx)
@@ -286,7 +286,7 @@ static HandlerResult ImGuiSetNextWindowSize(Context ctx)
 		ImGui::SetNextWindowSize(size, cond);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetWindowSize(Context ctx)
@@ -302,7 +302,7 @@ static HandlerResult ImGuiSetWindowSize(Context ctx)
 		ImGui::SetWindowSize(size, cond);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiDummy(Context ctx)
@@ -317,7 +317,7 @@ static HandlerResult ImGuiDummy(Context ctx)
 		ImGui::Dummy(size);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiText(Context ctx)
@@ -330,7 +330,7 @@ static HandlerResult ImGuiText(Context ctx)
 	{
 		ImGui::Text(buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiTextDisabled(Context ctx)
@@ -343,7 +343,7 @@ static HandlerResult ImGuiTextDisabled(Context ctx)
 	{
 		ImGui::TextDisabled(buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiTextWrapped(Context ctx)
@@ -356,7 +356,7 @@ static HandlerResult ImGuiTextWrapped(Context ctx)
 	{
 		ImGui::TextWrapped(buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiBulletText(Context ctx)
@@ -369,7 +369,7 @@ static HandlerResult ImGuiBulletText(Context ctx)
 	{
 		ImGui::BulletText(buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiTextColored(Context ctx)
@@ -387,7 +387,7 @@ static HandlerResult ImGuiTextColored(Context ctx)
 	{
 		ImGui::TextColored(col, buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetTooltip(Context ctx)
@@ -400,7 +400,7 @@ static HandlerResult ImGuiSetTooltip(Context ctx)
 	{
 		ImGui::SetTooltip(buf);
 	};
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSetCursorVisible(Context ctx)
@@ -418,7 +418,7 @@ static HandlerResult ImGuiSetCursorVisible(Context ctx)
 		};
 	}
 	
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetFrameHeight(Context ctx)
@@ -429,7 +429,7 @@ static HandlerResult ImGuiGetFrameHeight(Context ctx)
 		data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight());
 	};
 	SetFloatParam(ctx, data->GetData("__frameHeight__", 0, 0.0f));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetWindowSize(Context ctx)
@@ -448,7 +448,7 @@ static HandlerResult ImGuiGetWindowSize(Context ctx)
 	ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
 	SetFloatParam(ctx, size.x);
 	SetFloatParam(ctx, size.y);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetDisplaySize(Context ctx)
@@ -464,7 +464,7 @@ static HandlerResult ImGuiGetDisplaySize(Context ctx)
 	ImVec2 size = { data->GetData("__displayX__", 0, 0.0f), data->GetData("__displayY__", 1, 0.0f) };
 	SetFloatParam(ctx, size.x);
 	SetFloatParam(ctx, size.y);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetWindowPos(Context ctx)
@@ -483,7 +483,7 @@ static HandlerResult ImGuiGetWindowPos(Context ctx)
 	ImVec2 pos = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
 	SetFloatParam(ctx, pos.x);
 	SetFloatParam(ctx, pos.y);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiCalcTextSize(Context ctx)
@@ -502,7 +502,7 @@ static HandlerResult ImGuiCalcTextSize(Context ctx)
 	ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
 	SetFloatParam(ctx, size.x);
 	SetFloatParam(ctx, size.y);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx)
@@ -518,7 +518,7 @@ static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx)
 	};
 
 	SetFloatParam(ctx, data->GetData(buf, 0, 0.0f));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiBeginMainMenuBar(Context ctx)
@@ -534,7 +534,7 @@ static HandlerResult ImGuiBeginMainMenuBar(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiEndMainMenuBar(Context ctx)
@@ -545,7 +545,7 @@ static HandlerResult ImGuiEndMainMenuBar(Context ctx)
 		ImGui::EndMainMenuBar();
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiMenuItem(Context ctx)
@@ -563,7 +563,7 @@ static HandlerResult ImGuiMenuItem(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSelectable(Context ctx)
@@ -580,7 +580,7 @@ static HandlerResult ImGuiSelectable(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiBeginChild(Context ctx)
@@ -594,7 +594,7 @@ static HandlerResult ImGuiBeginChild(Context ctx)
 		ImGui::BeginChild(buf);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiEndChild(Context ctx)
@@ -605,7 +605,7 @@ static HandlerResult ImGuiEndChild(Context ctx)
 		ImGui::EndChild();
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 
@@ -619,7 +619,7 @@ static HandlerResult ImGuiPushItemWidth(Context ctx)
 		ImGui::PushItemWidth(width);
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiPopItemWidth(Context ctx)
@@ -630,7 +630,7 @@ static HandlerResult ImGuiPopItemWidth(Context ctx)
 		ImGui::PopItemWidth();
 	};
 
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiCollapsingHeader(Context ctx)
@@ -646,7 +646,7 @@ static HandlerResult ImGuiCollapsingHeader(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSliderInt(Context ctx)
@@ -667,7 +667,7 @@ static HandlerResult ImGuiSliderInt(Context ctx)
 
 	int value = data->GetData(buf, 0, initVal);
 	SetIntParam(ctx, value);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiSliderFloat(Context ctx)
@@ -688,7 +688,7 @@ static HandlerResult ImGuiSliderFloat(Context ctx)
 
 	float value = data->GetData(buf, 0, initVal);
 	SetFloatParam(ctx, value);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiInputFloat(Context ctx)
@@ -721,7 +721,7 @@ static HandlerResult ImGuiInputFloat(Context ctx)
 
 	float value = data->GetData(buf, 0, initVal);
 	SetFloatParam(ctx, value);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiInputInt(Context ctx)
@@ -754,7 +754,7 @@ static HandlerResult ImGuiInputInt(Context ctx)
 
 	int value = data->GetData(buf, 0, initVal);
 	SetIntParam(ctx, value);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiInputText(Context ctx)
@@ -773,8 +773,8 @@ static HandlerResult ImGuiInputText(Context ctx)
 	};
 
 	std::string value = data->GetData(buf, 0, std::string(""));
-	SetStringParam(ctx, (char*)&value[0], (unsigned char)value.size());
-	return HR_CONTINUE;
+	SetStringParam(ctx, (char*)&value[0]);
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiColorPicker(Context ctx)
@@ -808,7 +808,7 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 	SetFloatParam(ctx, g);
 	SetFloatParam(ctx, b);
 	SetFloatParam(ctx, a);
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiRadioButton(Context ctx)
@@ -847,7 +847,7 @@ static HandlerResult ImGuiRadioButton(Context ctx)
 	{
 		SetIntParam(ctx, curSelectedBtn);
 	}
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiBeginFrame(Context ctx)
@@ -855,14 +855,16 @@ static HandlerResult ImGuiBeginFrame(Context ctx)
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
 	ScriptExData::SetCurrentScript(std::string(buf));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiEndFrame(Context ctx)
 {
-	ScriptExData::Get()->imgui.m_bRenderFrame = true;
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui.m_bRender = true;
 	ScriptExData::SetCurrentScript("");
-	return HR_CONTINUE;
+	
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemActive(Context ctx)
@@ -877,7 +879,7 @@ static HandlerResult ImGuiIsItemActive(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemHovered(Context ctx)
@@ -893,7 +895,7 @@ static HandlerResult ImGuiIsItemHovered(Context ctx)
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
 	UpdateCompareFlag(ctx, data->GetData(buf, 0, 0));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemClicked(Context ctx)
@@ -908,7 +910,7 @@ static HandlerResult ImGuiIsItemClicked(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiIsItemFocused(Context ctx)
@@ -923,7 +925,7 @@ static HandlerResult ImGuiIsItemFocused(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 static HandlerResult ImGuiGetScalingSize(Context ctx)
@@ -967,7 +969,7 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 
 	SetFloatParam(ctx, data->GetData(buf, 0, 10.0f));
 	SetFloatParam(ctx, data->GetData(buf, 1, 10.0f));
-	return HR_CONTINUE;
+	return HandlerResult::CONTINUE;
 }
 
 

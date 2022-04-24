@@ -61,7 +61,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 
 		switch (id)
 		{
-			case GTA3:
+			case HostId::GTA3:
 			{
 				// III 1.0 US
 				if (gvm.IsIII()
@@ -73,7 +73,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 				}
 				break;
 			}
-			case VC:
+			case HostId::VC:
 			{
 				// VC 1.0 US
 				if (gvm.IsVC() 
@@ -85,7 +85,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 				}
 				break;
 			}
-			case SA:
+			case HostId::SA:
 			{
 				// SA US 1.0
 				if (gvm.IsSA()
@@ -97,17 +97,17 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 				}
 				break;
 			}
-			case GTA3_UNREAL:
+			case HostId::GTA3_UNREAL:
 			{
 				gGameVer = eGameVer::III_DE;
 				break;
 			}
-			case VC_UNREAL:
+			case HostId::VC_UNREAL:
 			{
 				gGameVer = eGameVer::VC_DE;
 				break;
 			}
-			case SA_UNREAL:
+			case HostId::SA_UNREAL:
 			{
 				gGameVer = eGameVer::SA_DE;
 				break;
@@ -119,16 +119,8 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 			}
 		}
 
-		if (gGameVer == eGameVer::UNKNOWN)
-		{
-			Log("[ImGuiRedux] Unsupported game/version!");
-			MessageBox(HWND_DESKTOP, "Unsupported game/version!", "ImGuiRedux", MB_ICONERROR);
-		}
-		else
-		{
-			OpcodeMgr::RegisterCommands();
-			CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
-		}
+		OpcodeMgr::RegisterCommands();
+		CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
     }
 
     return TRUE;
