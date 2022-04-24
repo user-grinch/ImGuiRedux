@@ -35,7 +35,7 @@ jobs:
         with:
           artifacts: ImGuiRedux.zip
           name: "ImGuiRedux Latest"
-          body: "Secondary tag for [this release](https://github.com/user-grinch/ImGuiRedux/releases/latest) of ImGuiRedux. This release is regularly updated along each git commit."
+          body: "Secondary tag for [this release](https://github.com/user-grinch/ImGuiRedux/releases/latest) of ImGuiRedux. This release is updated regularly"
           allowUpdates: true
           tag: "x86-latest"
         

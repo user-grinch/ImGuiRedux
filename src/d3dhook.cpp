@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "d3dhook.h"
 #include "kiero/kiero.h"
-#include "kiero/minhook/MinHook.h"
+#include "kiero/MinHook.h"
 #include "imgui/imgui_impl_dx9.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
@@ -183,7 +183,11 @@ void D3dHook::ProcessFrame(void* ptr)
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+#ifdef _WIN64
+        oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LRESULT)hkWndProc);
+#else
         oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)hkWndProc);
+#endif
     }
 }
 
@@ -325,7 +329,11 @@ bool D3dHook::InjectHook(void *pCallback)
 void D3dHook::RemoveHook()
 {
     pCallbackFunc = nullptr;
+#ifdef _WIN64
+    SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LRESULT)oWndProc);     
+#else
     SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)oWndProc);
+#endif
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();

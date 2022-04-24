@@ -3,10 +3,8 @@
 -- Premake Project Generator
 ----------------------------
 
-
 workspace "ImGuiRedux"
     configurations { "Debug", "Release" }
-    architecture "x86"
     platforms "Win32"
     language "C++"
     cppdialect "C++20"
@@ -15,37 +13,26 @@ workspace "ImGuiRedux"
     location "../build"
     targetdir "../build/bin"
 
-project "depend"
-    kind "StaticLib"
-
-    files { 
-        "../depend/**.h", 
-        "../depend/**.hpp", 
-        "../depend/**.c", 
-        "../depend/**.cpp" 
-    }
-
-    filter "configurations:Debug"
-        symbols "On"
-
-    filter "configurations:Release"
-        optimize "On"
-
 project "ImGuiRedux"
+    architecture "x86"
     kind "SharedLib"
     targetextension ".cleo"
     
     files { 
+        "../include/**.h", 
+        "../include/**.hpp", 
+        "../include/**.c", 
+        "../include/**.cpp", 
         "../src/**.h", 
         "../src/**.hpp", 
         "../src/**.cpp" 
     }
     includedirs {
-        "../depend/"
+        "../include/"
     }
 
     libdirs {
-        "../depend/libs/",
+        "../lib/",
     }
     
     defines { 
@@ -53,24 +40,66 @@ project "ImGuiRedux"
         "_DX9_SDK_INSTALLED",
     }
 
-    pchheader "pch.h"
-    pchsource "../src/pch.cpp"
-
     filter "configurations:Debug"
         symbols "On"
         links { 
-            "depend",
             "d3d9",
             "d3d11",
-            "cleo_redux"
+            "cleo_redux",
+            "libMinHook-x86"
         }
 
     filter "configurations:Release"
         optimize "On"
         links { 
-            "depend",
             "d3d9",
             "d3d11",
-            "cleo_redux"
+            "cleo_redux",
+            "libMinHook-x86"
+        }
+
+project "ImGuiRedux64"
+    architecture "x64"
+    kind "SharedLib"
+    targetextension ".cleo"
+    
+    files { 
+        "../include/**.h", 
+        "../include/**.hpp", 
+        "../include/**.c", 
+        "../include/**.cpp",
+        "../src/**.h", 
+        "../src/**.hpp", 
+        "../src/**.cpp" 
+    }
+    includedirs {
+        "../include/"
+    }
+
+    libdirs {
+        "../lib/",
+    }
+    
+    defines { 
+        "NDEBUG", 
+        "_DX9_SDK_INSTALLED",
+    }
+
+    filter "configurations:Debug"
+        symbols "On"
+        links { 
+            "d3d9",
+            "d3d11",
+            "cleo_redux64",
+            "libMinHook-x64"
+        }
+
+    filter "configurations:Release"
+        optimize "On"
+        links { 
+            "d3d9",
+            "d3d11",
+            "cleo_redux64",
+            "libMinHook-x64"
         }
         
