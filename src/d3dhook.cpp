@@ -60,7 +60,7 @@ void D3dHook::ProcessFrame(void* ptr)
 
 
         // Scale the menu if game resolution changed
-        int height, width, RsGlobal;
+        static int height, width, RsGlobal;
         if (gGameVer == eGameVer::III)
         {
             RsGlobal = 0x8F4360;
@@ -81,12 +81,8 @@ void D3dHook::ProcessFrame(void* ptr)
         }  
         else
         {
-            // TODO DE
-            // This was crashing during window tab+alt
-            // probably need to replace this later
-
             RECT rect;
-            GetWindowRect(GetForegroundWindow(), &rect);
+            GetWindowRect(hwnd, &rect);
             width = rect.right - rect.left;
             height = rect.bottom - rect.top;
         }
@@ -161,7 +157,7 @@ void D3dHook::ProcessFrame(void* ptr)
     else
     {
         init = true;
-        ImGui_ImplWin32_Init(GetForegroundWindow());
+        ImGui_ImplWin32_Init(hwnd);
 
         if (gGameVer == eGameVer::SA)
         {
@@ -187,7 +183,7 @@ void D3dHook::ProcessFrame(void* ptr)
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-        oWndProc = (WNDPROC)SetWindowLongPtr(GetForegroundWindow(), GWL_WNDPROC, (LRESULT)hkWndProc);
+        oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)hkWndProc);
     }
 }
 
@@ -298,6 +294,7 @@ bool D3dHook::InjectHook(void *pCallback)
         Seems to crash with nvidia geforce experience overlay
         if anything else is checked before d3d9
     */
+    hwnd = GetForegroundWindow();
     if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
         gRenderer = eRenderer::DX9;
@@ -328,7 +325,7 @@ bool D3dHook::InjectHook(void *pCallback)
 void D3dHook::RemoveHook()
 {
     pCallbackFunc = nullptr;
-    SetWindowLongPtr(GetForegroundWindow(), GWL_WNDPROC, (LRESULT)oWndProc);
+    SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)oWndProc);
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();

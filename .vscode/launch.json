@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Bully",
+            "name": "Launch Game",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "E:/Bully - Scholarship Edition/Bully.exe",
+            "program": "E:/AmongUs/AmongUs.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "F:/GTASanAndreas/",
+            "cwd": "E:/AmongUs/",
             "environment": [],
             "console": "internalConsole"
         },

@@ -18,7 +18,7 @@ private:
     static inline f_Reset oReset;
     static inline bool mouseShown;
     static inline void* pCallbackFunc = nullptr;
-
+    static inline HWND hwnd = NULL;
 
     static void CALLBACK ProcessFrame(void* ptr);
     static LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

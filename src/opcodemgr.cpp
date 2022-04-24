@@ -855,6 +855,8 @@ static HandlerResult ImGuiBeginFrame(Context ctx)
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
 	ScriptExData::SetCurrentScript(std::string(buf));
+	ScriptExData *data = ScriptExData::Get();
+	
 	return HandlerResult::CONTINUE;
 }
 

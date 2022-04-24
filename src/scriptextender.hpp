@@ -20,27 +20,39 @@ private:
     */
     struct ImGuiFrame
     {
-        bool m_bRender; // flag to check if we should render this frame
+        bool m_bRender; // is backBuffer ready for render
 
-        std::vector<std::function<void()>> frames;
+        std::vector<std::function<void()>> buf; // finished buffer for render
+        std::vector<std::function<void()>> backBuf; // back buffer being processed
         
         ImGuiFrame& operator+=(std::function<void()> f)
         {
-            frames.push_back(f);
+            // don't push more if back buffer is full
+            if (!m_bRender)
+            {
+                backBuf.push_back(f);
+            }
             return *this;
         }   
 
         void DrawFrames()
         {
-            for (auto func : frames)
+            for (auto func : buf)
             {
                 func();
+            }
+
+            // if back buffer is render ready switch the buffer and reset render state
+            if (m_bRender)
+            {
+                buf = std::move(backBuf);
+                m_bRender = false;
             }
         }
 
         void ClearFrames()
         {
-            frames.clear();
+            buf.clear();
         }
     };
 	static inline size_t m_nFramerate;
@@ -68,13 +80,11 @@ public:
     {
         if (id == "")
         {
-            Get()->imgui.m_bRender = true;
             curScriptID = id;
         }
         else
         {
             curScriptID = id;
-            Get()->imgui.m_bRender = false;
         }
     }
 
@@ -143,11 +153,7 @@ public:
         // draw frames
         for (auto it = scripts.begin(); it != scripts.end(); ++it)
         {
-            if ((*it)->imgui.m_bRender)
-            {
-                (*it)->imgui.DrawFrames();
-                (*it)->imgui.ClearFrames();
-            }
+            (*it)->imgui.DrawFrames();
         }
 
         // update stuff
