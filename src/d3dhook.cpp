@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "d3dhook.h"
-#include "kiero/kiero.h"
-#include "kiero/MinHook.h"
-#include "imgui/imgui_impl_dx9.h"
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_win32.h"
-#include "injector/injector.hpp"
+#include "kiero.h"
+#include "MinHook.h"
+#include "imgui_impl_dx9.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+#include "injector.hpp"
 
 eRenderer gRenderer;
 eGameVer gGameVer;
@@ -299,7 +299,13 @@ bool D3dHook::InjectHook(void *pCallback)
         if anything else is checked before d3d9
     */
     hwnd = GetForegroundWindow();
-    if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
+    bool rhInstalled = false;
+    if (GetModuleHandle("_gtaRenderHook.asi"))
+    {
+        rhInstalled = true;
+    }
+
+    if (!rhInstalled && init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
         gRenderer = eRenderer::DX9;
         hookInjected = true;

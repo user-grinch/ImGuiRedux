@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "cleo/cleo_redux_sdk.h"
+#include "cleo_redux_sdk.h"
 #include "table.hpp"
 #include "d3dhook.h"
 #include <functional>

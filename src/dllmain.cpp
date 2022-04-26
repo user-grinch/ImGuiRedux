@@ -2,7 +2,7 @@
 #include <windows.h>
 #include "opcodemgr.h"
 #include "d3dhook.h"
-#include "injector/injector.hpp"
+#include "injector.hpp"
 
 void ImGuiThread(void* param)
 {
