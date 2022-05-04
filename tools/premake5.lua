@@ -32,7 +32,7 @@ workspace "ImGuiRedux"
 
 project "ImGuiRedux"
     filter { "platforms:Win32" }
-        targetname "ImGuiRedux"
+        targetname "ImGuiReduxWin32"
         architecture "x86"
         links { 
             "d3d9",
@@ -42,7 +42,7 @@ project "ImGuiRedux"
         }
     
     filter { "platforms:Win64" }
-        targetname "ImGuiRedux64"
+        targetname "ImGuiReduxWin64"
         architecture "x64"
         links { 
             "d3d9",

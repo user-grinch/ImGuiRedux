@@ -3,6 +3,9 @@ on: push
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [Win32, Win64]
     steps:
       - name: Checkout
         uses: actions/checkout@v3.0.0
@@ -13,29 +16,29 @@ jobs:
       - name: Configure build
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: Win32 
+          arch: ${{matrix.platform}} 
       - name: Build plugin
         run: |
           cd tools
           premake5 vs2022
           cd ../build
-          MsBuild ImGuiRedux.sln /property:Configuration=Release /p:Platform="Win32" /t:ImGuiRedux
+          MsBuild ImGuiRedux.sln /property:Configuration=Release /p:Platform=${{matrix.platform}} /t:ImGuiRedux
       - name: Upload plugin
         uses: actions/upload-artifact@v3
         with:
-          name: ImGuiRedux
-          path: build\bin\ImGuiRedux.cleo
+          name: ImGuiRedux${{matrix.platform}}
+          path: build\bin\ImGuiRedux${{matrix.platform}}.cleo
       - name: Archive plugin
         uses: papeloto/action-zip@v1
         with:
-          files: build\bin\ImGuiRedux.cleo
-          dest: ImGuiRedux.zip
+          files: build\bin\ImGuiRedux${{matrix.platform}}.cleo
+          dest: ImGuiRedux${{matrix.platform}}.zip
       - name: Add build to release tag
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ImGuiRedux.zip
-          name: "ImGuiRedux Latest"
+          artifacts: ImGuiRedux${{matrix.platform}}.zip
+          name: "ImGuiRedux ${{matrix.platform}}"
           body: "Secondary tag for [this release](https://github.com/user-grinch/ImGuiRedux/releases/latest) of ImGuiRedux. This release is updated regularly"
           allowUpdates: true
-          tag: "x86-latest"
+          tag: "${{matrix.platform}}-latest"
         
