@@ -2,7 +2,7 @@ rem Generate visual studio files and run the devcmd init
 @echo off
 
 rem Set game paths below
-set "OUT_DIR="F:/GTASanAndreas""
+set "OUT_DIR="E:/AmongUs""
 
 cd tools
 premake5.exe vs2022

@@ -17,11 +17,11 @@ static HandlerResult ImGuiBegin(Context ctx)
 	char label[STR_MAX_LEN];
 
 	GetString(ctx, label, STR_MAX_LEN);
-	bool closedFlag = GetIntParam(ctx);
-	bool noTitleBar = GetIntParam(ctx);
-	bool noResize = GetIntParam(ctx);
-	bool noMove = GetIntParam(ctx);
-	bool autoResize = GetIntParam(ctx);
+	bool closedFlag = (int)GetIntParam(ctx);
+	bool noTitleBar = (int)GetIntParam(ctx);
+	bool noResize = (int)GetIntParam(ctx);
+	bool noMove = (int)GetIntParam(ctx);
+	bool autoResize = (int)GetIntParam(ctx);
 
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 	if (noTitleBar) flags |= ImGuiWindowFlags_NoTitleBar;
@@ -114,7 +114,7 @@ static HandlerResult ImGuiCheckbox(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	bool state = GetIntParam(ctx);
+	bool state = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -169,7 +169,7 @@ static HandlerResult ImGuiNewLine(Context ctx)
 
 static HandlerResult ImGuiColumns(Context ctx)
 {
-	int count = GetIntParam(ctx);
+	int count = (int)GetIntParam(ctx);
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
@@ -233,7 +233,7 @@ static HandlerResult ImGuiSetNextWindowPos(Context ctx)
 	ImVec2 pos;
 	pos.x = GetFloatParam(ctx);
 	pos.y = GetFloatParam(ctx);
-	int cond = GetIntParam(ctx);
+	int cond = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -262,7 +262,7 @@ static HandlerResult ImGuiSetWindowPos(Context ctx)
 	ImVec2 pos;
 	pos.x = GetFloatParam(ctx);
 	pos.y = GetFloatParam(ctx);
-	int cond = GetIntParam(ctx);
+	int cond = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -278,7 +278,7 @@ static HandlerResult ImGuiSetNextWindowSize(Context ctx)
 	ImVec2 size;
 	size.x = GetFloatParam(ctx);
 	size.y = GetFloatParam(ctx);
-	int cond = GetIntParam(ctx);
+	int cond = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -294,7 +294,7 @@ static HandlerResult ImGuiSetWindowSize(Context ctx)
 	ImVec2 size;
 	size.x = GetFloatParam(ctx);
 	size.y = GetFloatParam(ctx);
-	int cond = GetIntParam(ctx);
+	int cond = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -405,7 +405,7 @@ static HandlerResult ImGuiSetTooltip(Context ctx)
 
 static HandlerResult ImGuiSetCursorVisible(Context ctx)
 {
-	bool flag = GetIntParam(ctx);
+	bool flag = (int)GetIntParam(ctx);
 
 	// Only update if cursor needs to be shown
 	// Hidden by default
@@ -552,8 +552,8 @@ static HandlerResult ImGuiMenuItem(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	bool selected = (GetIntParam(ctx) != 0);
-	bool enabled = (GetIntParam(ctx) != 0);
+	bool selected = ((int)GetIntParam(ctx) != 0);
+	bool enabled = ((int)GetIntParam(ctx) != 0);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -570,7 +570,7 @@ static HandlerResult ImGuiSelectable(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	bool selected = (GetIntParam(ctx) != 0);
+	bool selected = ((int)GetIntParam(ctx) != 0);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -653,9 +653,9 @@ static HandlerResult ImGuiSliderInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	int initVal = GetIntParam(ctx);
-	int min = GetIntParam(ctx);
-	int max = GetIntParam(ctx);
+	int initVal = (int)GetIntParam(ctx);
+	int min = (int)GetIntParam(ctx);
+	int max = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -728,9 +728,9 @@ static HandlerResult ImGuiInputInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	int initVal = GetIntParam(ctx);
-	int min = GetIntParam(ctx);
-	int max = GetIntParam(ctx);
+	int initVal = (int)GetIntParam(ctx);
+	int min = (int)GetIntParam(ctx);
+	int max = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
@@ -815,8 +815,8 @@ static HandlerResult ImGuiRadioButton(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	int curSelectedBtn = GetIntParam(ctx);
-	int btnNo = GetIntParam(ctx);
+	int curSelectedBtn = (int)GetIntParam(ctx);
+	int btnNo = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 
@@ -934,8 +934,8 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 {
 	char buf[STR_MAX_LEN];
 	GetString(ctx, buf, STR_MAX_LEN);
-	int count = GetIntParam(ctx);
-	int spacing = GetIntParam(ctx);
+	int count = (int)GetIntParam(ctx);
+	int spacing = (int)GetIntParam(ctx);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()

@@ -2,7 +2,7 @@
 #pragma warning(push, 0)  
 #include <d3d9.h>
 #include <d3d11.h>
-#include <d3d11Shader.h>
+#include <GL/gl.h>
 #pragma warning(pop)
 
 class D3dHook
@@ -11,11 +11,14 @@ private:
     using f_EndScene = HRESULT(CALLBACK*)(IDirect3DDevice9*);
     using f_Present = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT);
     using f_Reset = HRESULT(CALLBACK*)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
+    using f_SwapBuffer = BOOL(CALLBACK*) (HDC hDc);
 
     static inline WNDPROC oWndProc;
     static inline f_Present oPresent;
     static inline f_EndScene oEndScene;
     static inline f_Reset oReset;
+    static inline f_SwapBuffer oGlSwapBuffer;
+
     static inline bool mouseShown;
     static inline void* pCallbackFunc = nullptr;
     static inline HWND hwnd = NULL;
@@ -31,6 +34,8 @@ private:
     // DirectX11, Renderhook
     static HRESULT CALLBACK hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 
+    // OpenGL
+    static BOOL CALLBACK hkGlSwapBuffer(HDC hDc);
 public:
 
     D3dHook() = delete;

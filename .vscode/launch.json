@@ -8,10 +8,10 @@
             "name": "Launch Game",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "E:/AmongUs/AmongUs.exe",
+            "program": "E:/AmongUs/Among Us.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "E:/AmongUs/",
+            "cwd": "E:/AmongUs",
             "environment": [],
             "console": "internalConsole"
         },

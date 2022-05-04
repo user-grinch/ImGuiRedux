@@ -11,6 +11,7 @@ enum class eRenderer
 {
     DX9,
     DX11,
+    OPENGL,
     UNKNOWN
 };
 

@@ -4,11 +4,9 @@
 #include "MinHook.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 #include "injector.hpp"
-
-eRenderer gRenderer;
-eGameVer gGameVer;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -94,9 +92,13 @@ void D3dHook::ProcessFrame(void* ptr)
             {
                 ImGui_ImplDX9_InvalidateDeviceObjects();
             }
-            else
+            else if (gRenderer == eRenderer::DX11)
             {
                 ImGui_ImplDX11_InvalidateDeviceObjects();
+            }
+            else
+            {
+                ImGui_ImplOpenGL3_Shutdown();
             }
             
             ImGuiIO& io = ImGui::GetIO();
@@ -130,9 +132,13 @@ void D3dHook::ProcessFrame(void* ptr)
         {
             ImGui_ImplDX9_NewFrame();
         }
-        else
+        else if (gRenderer == eRenderer::DX11)
         {
             ImGui_ImplDX11_NewFrame();
+        }
+        else
+        {
+            ImGui_ImplOpenGL3_NewFrame();
         }
 
         ImGui::NewFrame();
@@ -149,9 +155,13 @@ void D3dHook::ProcessFrame(void* ptr)
         {
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         }
-        else
+        else if (gRenderer == eRenderer::DX11)
         {
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+        }
+        else
+        {
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     }
     else
@@ -168,7 +178,7 @@ void D3dHook::ProcessFrame(void* ptr)
         {
             ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr));
         }
-        else
+        else if (gRenderer == eRenderer::DX11)
         {
             // for dx11 device ptr is swapchain
             reinterpret_cast<IDXGISwapChain*>(ptr)->GetDevice(__uuidof(ID3D11Device), &ptr);
@@ -176,6 +186,10 @@ void D3dHook::ProcessFrame(void* ptr)
             reinterpret_cast<ID3D11Device*>(ptr)->GetImmediateContext(&context);
 
             ImGui_ImplDX11_Init(reinterpret_cast<ID3D11Device*>(ptr), context);
+        }
+        else
+        {
+            ImGui_ImplOpenGL3_Init();
         }
 
         ImGui_ImplWin32_EnableDpiAwareness();
@@ -201,6 +215,12 @@ HRESULT D3dHook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 {
     ProcessFrame(pSwapChain);
     return oPresent(pSwapChain, SyncInterval, Flags);
+}
+
+BOOL D3dHook::hkGlSwapBuffer(HDC hDc)
+{
+    ProcessFrame(nullptr);
+    return oGlSwapBuffer(hDc);
 }
 
 void D3dHook::ProcessMouse()
@@ -304,8 +324,13 @@ bool D3dHook::InjectHook(void *pCallback)
     {
         rhInstalled = true;
     }
-
-    if (!rhInstalled && init(kiero::RenderType::D3D9) == kiero::Status::Success)
+    
+    if (rhInstalled)
+    {
+        goto render_hook;
+    }
+    
+    if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
         gRenderer = eRenderer::DX9;
         hookInjected = true;
@@ -313,20 +338,30 @@ bool D3dHook::InjectHook(void *pCallback)
         kiero::bind(42, (void**)&oEndScene, hkEndScene);
         pCallbackFunc = pCallback;
     }
-    else
-    {
 
-        if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
+    if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
+    {
+        gRenderer = eRenderer::OPENGL;
+        hookInjected = true;
+
+        HMODULE hMod = GetModuleHandle("OPENGL32.dll");
+        if (!hMod)
         {
-            gRenderer = eRenderer::DX11;
-            kiero::bind(8, (void**)&oPresent, hkPresent);
-            pCallbackFunc = pCallback;
-            hookInjected = true;
+            return false;
         }
-        else
-        {
-            gRenderer = eRenderer::UNKNOWN;
-        }
+        FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
+        MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
+        MH_EnableHook(addr);
+        pCallbackFunc = pCallback;
+    }
+    
+    render_hook:
+    if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
+    {
+        gRenderer = eRenderer::DX11;
+        kiero::bind(8, (void**)&oPresent, hkPresent);
+        pCallbackFunc = pCallback;
+        hookInjected = true;
     }
 
     return hookInjected;
@@ -340,7 +375,20 @@ void D3dHook::RemoveHook()
 #else
     SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)oWndProc);
 #endif
-    ImGui_ImplDX9_Shutdown();
+
+    if (gRenderer == eRenderer::DX9)
+    {
+        ImGui_ImplDX9_Shutdown();
+    }
+    if (gRenderer == eRenderer::DX11)
+    {
+        ImGui_ImplDX11_Shutdown();
+    }
+    else
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+    }
+
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
     kiero::shutdown();
