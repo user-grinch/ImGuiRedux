@@ -4,10 +4,10 @@
 // 
 
 const TOGGLE_KEY = 116 // F5
-var gShowWindow = false
-var gVersionInfo = false
+var gShowWindow = 0
+var gVersionInfo = 0
 var gRadioBtn = 1
-var gTimerExample = false
+var gTimerExample = 0
 var gPrevTimer = 0
 
 function textBox(text) 
@@ -39,7 +39,7 @@ while (true)
     if (gShowWindow)
     {
         ImGui.SetNextWindowSize(350, 600, 2) // 2 = ImGuiCond_Once
-        gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0, false, false, false)
+        gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0, 0, 0, 0)
 
         let reduxVer = ImGui.GetPluginVersion()
         let imguiVer = ImGui.GetVersion()
@@ -68,7 +68,7 @@ while (true)
         // Scaling example with buttons
         if (ImGui.CollapsingHeader("Buttons"))
         {
-            let size = ImGui.GetScalingSize("S0", 2, false)
+            let size = ImGui.GetScalingSize("S0", 2, 0)
             if (ImGui.Button("Normal button 1", size.x, size.y))
             {
                 textBox("Normal button 1 was pressed")
@@ -81,7 +81,7 @@ while (true)
 
             ImGui.Spacing()
             
-            size = ImGui.GetScalingSize("S1", 3, false)
+            size = ImGui.GetScalingSize("S1", 3, 0)
             if (ImGui.ButtonColored("CB 1", 1.0, 0.0, 0.0, 1.0, size.x, size.y))
             {
                 textBox("Color button 1 was pressed")
@@ -97,7 +97,7 @@ while (true)
                 textBox("Color button 3 was pressed")
             }
             
-            size = ImGui.GetScalingSize("S2", 1, false)
+            size = ImGui.GetScalingSize("S2", 1, 0)
             ImGui.Text("Tip: Click the below area")
             if (ImGui.ButtonInvisible("Invis button", size.x, size.y))
             {

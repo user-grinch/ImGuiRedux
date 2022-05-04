@@ -56,3 +56,6 @@ project "ImGuiRedux"
 
     filter "configurations:Release"
         optimize "On"
+        defines {
+            "NDEBUG"
+        }

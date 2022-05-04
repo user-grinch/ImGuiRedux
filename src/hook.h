@@ -35,7 +35,7 @@ private:
     static HRESULT CALLBACK hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 
     // OpenGL
-    static BOOL CALLBACK hkGlSwapBuffer(HDC hDc);
+    static bool CALLBACK hkGlSwapBuffer(_In_ HDC hDc);
 public:
 
     Hook() = delete;

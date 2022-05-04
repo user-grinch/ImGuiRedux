@@ -96,10 +96,6 @@ void Hook::ProcessFrame(void* ptr)
             {
                 ImGui_ImplDX11_InvalidateDeviceObjects();
             }
-            else
-            {
-                ImGui_ImplOpenGL3_Shutdown();
-            }
             
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
@@ -217,7 +213,7 @@ HRESULT Hook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flag
     return oPresent(pSwapChain, SyncInterval, Flags);
 }
 
-BOOL Hook::hkGlSwapBuffer(HDC hDc)
+bool Hook::hkGlSwapBuffer(_In_ HDC hDc)
 {
     ProcessFrame(nullptr);
     return oGlSwapBuffer(hDc);
@@ -339,21 +335,22 @@ bool Hook::Inject(void *pCallback)
         pCallbackFunc = pCallback;
     }
 
-    if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
-    {
-        gRenderer = eRenderer::OPENGL;
-        hookInjected = true;
+    // if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
+    // {
+    //     gRenderer = eRenderer::OPENGL;
+    //     hookInjected = true;
 
-        HMODULE hMod = GetModuleHandle("OPENGL32.dll");
-        if (!hMod)
-        {
-            return false;
-        }
-        FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
-        MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
-        MH_EnableHook(addr);
-        pCallbackFunc = pCallback;
-    }
+    //     HMODULE hMod = GetModuleHandle("OPENGL32.dll");
+    //     if (!hMod)
+    //     {
+    //         return false;
+    //     }
+    //     FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
+    //     MH_Initialize();
+    //     MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
+    //     MH_EnableHook(addr);
+    //     pCallbackFunc = pCallback;
+    // }
     
     render_hook:
     if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
