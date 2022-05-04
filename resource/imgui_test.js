@@ -1,5 +1,4 @@
 /// <reference path=".config/sa.d.ts" />
-
 // 
 // ImGuiRedux Example Script
 // 
@@ -10,6 +9,14 @@ var gVersionInfo = false
 var gRadioBtn = 1
 var gTimerExample = false
 var gPrevTimer = 0
+
+function textBox(text) 
+{
+    if (["gta3", "vc", "sa", "gta3_unreal", "vc_unreal", "sa_unreal"].includes(HOST))
+    {
+        showTextBox(text)
+    }
+}
 
 while (true) 
 {
@@ -64,12 +71,12 @@ while (true)
             let size = ImGui.GetScalingSize("S0", 2, false)
             if (ImGui.Button("Normal button 1", size.x, size.y))
             {
-                showTextBox("Normal button 1 was pressed")
+                textBox("Normal button 1 was pressed")
             }
             ImGui.SameLine()
             if (ImGui.Button("Normal button 2", size.x, size.y))
             {
-                showTextBox("Normal button 2 was pressed")
+                textBox("Normal button 2 was pressed")
             }
 
             ImGui.Spacing()
@@ -77,24 +84,24 @@ while (true)
             size = ImGui.GetScalingSize("S1", 3, false)
             if (ImGui.ButtonColored("CB 1", 1.0, 0.0, 0.0, 1.0, size.x, size.y))
             {
-                showTextBox("Color button 1 was pressed")
+                textBox("Color button 1 was pressed")
             }
             ImGui.SameLine()
             if (ImGui.ButtonColored("CB 2", 0.0, 1.0, 0.0, 1.0, size.x, size.y))
             {
-                showTextBox("Color button 2 was pressed")
+                textBox("Color button 2 was pressed")
             }
             ImGui.SameLine()
             if (ImGui.ButtonColored("CB 3", 0.0, 0.0, 1.0, 1.0, size.x, size.y))
             {
-                showTextBox("Color button 3 was pressed")
+                textBox("Color button 3 was pressed")
             }
             
             size = ImGui.GetScalingSize("S2", 1, false)
             ImGui.Text("Tip: Click the below area")
             if (ImGui.ButtonInvisible("Invis button", size.x, size.y))
             {
-                showTextBox("Invisible button was pressed")
+                textBox("Invisible button was pressed")
             }
             if (ImGui.IsItemHovered("HOver"))
             {
@@ -167,7 +174,7 @@ while (true)
     // This code has 5 second delay
     if (gTimerExample && (TIMERA - gPrevTimer > 5000))
     {
-        showTextBox("Timer test message")
+        textBox("Timer test message")
         gPrevTimer = TIMERA
     }
 

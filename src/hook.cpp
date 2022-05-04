@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "d3dhook.h"
+#include "hook.h"
 #include "kiero.h"
 #include "MinHook.h"
 #include "imgui_impl_dx9.h"
@@ -10,17 +10,17 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-bool D3dHook::GetMouseState()
+bool Hook::GetMouseState()
 {
     return mouseShown;
 }
 
-void D3dHook::SetMouseState(bool state)
+void Hook::SetMouseState(bool state)
 {
     mouseShown = state;
 }
 
-LRESULT D3dHook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT Hook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
@@ -36,14 +36,14 @@ LRESULT D3dHook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
 }
 
-HRESULT D3dHook::hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
+HRESULT Hook::hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
     ImGui_ImplDX9_InvalidateDeviceObjects();
 
     return oReset(pDevice, pPresentationParameters);
 }
 
-void D3dHook::ProcessFrame(void* ptr)
+void Hook::ProcessFrame(void* ptr)
 {
     if (!ImGui::GetCurrentContext())
     {
@@ -205,25 +205,25 @@ void D3dHook::ProcessFrame(void* ptr)
     }
 }
 
-HRESULT D3dHook::hkEndScene(IDirect3DDevice9* pDevice)
+HRESULT Hook::hkEndScene(IDirect3DDevice9* pDevice)
 {
     ProcessFrame(pDevice);
     return oEndScene(pDevice);
 }
 
-HRESULT D3dHook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+HRESULT Hook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
     ProcessFrame(pSwapChain);
     return oPresent(pSwapChain, SyncInterval, Flags);
 }
 
-BOOL D3dHook::hkGlSwapBuffer(HDC hDc)
+BOOL Hook::hkGlSwapBuffer(HDC hDc)
 {
     ProcessFrame(nullptr);
     return oGlSwapBuffer(hDc);
 }
 
-void D3dHook::ProcessMouse()
+void Hook::ProcessMouse()
 {
     static bool curState;
     if (curState != mouseShown)
@@ -303,7 +303,7 @@ void D3dHook::ProcessMouse()
     }
 }
 
-bool D3dHook::InjectHook(void *pCallback)
+bool Hook::Inject(void *pCallback)
 {
     static bool hookInjected;
     if (hookInjected)
@@ -367,7 +367,7 @@ bool D3dHook::InjectHook(void *pCallback)
     return hookInjected;
 }
 
-void D3dHook::RemoveHook()
+void Hook::Remove()
 {
     pCallbackFunc = nullptr;
 #ifdef _WIN64

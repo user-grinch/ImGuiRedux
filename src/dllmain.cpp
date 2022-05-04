@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <windows.h>
 #include "opcodemgr.h"
-#include "d3dhook.h"
+#include "hook.h"
 #include "injector.hpp"
 
 void ImGuiThread(void* param)
@@ -39,7 +39,7 @@ void ImGuiThread(void* param)
 		}
 	}
 
-	if (!D3dHook::InjectHook(&ScriptExData::DrawFrames))
+	if (!Hook::Inject(&ScriptExData::DrawFrames))
 	{
 		Log("[ImGuiRedux] Failed to inject dxhook.");
 		MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);

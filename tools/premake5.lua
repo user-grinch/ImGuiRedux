@@ -1,8 +1,3 @@
-
-----------------------------
--- Premake Project Generator
-----------------------------
-
 workspace "ImGuiRedux"
     configurations { 
         "Debug", 

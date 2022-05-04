@@ -3,7 +3,7 @@
 #include <string>
 #include "cleo_redux_sdk.h"
 #include "table.hpp"
-#include "d3dhook.h"
+#include "hook.h"
 #include <functional>
 #include <any>
 #include <tuple>
@@ -157,7 +157,7 @@ public:
         }
 
         // update stuff
-        D3dHook::SetMouseState(showCursor);
+        Hook::SetMouseState(showCursor);
         m_nFramerate = (size_t)ImGui::GetIO().Framerate;
     }
 };

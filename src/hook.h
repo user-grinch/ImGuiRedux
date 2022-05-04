@@ -5,7 +5,7 @@
 #include <GL/gl.h>
 #pragma warning(pop)
 
-class D3dHook
+class Hook
 {
 private:
     using f_EndScene = HRESULT(CALLBACK*)(IDirect3DDevice9*);
@@ -38,12 +38,12 @@ private:
     static BOOL CALLBACK hkGlSwapBuffer(HDC hDc);
 public:
 
-    D3dHook() = delete;
-    D3dHook(D3dHook const&) = delete;
-    void operator=(D3dHook const&) = delete;
+    Hook() = delete;
+    Hook(Hook const&) = delete;
+    void operator=(Hook const&) = delete;
 
     static bool GetMouseState();
-    static bool InjectHook(void *pCallback);
-    static void RemoveHook();
+    static bool Inject(void *pCallback);
+    static void Remove();
     static void SetMouseState(bool state);
 };
