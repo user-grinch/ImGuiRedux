@@ -16,6 +16,10 @@ function textBox(text)
     {
         showTextBox(text)
     }
+    else
+    {
+        ImGui.SetMessage(text)
+    }
 }
 
 while (true) 
@@ -98,7 +102,7 @@ while (true)
             }
             
             size = ImGui.GetScalingSize("S2", 1, 0)
-            ImGui.Text("Tip: Click the below area")
+            ImGui.Text("Tip:\n\tClick the below area")
             if (ImGui.ButtonInvisible("Invis button", size.x, size.y))
             {
                 textBox("Invisible button was pressed")
@@ -130,7 +134,7 @@ while (true)
         // Input and Slider example
         if (ImGui.CollapsingHeader("Inputs"))
         {
-            ImGui.InputInt("Int input", 420, 0, 1000);
+            ImGui.InputInt("Int input", 420, 0, 1000)
             ImGui.InputFloat("Float input", 69.9, 0.0, 100.0)
             ImGui.Spacing()
             ImGui.SliderInt("Int slider", 5, 0, 10)

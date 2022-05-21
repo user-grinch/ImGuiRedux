@@ -328,7 +328,7 @@ static HandlerResult ImGuiText(Context ctx)
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		ImGui::Text(buf);
+		ImGui::TextUnformatted(buf);
 	};
 	return HandlerResult::CONTINUE;
 }
@@ -930,6 +930,46 @@ static HandlerResult ImGuiIsItemFocused(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiSetMessage(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetString(ctx, buf, STR_MAX_LEN);
+
+	// Remove everything after #
+	// Also split the text if longer than window width
+	float windowWidth = ImGui::GetIO().DisplaySize.x / 5.0f;
+	const char* _start = buf;
+	for (size_t i = 0; i < STR_MAX_LEN; ++i)
+	{
+		if (buf[i] == '\0') break;
+
+		if (buf[i] == '#')
+		{
+			buf[i] = '\0';
+			break;
+		}
+
+		// Split the text into multiple lines if it exceeds window width
+		if (buf[i] == ' ')
+		{
+			ImVec2 size = ImGui::CalcTextSize(_start, &buf[i]);
+			
+			if (size.x > windowWidth)
+			{
+				_start = &buf[i]+1; // increment the starting pos
+				buf[i] = '\n';
+			}
+			else
+			{
+				buf[i] = ' ';
+			}
+		}
+	}
+
+	NotifiyPopup::AddToQueue(std::string(buf));
+	return HandlerResult::CONTINUE;
+}
+
 static HandlerResult ImGuiGetScalingSize(Context ctx)
 {
 	char buf[STR_MAX_LEN];
@@ -973,7 +1013,6 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 	SetFloatParam(ctx, data->GetData(buf, 1, 10.0f));
 	return HandlerResult::CONTINUE;
 }
-
 
 void OpcodeMgr::RegisterCommands()
 {
@@ -1045,4 +1084,5 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_GET_SCALING_SIZE", ImGuiGetScalingSize);
 	RegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
 	RegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
+	RegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
 }

@@ -75,6 +75,7 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "*.rh": "cpp",
-        "any": "cpp"
+        "any": "cpp",
+        "deque": "cpp"
     }
 }

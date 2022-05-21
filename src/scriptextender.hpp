@@ -8,6 +8,7 @@
 #include <any>
 #include <tuple>
 #include "opcodemgr.h"
+#include "notifypopup.h"
 
 class ScriptExData
 {
@@ -156,6 +157,7 @@ public:
             (*it)->imgui.DrawFrames();
         }
 
+        NotifiyPopup::Draw();
         // update stuff
         Hook::SetMouseState(showCursor);
         m_nFramerate = (size_t)ImGui::GetIO().Framerate;

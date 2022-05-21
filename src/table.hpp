@@ -20,7 +20,9 @@ public:
         {
             // value exists, return ref
             if (it->first == str)
+            {
                 return it->second;
+            }
         }
         
         // push the value into vector and return a ref

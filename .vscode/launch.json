@@ -8,10 +8,10 @@
             "name": "Launch Game",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "E:/RimWorld/RimWorldWin64.exe",
+            "program": "E:/GTA3/re3.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "E:/RimWorld/",
+            "cwd": "E:/GTA3/",
             "environment": [],
             "console": "internalConsole"
         },
