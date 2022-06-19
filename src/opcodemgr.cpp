@@ -946,52 +946,6 @@ static HandlerResult ImGuiCombo(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
-static HandlerResult ImGuiCombo2(Context ctx)
-{
-	char label[STR_MAX_LEN], buf[256]; 
-	int currentItem = 0;
-
-	// fill
-	for (unsigned i = 0; i < 255; ++i)
-	{
-		buf[i] = '\0';
-	}
-
-	GetString(ctx, label, STR_MAX_LEN);
-	GetStringParam(ctx, buf, 255);
-	currentItem = GetIntParam(ctx);
-
-	for (unsigned i = 0; i < 255; ++i)
-	{
-		if (buf[i] == ',')
-		{
-			buf[i] = '\0';
-		}
-	}
-
-	ScriptExData* data = ScriptExData::Get();
-
-	data->imgui += [=]()
-	{
-		int val = currentItem;
-		bool clicked = ImGui::Combo(label, &val, buf);
-		data->SetData(label, 0, clicked);
-
-		if (clicked)
-		{
-			data->SetData(label, 1, val);
-		}
-		else
-		{
-			data->SetData(label, 1, val);
-		}
-	};
-
-	SetIntParam(ctx, data->GetData(label, 0, 0));
-	SetIntParam(ctx, data->GetData(label, 0, 0));
-	return HandlerResult::CONTINUE;
-}
-
 static HandlerResult ImGuiIsItemActive(Context ctx)
 {
 	char buf[STR_MAX_LEN];
