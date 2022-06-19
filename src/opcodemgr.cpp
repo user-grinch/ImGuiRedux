@@ -7,7 +7,7 @@
 */
 static void GetString(Context ctx, char* label, unsigned char length)
 {
-	GetStringParam(ctx, label, STR_MAX_LEN);
+	GetStringParam(ctx, label, length);
 	strcat(label, "##");
 	strcat(label, ScriptExData::GetCurrentScript().c_str());
 }
@@ -54,6 +54,31 @@ static HandlerResult ImGuiButton(Context ctx)
 	data->imgui += [=]()
 	{
 		bool isPressed = ImGui::Button(buf, ImVec2(size.x, size.y));
+		data->SetData(buf, 0, isPressed);
+	};
+
+	bool rtn = data->GetData(buf, 0, false);
+	UpdateCompareFlag(ctx, rtn);
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiArrowButton(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	int side;
+
+	GetString(ctx, buf, STR_MAX_LEN);
+	side = GetIntParam(ctx);
+	if (side < ImGuiDir_Left || side > ImGuiDir_Down)
+	{
+		UpdateCompareFlag(ctx, false);
+		return HandlerResult::CONTINUE;
+	}
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		bool isPressed = ImGui::ArrowButton(buf, side);
 		data->SetData(buf, 0, isPressed);
 	};
 
@@ -869,6 +894,104 @@ static HandlerResult ImGuiEndFrame(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiCombo(Context ctx)
+{
+	char buf[STR_MAX_LEN], options[256];
+	GetString(ctx, buf, STR_MAX_LEN);
+	// fill
+	for (unsigned i = 0; i < 255; ++i)
+	{
+		options[i] = '\0';
+	}
+
+	GetStringParam(ctx, options, 255);
+
+	for (unsigned i = 0; i < 255; ++i)
+	{
+		if (options[i] == ',')
+		{
+			options[i] = '\0';
+		}
+	}
+	int selectedOption = (int)GetIntParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+
+	data->imgui += [=]()
+	{
+		int value = selectedOption;
+		bool clicked = ImGui::Combo(buf, &value, options);
+		data->SetData(buf, 0, clicked);
+
+		if(clicked)
+		{
+			data->SetData(buf, 1, value);
+		}
+		else
+		{
+			data->SetData(buf, 1, selectedOption);
+		}
+	};
+
+	bool clicked = data->GetData(buf, 0, false);
+	int value = data->GetData(buf, 1, 0);
+
+	if (clicked)
+	{
+		SetIntParam(ctx, value);
+	}
+	else
+	{
+		SetIntParam(ctx, selectedOption);
+	}
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiCombo2(Context ctx)
+{
+	char label[STR_MAX_LEN], buf[256]; 
+	int currentItem = 0;
+
+	// fill
+	for (unsigned i = 0; i < 255; ++i)
+	{
+		buf[i] = '\0';
+	}
+
+	GetString(ctx, label, STR_MAX_LEN);
+	GetStringParam(ctx, buf, 255);
+	currentItem = GetIntParam(ctx);
+
+	for (unsigned i = 0; i < 255; ++i)
+	{
+		if (buf[i] == ',')
+		{
+			buf[i] = '\0';
+		}
+	}
+
+	ScriptExData* data = ScriptExData::Get();
+
+	data->imgui += [=]()
+	{
+		int val = currentItem;
+		bool clicked = ImGui::Combo(label, &val, buf);
+		data->SetData(label, 0, clicked);
+
+		if (clicked)
+		{
+			data->SetData(label, 1, val);
+		}
+		else
+		{
+			data->SetData(label, 1, val);
+		}
+	};
+
+	SetIntParam(ctx, data->GetData(label, 0, 0));
+	SetIntParam(ctx, data->GetData(label, 0, 0));
+	return HandlerResult::CONTINUE;
+}
+
 static HandlerResult ImGuiIsItemActive(Context ctx)
 {
 	char buf[STR_MAX_LEN];
@@ -927,6 +1050,16 @@ static HandlerResult ImGuiIsItemFocused(Context ctx)
 	};
 
 	SetIntParam(ctx, data->GetData(buf, 0, false));
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiBullet(Context ctx)
+{
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		ImGui::Bullet();
+	};
 	return HandlerResult::CONTINUE;
 }
 
@@ -1038,6 +1171,7 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_BUTTON", ImGuiButton);
 	RegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton);
 	RegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton);
+	RegisterCommand("IMGUI_ARROW_BUTTON", ImGuiArrowButton);
 
 	RegisterCommand("IMGUI_CHECKBOX", ImGuiCheckbox);
 
@@ -1085,4 +1219,6 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
 	RegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
 	RegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
+	RegisterCommand("IMGUI_BULLET", ImGuiBullet);
+	RegisterCommand("IMGUI_COMBO", ImGuiCombo);
 }

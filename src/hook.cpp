@@ -56,7 +56,6 @@ void Hook::ProcessFrame(void* ptr)
     {
         ProcessMouse();
 
-
         // Scale the menu if game resolution changed
         static int height, width, RsGlobal;
         if (gGameVer == eGameVer::III)
@@ -162,8 +161,10 @@ void Hook::ProcessFrame(void* ptr)
     }
     else
     {
-        init = true;
-        ImGui_ImplWin32_Init(hwnd);
+        if (!ImGui_ImplWin32_Init(hwnd))
+        {
+            return;
+        }
 
         if (gGameVer == eGameVer::SA)
         {
@@ -172,7 +173,10 @@ void Hook::ProcessFrame(void* ptr)
 
         if (gRenderer == eRenderer::DX9)
         {
-            ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr));
+            if (!ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr)))
+            {
+                return;
+            }
         }
         else if (gRenderer == eRenderer::DX11)
         {
@@ -181,11 +185,17 @@ void Hook::ProcessFrame(void* ptr)
             ID3D11DeviceContext* context;
             reinterpret_cast<ID3D11Device*>(ptr)->GetImmediateContext(&context);
 
-            ImGui_ImplDX11_Init(reinterpret_cast<ID3D11Device*>(ptr), context);
+            if(!ImGui_ImplDX11_Init(reinterpret_cast<ID3D11Device*>(ptr), context))
+            {
+                return;
+            }
         }
         else
         {
-            ImGui_ImplOpenGL3_Init();
+            if(!ImGui_ImplOpenGL3_Init())
+            {
+                return;
+            }
         }
 
         ImGui_ImplWin32_EnableDpiAwareness();
@@ -198,6 +208,7 @@ void Hook::ProcessFrame(void* ptr)
 #else
         oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)hkWndProc);
 #endif
+        init = true;
     }
 }
 
@@ -301,8 +312,8 @@ void Hook::ProcessMouse()
 
 bool Hook::Inject(void *pCallback)
 {
-    static bool hookInjected;
-    if (hookInjected)
+    static bool injected;
+    if (injected)
     {
         return false;
     }
@@ -315,53 +326,47 @@ bool Hook::Inject(void *pCallback)
         if anything else is checked before d3d9
     */
     hwnd = GetForegroundWindow();
-    bool rhInstalled = false;
     if (GetModuleHandle("_gtaRenderHook.asi"))
     {
-        rhInstalled = true;
-    }
-    
-    if (rhInstalled)
-    {
-        goto render_hook;
+        goto dx11;
     }
     
     if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
         gRenderer = eRenderer::DX9;
-        hookInjected = true;
+        injected = true;
         kiero::bind(16, (void**)&oReset, hkReset);
         kiero::bind(42, (void**)&oEndScene, hkEndScene);
         pCallbackFunc = pCallback;
     }
 
-    // if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
-    // {
-    //     gRenderer = eRenderer::OPENGL;
-    //     hookInjected = true;
+    if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
+    {
+        gRenderer = eRenderer::OPENGL;
+        injected = true;
 
-    //     HMODULE hMod = GetModuleHandle("OPENGL32.dll");
-    //     if (!hMod)
-    //     {
-    //         return false;
-    //     }
-    //     FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
-    //     MH_Initialize();
-    //     MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
-    //     MH_EnableHook(addr);
-    //     pCallbackFunc = pCallback;
-    // }
+        HMODULE hMod = GetModuleHandle("OPENGL32.dll");
+        if (!hMod)
+        {
+            return false;
+        }
+        FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
+        MH_Initialize();
+        MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
+        MH_EnableHook(addr);
+        pCallbackFunc = pCallback;
+    }
     
-    render_hook:
+    dx11:
     if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
     {
         gRenderer = eRenderer::DX11;
         kiero::bind(8, (void**)&oPresent, hkPresent);
         pCallbackFunc = pCallback;
-        hookInjected = true;
+        injected = true;
     }
 
-    return hookInjected;
+    return injected;
 }
 
 void Hook::Remove()

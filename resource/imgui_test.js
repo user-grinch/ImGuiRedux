@@ -9,6 +9,7 @@ var gVersionInfo = 0
 var gRadioBtn = 1
 var gTimerExample = 0
 var gPrevTimer = 0
+var gComboSelection = 1
 
 function textBox(text) 
 {
@@ -112,7 +113,17 @@ while (true)
                 ImGui.Text("Hovering invisible button")
             }
 
+            ImGui.Spacing()
             
+            // Arrow Buttons
+            ImGui.ButtonArrow("Left", 0)
+            ImGui.SameLine()
+            ImGui.ButtonArrow("Right", 1)
+            ImGui.SameLine()
+            ImGui.ButtonArrow("Up", 2)
+            ImGui.SameLine()
+            ImGui.ButtonArrow("Down", 3)
+
             ImGui.Spacing()
 
             // Radio button
@@ -148,7 +159,9 @@ while (true)
             ImGui.Dummy(0, 10)
             ImGui.Text("Text input: " + text)
             
-
+            gComboSelection = ImGui.ComboBox("Combo", "Option1,Option2,Option3", gComboSelection)
+            let str = "Selection: " + gComboSelection
+            ImGui.Text(str)
             ImGui.Separator()
             ImGui.Spacing()
         }

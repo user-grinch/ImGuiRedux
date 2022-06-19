@@ -9,7 +9,7 @@ workspace "ImGuiRedux"
         "Win64"
     }
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++latest"
     characterset "MBCS"
     staticruntime "On"
     location "../build"
