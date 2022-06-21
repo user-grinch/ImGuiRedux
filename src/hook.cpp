@@ -87,11 +87,11 @@ void Hook::ProcessFrame(void* ptr)
         static ImVec2 fScreenSize = ImVec2(-1, -1);
         if (fScreenSize.x != width && fScreenSize.y != height)
         {
-            if (gRenderer == eRenderer::DX9)
+            if (gRenderer == eRenderer::Dx9)
             {
                 ImGui_ImplDX9_InvalidateDeviceObjects();
             }
-            else if (gRenderer == eRenderer::DX11)
+            else if (gRenderer == eRenderer::Dx11)
             {
                 ImGui_ImplDX11_InvalidateDeviceObjects();
             }
@@ -123,11 +123,11 @@ void Hook::ProcessFrame(void* ptr)
         }
 
         ImGui_ImplWin32_NewFrame();
-        if (gRenderer == eRenderer::DX9)
+        if (gRenderer == eRenderer::Dx9)
         {
             ImGui_ImplDX9_NewFrame();
         }
-        else if (gRenderer == eRenderer::DX11)
+        else if (gRenderer == eRenderer::Dx11)
         {
             ImGui_ImplDX11_NewFrame();
         }
@@ -146,11 +146,11 @@ void Hook::ProcessFrame(void* ptr)
         ImGui::EndFrame();
         ImGui::Render();
 
-        if (gRenderer == eRenderer::DX9)
+        if (gRenderer == eRenderer::Dx9)
         {
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         }
-        else if (gRenderer == eRenderer::DX11)
+        else if (gRenderer == eRenderer::Dx11)
         {
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         }
@@ -171,14 +171,14 @@ void Hook::ProcessFrame(void* ptr)
             injector::MakeNOP(0x00531155, 5); // shift trigger fix
         }
 
-        if (gRenderer == eRenderer::DX9)
+        if (gRenderer == eRenderer::Dx9)
         {
             if (!ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr)))
             {
                 return;
             }
         }
-        else if (gRenderer == eRenderer::DX11)
+        else if (gRenderer == eRenderer::Dx11)
         {
             // for dx11 device ptr is swapchain
             reinterpret_cast<IDXGISwapChain*>(ptr)->GetDevice(__uuidof(ID3D11Device), &ptr);
@@ -241,7 +241,7 @@ void Hook::ProcessMouse()
             Skip mouse patches on unknown host
             ImGui menus should be interactive on game menu
         */
-        if (gGameVer != eGameVer::UNKNOWN)
+        if (gGameVer != eGameVer::Unknown)
         {
             if (gGameVer == eGameVer::SA)
             {
@@ -333,7 +333,7 @@ bool Hook::Inject(void *pCallback)
     
     if (init(kiero::RenderType::D3D9) == kiero::Status::Success)
     {
-        gRenderer = eRenderer::DX9;
+        gRenderer = eRenderer::Dx9;
         injected = true;
         kiero::bind(16, (void**)&oReset, hkReset);
         kiero::bind(42, (void**)&oEndScene, hkEndScene);
@@ -342,7 +342,7 @@ bool Hook::Inject(void *pCallback)
 
     if (init(kiero::RenderType::OpenGL) == kiero::Status::Success)
     {
-        gRenderer = eRenderer::OPENGL;
+        gRenderer = eRenderer::OpenGL;
         injected = true;
 
         HMODULE hMod = GetModuleHandle("OPENGL32.dll");
@@ -360,7 +360,7 @@ bool Hook::Inject(void *pCallback)
     dx11:
     if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
     {
-        gRenderer = eRenderer::DX11;
+        gRenderer = eRenderer::Dx11;
         kiero::bind(8, (void**)&oPresent, hkPresent);
         pCallbackFunc = pCallback;
         injected = true;
@@ -378,11 +378,11 @@ void Hook::Remove()
     SetWindowLongPtr(hwnd, GWL_WNDPROC, (LRESULT)oWndProc);
 #endif
 
-    if (gRenderer == eRenderer::DX9)
+    if (gRenderer == eRenderer::Dx9)
     {
         ImGui_ImplDX9_Shutdown();
     }
-    if (gRenderer == eRenderer::DX11)
+    if (gRenderer == eRenderer::Dx11)
     {
         ImGui_ImplDX11_Shutdown();
     }

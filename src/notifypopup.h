@@ -2,6 +2,14 @@
 #include <deque>
 #include <string>
 
+
+/*
+	A notification system for games
+	Based on ImGui
+
+	Displays a black box on the top left side of screen
+	with messages
+*/
 class NotifiyPopup
 {
 private:

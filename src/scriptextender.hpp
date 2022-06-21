@@ -21,11 +21,13 @@ private:
     */
     struct ImGuiFrame
     {
+    public:
         bool m_bRender; // is backBuffer ready for render
+        long long lastScriptCall; // last time script called ImGui::Begin(), hide if no script call
 
         std::vector<std::function<void()>> buf; // finished buffer for render
         std::vector<std::function<void()>> backBuf; // back buffer being processed
-        
+    
         ImGuiFrame& operator+=(std::function<void()> f)
         {
             // don't push more if back buffer is full
@@ -49,6 +51,14 @@ private:
                 buf = std::move(backBuf);
                 m_bRender = false;
             }
+
+            time_t curTime = time(NULL);
+
+            // We're clearing our buffer if script isn't responding anymore
+            if (curTime-lastScriptCall > 2)
+            {
+                ClearFrames();
+            }
         }
 
         void ClearFrames()
@@ -56,7 +66,6 @@ private:
             buf.clear();
         }
     };
-	static inline size_t m_nFramerate;
     std::string ID; // script indentifier
     /*
     * Cached return data of previous frame
@@ -67,7 +76,8 @@ private:
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
     static inline bool showCursor; // global cursor state flag
     static inline std::string curScriptID; // current script identifier
-
+	static inline size_t m_nFramerate;
+    
 public:
 
     ImGuiFrame imgui;
@@ -79,14 +89,7 @@ public:
 
     static void SetCurrentScript(std::string id)
     {
-        if (id == "")
-        {
-            curScriptID = id;
-        }
-        else
-        {
-            curScriptID = id;
-        }
+        curScriptID = id;
     }
 
     static std::string GetCurrentScript()

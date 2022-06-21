@@ -114,7 +114,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 			}
 			default:
 			{
-				gGameVer = eGameVer::UNKNOWN;
+				gGameVer = eGameVer::Unknown;
 				break;
 			}
 		}

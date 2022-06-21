@@ -1,6 +1,6 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_REDUX_VERSION 1.3f
+#define IMGUI_REDUX_VERSION 1.4f
 
 #include "cleo_redux_sdk.h"
 #include "imgui.h"
@@ -9,10 +9,10 @@
 
 enum class eRenderer
 {
-    DX9,
-    DX11,
-    OPENGL,
-    UNKNOWN
+    Dx9,
+    Dx11,
+    OpenGL,
+    Unknown
 };
 
 enum class eGameVer
@@ -26,7 +26,7 @@ enum class eGameVer
     RE_III,
     RE_VC,
     RE_SA,
-    UNKNOWN
+    Unknown
 };
 
 extern eRenderer gRenderer;
