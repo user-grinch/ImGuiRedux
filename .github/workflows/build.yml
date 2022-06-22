@@ -38,7 +38,7 @@ jobs:
         with:
           artifacts: ImGuiRedux${{matrix.platform}}.zip
           name: "ImGuiRedux ${{matrix.platform}}"
-          body: "Secondary tag for [this release](https://github.com/user-grinch/ImGuiRedux/releases/latest) of ImGuiRedux. This release is updated regularly"
+          body: "ImGuiRedux for ${{matrix.platform}}. This release is updated regularly"
           allowUpdates: true
           tag: "${{matrix.platform}}-latest"
         

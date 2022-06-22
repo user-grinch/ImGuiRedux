@@ -66,10 +66,8 @@ static HandlerResult ImGuiButton(Context ctx)
 static HandlerResult ImGuiArrowButton(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	int side;
-
 	GetString(ctx, buf, STR_MAX_LEN);
-	side = GetIntParam(ctx);
+	int side = GetIntParam(ctx);
 	if (side < ImGuiDir_Left || side > ImGuiDir_Down)
 	{
 		UpdateCompareFlag(ctx, false);
@@ -147,18 +145,24 @@ static HandlerResult ImGuiCheckbox(Context ctx)
 	{
 		bool check = state;
 
-		if (ImGui::Checkbox(buf, &check))
+		bool clicked = ImGui::Checkbox(buf, &check);
+		data->SetData(buf, 0, clicked);
+		if (clicked)
 		{
-			data->SetData(buf, 0, check);
-		}
-		else
-		{
-			data->SetData(buf, 0, data->GetData(buf, 0, false));
+			data->SetData(buf, 1, check);
 		}
 	};
-	bool check = data->GetData(buf, 0, false);
 
-	SetIntParam(ctx, check);
+	bool clicked = data->GetData(buf, 0, state);
+	if (clicked)
+	{
+		SetIntParam(ctx, data->GetData(buf, 1, state));
+	}
+	else
+	{
+		SetIntParam(ctx, state);
+	}
+
 	return HandlerResult::CONTINUE;
 }
 
