@@ -7,8 +7,33 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 #include "injector.hpp"
+#include "font.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static const ImWchar* GetGlyphRanges()
+{
+    static const ImWchar ranges[] =
+    {
+        0x0020, 0x00FF, // Basic Latin + Latin Supplement
+        0x0980, 0x09FF, // Bengali
+        0x2000, 0x206F, // General Punctuation
+
+        // Chinease
+        // 0x3000, 0x30FF, // CJK Symbols and Punctuations, Hiragana, Katakana
+        // 0x31F0, 0x31FF, // Katakana Phonetic Extensions
+        // 0xFF00, 0xFFEF, // Half-width characters
+        // 0xFFFD, 0xFFFD, // Invalid
+        // 0x4E00, 0x9FAF, // CJK Ideograms
+
+        // Russian
+        0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
+        0x2DE0, 0x2DFF, // Cyrillic Extended-A
+        0xA640, 0xA69F, // Cyrillic Extended-B
+        0,
+    };
+    return &ranges[0];
+}
 
 bool Hook::GetMouseState()
 {
@@ -98,8 +123,8 @@ void Hook::ProcessFrame(void* ptr)
             
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            float fontSize = height / 54.85f;
-            io.FontDefault = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/trebucbd.ttf", fontSize);
+            float fontSize = height / 50.0f;
+            io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fontData, fontSize, NULL, GetGlyphRanges());
             io.Fonts->Build();
 
             ImGuiStyle* style = &ImGui::GetStyle();
