@@ -123,7 +123,7 @@ void Hook::ProcessFrame(void* ptr)
             
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            float fontSize = height / 50.0f;
+            float fontSize = height / 51.5f;
             io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fontData, fontSize, NULL, GetGlyphRanges());
             io.Fonts->Build();
 
