@@ -19,15 +19,17 @@ workspace "ImGuiRedux"
 
     files { 
         "../include/**", 
-        "../src/**" 
+        "../src/**"
     }
     
     includedirs {
-        "../include/**"
+        "../include/**",
+        "$(DXSDK_DIR)Include/",
     }
 
     libdirs {
         "../lib/",
+        "$(DXSDK_DIR)LIB/x86/",
     }
 
 project "ImGuiRedux"
@@ -36,6 +38,7 @@ project "ImGuiRedux"
         architecture "x86"
         links { 
             "d3d9",
+            "D3dx9",
             "d3d11",
             "cleo_redux",
             "libMinHook-x86"
@@ -46,6 +49,7 @@ project "ImGuiRedux"
         architecture "x64"
         links { 
             "d3d9",
+            "D3dx9",
             "d3d11",
             "cleo_redux64",
             "libMinHook-x64"

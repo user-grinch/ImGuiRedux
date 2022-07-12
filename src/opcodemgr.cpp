@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "opcodemgr.h"
 #include <time.h>
+#include "texturemgr.h"
 
 /*
 	Appending BeginFrame uniqueID to widget names
@@ -60,6 +61,70 @@ static HandlerResult ImGuiButton(Context ctx)
 
 	bool rtn = data->GetData(buf, 0, false);
 	UpdateCompareFlag(ctx, rtn);
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiImageButton(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	ImVec2 size;
+
+	GetString(ctx, buf, STR_MAX_LEN);
+	TextureInfo *pInfo = reinterpret_cast<TextureInfo*>(GetIntParam(ctx));
+	size.x = GetFloatParam(ctx);
+	size.y = GetFloatParam(ctx);
+
+	// FIX:
+	// Due to an issue textures aren't loaded in LoadImage but on ImageButton first call
+	if (pInfo && TextureMgr::Exists(pInfo) && !pInfo->pTexture)
+	{
+		TextureMgr::LoadTexture(*pInfo);
+	}
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{
+		bool isPressed = ImGui::ImageButton(pInfo->pTexture, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1), 1, ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+		data->SetData(buf, 0, isPressed);
+	};
+
+	bool rtn = data->GetData(buf, 0, false);
+	UpdateCompareFlag(ctx, rtn);
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiLoadImage(Context ctx)
+{
+	char fullPath[STR_MAX_LEN*2], path[STR_MAX_LEN];
+	GetCLEOFolder(fullPath);
+	GetStringParam(ctx, path, STR_MAX_LEN);
+
+	// Merge two strings 
+	for (size_t i = 0; i < sizeof(fullPath); ++i)
+	{
+		if (fullPath[i] == '\0')
+		{
+			fullPath[i++] = '/';
+			for (size_t j = 0; j < sizeof(path); ++j)
+			{
+				fullPath[i++] = path[j];
+				if (path[j] == '\0')
+				{
+					break;
+				}
+			}
+			break;
+		}
+	}
+
+	SetIntParam(ctx, reinterpret_cast<int>(TextureMgr::LoadTextureFromPath(fullPath)));
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiFreeImage(Context ctx)
+{
+	TextureInfo *pInfo = reinterpret_cast<TextureInfo*>(GetIntParam(ctx));
+	TextureMgr::FreeTexture(pInfo);
 	return HandlerResult::CONTINUE;
 }
 
@@ -1128,6 +1193,7 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_SET_TOOLTIP", ImGuiSetTooltip);
 
 	RegisterCommand("IMGUI_BUTTON", ImGuiButton);
+	RegisterCommand("IMGUI_IMAGE_BUTTON", ImGuiImageButton);
 	RegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton);
 	RegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton);
 	RegisterCommand("IMGUI_ARROW_BUTTON", ImGuiArrowButton);
@@ -1180,4 +1246,7 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
 	RegisterCommand("IMGUI_BULLET", ImGuiBullet);
 	RegisterCommand("IMGUI_COMBO", ImGuiCombo);
+
+	RegisterCommand("IMGUI_LOAD_IMAGE", ImGuiLoadImage);
+	RegisterCommand("IMGUI_FREE_IMAGE", ImGuiFreeImage);
 }

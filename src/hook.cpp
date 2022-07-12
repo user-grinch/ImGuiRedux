@@ -8,6 +8,7 @@
 #include "imgui_impl_win32.h"
 #include "injector.hpp"
 #include "font.h"
+#include "kiero.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -26,7 +27,7 @@ static const ImWchar* GetGlyphRanges()
         // 0xFFFD, 0xFFFD, // Invalid
         // 0x4E00, 0x9FAF, // CJK Ideograms
 
-        // Russian
+        // Cyrillic
         0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
         0x2DE0, 0x2DFF, // Cyrillic Extended-A
         0xA640, 0xA69F, // Cyrillic Extended-B
@@ -165,7 +166,7 @@ void Hook::ProcessFrame(void* ptr)
 
         if (pCallbackFunc != nullptr)
         {
-            ((void(*)())pCallbackFunc)();
+            static_cast<void(*)()>(pCallbackFunc)();
         }
 
         ImGui::EndFrame();
@@ -202,6 +203,7 @@ void Hook::ProcessFrame(void* ptr)
             {
                 return;
             }
+            gD3DDevice = ptr;
         }
         else if (gRenderer == eRenderer::Dx11)
         {
@@ -209,11 +211,11 @@ void Hook::ProcessFrame(void* ptr)
             reinterpret_cast<IDXGISwapChain*>(ptr)->GetDevice(__uuidof(ID3D11Device), &ptr);
             ID3D11DeviceContext* context;
             reinterpret_cast<ID3D11Device*>(ptr)->GetImmediateContext(&context);
-
             if(!ImGui_ImplDX11_Init(reinterpret_cast<ID3D11Device*>(ptr), context))
             {
                 return;
             }
+            gD3DDevice = ptr;
         }
         else
         {

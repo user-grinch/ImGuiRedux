@@ -10,6 +10,7 @@ var gRadioBtn = 1
 var gTimerExample = 0
 var gPrevTimer = 0
 var gComboSelection = 1
+var gImage = ImGui.LoadImage("imgui_test/example.jpg")
 
 function textBox(text) 
 {
@@ -74,14 +75,14 @@ while (true)
         if (ImGui.CollapsingHeader("Buttons"))
         {
             let size = ImGui.GetScalingSize("S0", 2, 0)
-            if (ImGui.Button("Normal button 1", size.x, size.y))
+            if (ImGui.Button("Normal button", size.x, size.y*2))
             {
-                textBox("Normal button 1 was pressed")
+                textBox("Normal button was pressed")
             }
             ImGui.SameLine()
-            if (ImGui.Button("Normal button 2", size.x, size.y))
+            if (ImGui.ButtonImage("Image Button", gImage, size.x, size.y*2))
             {
-                textBox("Normal button 2 was pressed")
+                textBox("Image Button was pressed")
             }
 
             ImGui.Spacing()

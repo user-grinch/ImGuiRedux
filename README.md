@@ -24,10 +24,8 @@ Download from [here](https://github.com/user-grinch/ImGuiRedux/releases)
 *Using ImGuiRedux plugin with CLEORedux Unknown host*
 1. Input (Mouse & Keyboard) may not work properly.
 2. Only games using DirectX 9 & DirectX 11 backend are supported! If you're using a game using other versions of 
-DirectX or OpenGL you'll need to wrapper.
 
-    - D3D8 wrapper: [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/d3d8.dll)
-    - OpenGL wrapper: [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/opengl32.dll)
+D3D8to9 wrapper: [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/d3d8.dll)
 
 3. For 32 bit & 64 bit games download from [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest) and [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win64-latest)
 

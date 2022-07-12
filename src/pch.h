@@ -31,3 +31,4 @@ enum class eGameVer
 
 extern eRenderer gRenderer;
 extern eGameVer gGameVer;
+extern void* gD3DDevice;
