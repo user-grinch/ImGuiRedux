@@ -28,8 +28,7 @@ workspace "ImGuiRedux"
     }
 
     libdirs {
-        "../lib/",
-        "$(DXSDK_DIR)LIB/x86/",
+        "../lib/"
     }
 
 project "ImGuiRedux"
@@ -43,6 +42,9 @@ project "ImGuiRedux"
             "cleo_redux",
             "libMinHook-x86"
         }
+        libdirs {
+            "$(DXSDK_DIR)LIB/x86/",
+        }
     
     filter { "platforms:Win64" }
         targetname "ImGuiReduxWin64"
@@ -53,6 +55,9 @@ project "ImGuiRedux"
             "d3d11",
             "cleo_redux64",
             "libMinHook-x64"
+        }
+        libdirs {
+            "$(DXSDK_DIR)LIB/x64/",
         }
 
     filter "configurations:Debug"
