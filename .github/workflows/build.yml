@@ -19,6 +19,8 @@ jobs:
           arch: ${{matrix.platform}} 
       - name:  Configure envs
         run:   echo ::set-env name=DXSDK_DIR::$HOME/cache/
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         shell: bash
       - name: Cache DX SDK
         id:   cache
