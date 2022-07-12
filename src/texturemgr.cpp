@@ -2,7 +2,27 @@
 #include "pch.h"
 #include "texturemgr.h"
 #include "stb_image.h"
-#include <d3dx9tex.h>
+
+extern "C"
+{
+HRESULT WINAPI
+    D3DXCreateTextureFromFileA(
+        LPDIRECT3DDEVICE9         pDevice,
+        LPCSTR                    pSrcFile,
+        LPDIRECT3DTEXTURE9*       ppTexture);
+
+HRESULT WINAPI
+    D3DXCreateTextureFromFileW(
+        LPDIRECT3DDEVICE9         pDevice,
+        LPCWSTR                   pSrcFile,
+        LPDIRECT3DTEXTURE9*       ppTexture);
+
+#ifdef UNICODE
+#define D3DXCreateTextureFromFile D3DXCreateTextureFromFileW
+#else
+#define D3DXCreateTextureFromFile D3DXCreateTextureFromFileA
+#endif
+}
 
 static bool D3D11CreateTextureFromFile(ID3D11Device* pDevice, const char* filename, 
 										ID3D11ShaderResourceView** outSrc)
