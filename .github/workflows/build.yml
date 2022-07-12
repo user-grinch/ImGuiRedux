@@ -24,8 +24,8 @@ jobs:
         id:   cache
         uses: actions/cache@v1
         with:
-        path: ~/cache
-        key:  cache
+          path: ~/cache
+          key:  cache
       - name:  Cache create DX SDK
         if:    steps.cache.outputs.cache-hit != 'true'
         run:   |
