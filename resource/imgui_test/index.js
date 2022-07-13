@@ -10,7 +10,7 @@ var gRadioBtn = 1
 var gTimerExample = 0
 var gPrevTimer = 0
 var gComboSelection = 1
-var gImage = ImGui.LoadImage("imgui_test/example.jpg")
+var gImage = ImGui.LoadImage("./example.jpg")
 
 function textBox(text) 
 {
