@@ -3,6 +3,7 @@
 #include "texturemgr.h"
 #include "stb_image.h"
 
+// d3dx9.h
 extern "C"
 {
 HRESULT WINAPI
@@ -95,7 +96,7 @@ TextureInfo* TextureMgr::LoadTextureFromPath(const char *path)
 	TextureInfo info;
 	info.path = std::string(path);
 	info.pTexture = nullptr;
-	LoadTexture(*&info);
+	LoadTexture(info);
 	textureList.push_back(std::move(info));
     return &textureList.back();
 }

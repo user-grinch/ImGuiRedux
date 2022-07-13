@@ -33,7 +33,7 @@ public:
     // Unloads a texture from memory, handles different backends
     static void FreeTexture(TextureInfo *pInfo);
 
-    // Unloads a texture from memory, handles different backends
+    // Returns TextureInfo from file path
     static TextureInfo* FindInfo(std::string&& path);
 
     // Loads texture, returns nullptr on failure

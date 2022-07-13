@@ -96,27 +96,8 @@ static HandlerResult ImGuiImageButton(Context ctx)
 static HandlerResult ImGuiLoadImage(Context ctx)
 {
 	char fullPath[STR_MAX_LEN*2], path[STR_MAX_LEN];
-	GetCLEOFolder(fullPath);
 	GetStringParam(ctx, path, STR_MAX_LEN);
-
-	// Merge two strings 
-	for (size_t i = 0; i < sizeof(fullPath); ++i)
-	{
-		if (fullPath[i] == '\0')
-		{
-			fullPath[i++] = '/';
-			for (size_t j = 0; j < sizeof(path); ++j)
-			{
-				fullPath[i++] = path[j];
-				if (path[j] == '\0')
-				{
-					break;
-				}
-			}
-			break;
-		}
-	}
-
+	ResolvePath(path, fullPath);
 	SetIntParam(ctx, reinterpret_cast<int>(TextureMgr::LoadTextureFromPath(fullPath)));
 	return HandlerResult::CONTINUE;
 }
