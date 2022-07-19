@@ -337,6 +337,132 @@ void Hook::ProcessMouse()
     }
 }
 
+static bool IsKeyPressed(int i, LPVOID data)
+{
+    return reinterpret_cast<char*>(data)[i] & 0x80;
+}
+
+HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData)
+{
+	HRESULT result = oGetDeviceState(pThis, cbData, lpvData);
+
+	/*
+	* We're detecting it here since usual WndProc doesn't seem to work for bully
+    * This probably should work for other games using dinput too..?
+	* TODO: This still doesn't detect special keys like Ctrl, Shift etc..
+	*/
+	ImGuiIO& io = ImGui::GetIO();
+
+	if (io.MouseDrawCursor)
+	{
+		int frameCount = ImGui::GetFrameCount();
+		if (cbData == 16) // mouse
+		{
+			LPDIMOUSESTATE2 mouseState = reinterpret_cast<LPDIMOUSESTATE2>(lpvData);
+
+			// Block camera rotation
+			mouseState->lX = 0;
+			mouseState->lY = 0;
+			mouseState->lZ = 0;
+
+			static int mouseCount = -1;
+			if (frameCount != mouseCount)
+			{
+				io.MouseDown[0] = (mouseState->rgbButtons[0] != 0);
+				io.MouseDown[1] = (mouseState->rgbButtons[1] != 0);
+				mouseCount = frameCount;
+			}
+
+			// Block left & right clicks
+			mouseState->rgbButtons[0] = 0;
+			mouseState->rgbButtons[1] = 0;
+		}
+		else if (cbData == 256) // keyboard
+		{
+            /*
+            *   GetDeviceData doesn't work
+            */
+			static int keyCount = -1;
+			if (frameCount != keyCount)
+			{
+                io.KeyAlt = IsKeyPressed(DIK_LALT, lpvData) || IsKeyPressed(DIK_RALT, lpvData);
+                io.KeyCtrl = IsKeyPressed(DIK_LCONTROL, lpvData) || IsKeyPressed(DIK_RCONTROL, lpvData);
+                io.KeyShift = IsKeyPressed(DIK_LSHIFT, lpvData) || IsKeyPressed(DIK_RSHIFT, lpvData);
+                
+				for (size_t i = 0; i < cbData; ++i)
+				{
+					bool pressed = IsKeyPressed(i, lpvData);
+					UINT vk = MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, GetKeyboardLayout(NULL));
+
+                    /*
+                    *   Ignore holding key presses
+                    */
+					if (io.KeysDown[vk] != pressed)
+					{
+                        if (pressed)
+                        {
+                            WCHAR c;
+                            BYTE keystate[256];
+                            ZeroMemory(keystate, 256);
+                            ToUnicode(vk, i, keystate, &c, 1, 0);
+                            
+                            // Capital letters on shift hold
+                            if (io.KeyShift && c >= 0x61 && c <= 0x7A)
+                            {
+                                c -= 0x20; 
+                            }
+                            io.AddInputCharacterUTF16(c);
+                        }
+						io.KeysDown[vk] = pressed;
+					}
+				}
+				keyCount = frameCount;
+			}
+		}
+	}
+
+    if (io.WantTextInput)
+    {
+        ZeroMemory(lpvData, 256);
+        result = oGetDeviceState(pThis, cbData, lpvData);
+    }
+	return result;
+}
+
+bool Hook::GetDinputDevice(void** pMouse, size_t size)
+{
+	if (!pMouse)
+	{
+		return false;
+	}
+
+	IDirectInput8* pDirectInput = NULL;
+
+	// Create dummy device
+	if (DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID*)&pDirectInput, NULL) != DI_OK)
+	{
+		return false;
+	}
+
+	LPDIRECTINPUTDEVICE8  lpdiInput;
+
+	/*
+	* We're creating a sysMouse but it still seems to receive keyboard messages?
+	*/
+	if (pDirectInput->CreateDevice(GUID_SysMouse, &lpdiInput, NULL) != DI_OK)
+	{
+		pDirectInput->Release();
+		return false;
+	}
+
+	lpdiInput->SetDataFormat(&c_dfDIKeyboard);
+	lpdiInput->SetCooperativeLevel(GetActiveWindow(), DISCL_NONEXCLUSIVE);
+	memcpy(pMouse, *reinterpret_cast<void***>(lpdiInput), size);
+	lpdiInput->Release();
+	pDirectInput->Release();
+	return true;
+}
+
 bool Hook::Inject(void *pCallback)
 {
     static bool injected;
@@ -362,8 +488,8 @@ bool Hook::Inject(void *pCallback)
     {
         gRenderer = eRenderer::Dx9;
         injected = true;
-        kiero::bind(16, (void**)&oReset, hkReset);
-        kiero::bind(42, (void**)&oEndScene, hkEndScene);
+        kiero::bind(16, reinterpret_cast<LPVOID*>(&oReset), hkReset);
+        kiero::bind(42, reinterpret_cast<LPVOID*>(&oEndScene), hkEndScene);
         pCallbackFunc = pCallback;
     }
 
@@ -379,7 +505,7 @@ bool Hook::Inject(void *pCallback)
         }
         FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
         MH_Initialize();
-        MH_CreateHook(addr, hkGlSwapBuffer, (void**)&oGlSwapBuffer);
+        MH_CreateHook(addr, hkGlSwapBuffer, reinterpret_cast<LPVOID*>(&oGlSwapBuffer));
         MH_EnableHook(addr);
         pCallbackFunc = pCallback;
     }
@@ -388,9 +514,20 @@ bool Hook::Inject(void *pCallback)
     if (init(kiero::RenderType::D3D11) == kiero::Status::Success)
     {
         gRenderer = eRenderer::Dx11;
-        kiero::bind(8, (void**)&oPresent, hkPresent);
+        kiero::bind(8, reinterpret_cast<LPVOID*>(&oPresent), hkPresent);
         pCallbackFunc = pCallback;
         injected = true;
+    }
+
+    if (gGameVer == eGameVer::BullySE)
+    {
+        static void *diMouse[32];
+        if (GetDinputDevice(diMouse, sizeof(diMouse)))
+        {
+            MH_Initialize();
+            MH_CreateHook(diMouse[9], hkGetDeviceState, reinterpret_cast<LPVOID*>(&oGetDeviceState));
+            MH_EnableHook(diMouse[9]);
+        }
     }
 
     return injected;

@@ -8,10 +8,10 @@
             "name": "Launch Game",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "E:/GTA3/re3.exe",
+            "program": "F:/Bully - Scholarship Edition/Bully.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "E:/GTA3/",
+            "cwd": "F:/Bully - Scholarship Edition/",
             "environment": [],
             "console": "internalConsole"
         },

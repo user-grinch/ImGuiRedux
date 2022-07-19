@@ -112,6 +112,11 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 				gGameVer = eGameVer::SA_DE;
 				break;
 			}
+			case HostId::BULLY:
+			{
+				gGameVer = eGameVer::BullySE;
+				break;
+			}
 			default:
 			{
 				gGameVer = eGameVer::Unknown;

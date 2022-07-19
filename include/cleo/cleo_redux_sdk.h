@@ -25,12 +25,18 @@ enum class HostId
 	GTA3_UNREAL = 6,
 	VC_UNREAL = 7,
 	SA_UNREAL = 8,
+	IV = 9,
+	BULLY = 10,
 	UNKNOWN = 255
 };
 
 typedef void* Context;
-typedef HandlerResult (*CommandHandler)(Context);
 typedef intptr_t isize;
+
+typedef HandlerResult (*CommandHandler)(Context);
+typedef void* (*CustomLoader)(const char*);
+typedef void (*OnTickCallback)(unsigned int current_time, int time_step);
+typedef void (*OnRuntimeInitCallback)();
 
 extern "C" {
 	// since v1
@@ -87,4 +93,23 @@ extern "C" {
     // since v2
     // Iterates the main loop
     void RuntimeNextTick(unsigned int current_time, int time_step);
+	// since v3
+	// Registers a new loader for files matching a glob pattern
+	void RegisterLoader(const char* glob, CustomLoader loader);
+	// since v3
+	// Allocates a memory chunk with size in bytes. Memory is guaranteed to be zero initialized
+	void* AllocMem(size_t size);
+	// since v3
+	// Frees up the memory chunk allocated with AllocMem
+	void FreeMem(void *ptr);
+	// since v4
+	// Registers a new callback invoked on each main loop iteration (before scripts are executed)
+	void OnBeforeScripts(OnTickCallback callback);
+	// since v4
+	// Registers a new callback invoked on each main loop iteration (after scripts are executed)
+	void OnAfterScripts(OnTickCallback callback);
+	// since v4
+	// Registers a new callback invoked on each runtime init event (new game, saved game load, or SDK's RuntimeInit)
+    void OnRuntimeInit(OnRuntimeInitCallback callback);
 }
+

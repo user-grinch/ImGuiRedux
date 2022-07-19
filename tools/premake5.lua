@@ -39,7 +39,9 @@ project "ImGuiRedux"
             "d3dx9",
             "d3d11",
             "cleo_redux",
-            "libMinHook-x86"
+            "libMinHook-x86",
+            "dinput8.lib",
+            "dxguid.lib"
         }
     
     filter { "platforms:Win64" }
@@ -50,7 +52,9 @@ project "ImGuiRedux"
             "d3dx9x64",
             "d3d11",
             "cleo_redux64",
-            "libMinHook-x64"
+            "libMinHook-x64",
+            "dinput8.lib",
+            "dxguid.lib"
         }
 
     filter "configurations:Debug"
