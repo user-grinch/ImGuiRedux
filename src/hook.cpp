@@ -349,7 +349,6 @@ HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData
 	/*
 	* We're detecting it here since usual WndProc doesn't seem to work for bully
     * This probably should work for other games using dinput too..?
-	* TODO: This still doesn't detect special keys like Ctrl, Shift etc..
 	*/
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -388,15 +387,13 @@ HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData
                 io.KeyAlt = IsKeyPressed(DIK_LALT, lpvData) || IsKeyPressed(DIK_RALT, lpvData);
                 io.KeyCtrl = IsKeyPressed(DIK_LCONTROL, lpvData) || IsKeyPressed(DIK_RCONTROL, lpvData);
                 io.KeyShift = IsKeyPressed(DIK_LSHIFT, lpvData) || IsKeyPressed(DIK_RSHIFT, lpvData);
-                
+
 				for (size_t i = 0; i < cbData; ++i)
 				{
 					bool pressed = IsKeyPressed(i, lpvData);
 					UINT vk = MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, GetKeyboardLayout(NULL));
 
-                    /*
-                    *   Ignore holding key presses
-                    */
+                    // ignore key holds
 					if (io.KeysDown[vk] != pressed)
 					{
                         if (pressed)
