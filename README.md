@@ -1,33 +1,30 @@
 # ImGuiRedux
-[Dear ImGui](https://github.com/ocornut/imgui) bindings for [CLEORedux](https://re.cleo.li/).
-
-Example script [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/imgui_test.js).
-Download from [here](https://github.com/user-grinch/ImGuiRedux/releases)
+[Dear ImGui](https://github.com/ocornut/imgui) bindings for [CLEORedux](https://re.cleo.li/). Check out the example script [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/imgui_test.js) & download binaries from [here](https://github.com/user-grinch/ImGuiRedux/releases)
 
 ## Supported Games
-*Classics only*
 - GTA III 
 - GTA Vice City
 - GTA San Andreas
+- Bully Scholarship Edition
 
-## Installation Notes
+### Installation 
+1. Install [ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases) & [ImGuiRedux x86](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest)
+3. For GTAs install [SilentPatch](https://gtaforums.com/topic/669045-silentpatch/)
+4. For GTA III & VC install [d3d8to9 Wrapper](https://github.com/crosire/d3d8to9/releases)
 
-### GTA III/ GTA VC
-1. Install [SilentPatch](https://gtaforums.com/topic/669045-silentpatch/) & [d3d8to9 Wrapper](https://github.com/crosire/d3d8to9/releases)
-2. Get the ImGuiRedux x86 from [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest)
+## Unknown hosts
+Unknown hosts are basically untested games. They may or may not work on per game basis. Use it at your own risk!<br>
+**PS: Let me know if your X game works. I'll add it in the list above.** 
 
-### GTA SA
-1. Install [SilentPatch](https://gtaforums.com/topic/669045-silentpatch/) 
-2. Get the ImGuiRedux x86 from [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest)
+Below version of DirectX games are supported,
+1. D3D8 (with [wrapper](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/d3d8.dll)) 
+2. D3D9
+3. D3D11
+4. OpenGL3 (Soon)
 
-### Unknown hosts
-*Using ImGuiRedux plugin with CLEORedux Unknown host*
-1. Input (Mouse & Keyboard) may not work properly.
-2. Only games using DirectX 9 & DirectX 11 backend are supported! If you're using a game using other versions of 
-
-D3D8to9 wrapper: [here](https://github.com/user-grinch/ImGuiRedux/blob/master/resource/d3d8.dll)
-
-3. For 32 bit & 64 bit games download from [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest) and [here](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win64-latest)
+### Installation 
+1. Install your required version of [ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases) & [ImGuiRedux](https://github.com/user-grinch/ImGuiRedux/releases/) (x86 or x64)
+2. Cross your fingers and try it in game!
 
 More info [here](https://re.cleo.li/docs/en/embedding.html)
 
