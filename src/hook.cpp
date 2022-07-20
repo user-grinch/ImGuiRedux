@@ -362,6 +362,7 @@ HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData
 			// Block camera rotation
 			mouseState->lX = 0;
 			mouseState->lY = 0;
+            io.MouseWheel = mouseState->lZ / WHEEL_DELTA;
 			mouseState->lZ = 0;
 
 			static int mouseCount = -1;
