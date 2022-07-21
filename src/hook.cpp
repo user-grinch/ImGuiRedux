@@ -124,7 +124,7 @@ void Hook::ProcessFrame(void* ptr)
             
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            float fontSize = height / 51.5f;
+            float fontSize = height / 48.0f;
             io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fontData, fontSize, NULL, GetGlyphRanges());
             io.Fonts->Build();
 
@@ -137,11 +137,11 @@ void Hook::ProcessFrame(void* ptr)
             style->FrameBorderSize = 0;
             style->TabBorderSize = 0;
             style->PopupBorderSize = 0;
-            style->FramePadding = ImVec2(5 * scaleX, 5 * scaleY);
-            style->ItemSpacing = ImVec2(8 * scaleX, 4 * scaleY);
+            style->FramePadding = ImVec2(5 * scaleX, 3 * scaleY);
+            style->ItemSpacing = ImVec2(4 * scaleY, 4 * scaleY);
             style->ScrollbarSize = 12 * scaleX;
             style->IndentSpacing = 20 * scaleX;
-            style->ItemInnerSpacing = ImVec2(5 * scaleX, 5 * scaleY);
+            style->ItemInnerSpacing = ImVec2(4 * scaleY, 4 * scaleY);
             style->Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->WindowTitleAlign = ImVec2(0.5f, 0.5f);

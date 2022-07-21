@@ -196,13 +196,9 @@ while (true)
         gPrevTimer = TIMERA
     }
 
-    if (Pad.IsKeyPressed(TOGGLE_KEY)) 
+    if (Pad.IsKeyDown(TOGGLE_KEY)) 
     {
         gShowWindow = !gShowWindow
-        while (Pad.IsKeyPressed(TOGGLE_KEY)) 
-        {
-            wait(100)
-        }
     }
 }
 
