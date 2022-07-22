@@ -416,7 +416,7 @@ static HandlerResult ImGuiTextCentered(Context ctx)
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
-	{	
+	{	ImGui::NewLine();
 		ImVec2 size = ImGui::CalcTextSize(buf);
 		float width = ImGui::GetWindowContentRegionWidth() - size.x;
 		ImGui::SameLine(width/2);
