@@ -409,6 +409,22 @@ static HandlerResult ImGuiText(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiTextCentered(Context ctx)
+{
+	char buf[STR_MAX_LEN];
+	GetStringParam(ctx, buf, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImVec2 size = ImGui::CalcTextSize(buf);
+		float width = ImGui::GetWindowContentRegionWidth() - size.x;
+		ImGui::SameLine(width/2);
+		ImGui::TextUnformatted(buf);
+	};
+	return HandlerResult::CONTINUE;
+}
+
 static HandlerResult ImGuiTextDisabled(Context ctx)
 {
 	char buf[STR_MAX_LEN];
@@ -530,14 +546,7 @@ static HandlerResult ImGuiGetWindowSize(Context ctx)
 static HandlerResult ImGuiGetDisplaySize(Context ctx)
 {
 	ScriptExData* data = ScriptExData::Get();
-	data->imgui += [=]()
-	{
-		ImVec2 size = ImGui::GetIO().DisplaySize;
-		data->SetData("__displayX__", 0, size.x);
-		data->SetData("__displayY__", 1, size.y);
-	};
-
-	ImVec2 size = { data->GetData("__displayX__", 0, 0.0f), data->GetData("__displayY__", 1, 0.0f) };
+	ImVec2 size = ImGui::GetIO().DisplaySize;
 	SetFloatParam(ctx, size.x);
 	SetFloatParam(ctx, size.y);
 	return HandlerResult::CONTINUE;
@@ -1123,7 +1132,7 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 		{
 			spcaing_ = false;
 		}
-
+		
 		float factor = ImGui::GetStyle().ItemSpacing.x / 2.0f;
 		float x, y;
 
@@ -1152,6 +1161,69 @@ static HandlerResult ImGuiGetScalingSize(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiPushStyleVar(Context ctx)
+{
+	int idx = GetIntParam(ctx);
+	float val = GetFloatParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImGui::PushStyleVar(idx, val);
+	};
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiPushStyleVar2(Context ctx)
+{
+	int idx = GetIntParam(ctx);
+	float x = GetFloatParam(ctx);
+	float y = GetFloatParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImGui::PushStyleVar(idx, ImVec2(x, y));
+	};
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiPopStyleVar(Context ctx)
+{
+	int count = GetIntParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImGui::PopStyleVar(count);
+	};
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiPushStyleColor(Context ctx)
+{
+	int idx = GetIntParam(ctx);
+	int r = GetIntParam(ctx);
+	int g = GetIntParam(ctx);
+	int b = GetIntParam(ctx);
+	int a = GetIntParam(ctx);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImGui::PushStyleColor(idx, IM_COL32(r, g, b, a));
+	};
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiPopStyleColor(Context ctx)
+{
+	int count = GetIntParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImGui::PopStyleColor(count);
+	};
+	return HandlerResult::CONTINUE;
+}
+
 void OpcodeMgr::RegisterCommands()
 {
 	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame);
@@ -1167,6 +1239,7 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_DUMMY", ImGuiDummy);
 
 	RegisterCommand("IMGUI_TEXT", ImGuiText);
+	RegisterCommand("IMGUI_TEXT_CENTERED", ImGuiTextCentered);
 	RegisterCommand("IMGUI_TEXT_DISABLED", ImGuiTextDisabled);
 	RegisterCommand("IMGUI_TEXT_WRAPPED", ImGuiTextWrapped);
 	RegisterCommand("IMGUI_TEXT_COLORED", ImGuiTextColored);
@@ -1230,4 +1303,10 @@ void OpcodeMgr::RegisterCommands()
 
 	RegisterCommand("IMGUI_LOAD_IMAGE", ImGuiLoadImage);
 	RegisterCommand("IMGUI_FREE_IMAGE", ImGuiFreeImage);
+
+	RegisterCommand("IMGUI_PUSH_STYLE_VAR", ImGuiPushStyleVar);
+	RegisterCommand("IMGUI_PUSH_STYLE_VAR2", ImGuiPushStyleVar2);
+	RegisterCommand("IMGUI_PUSH_STYLE_COLOR", ImGuiPushStyleColor);
+	RegisterCommand("IMGUI_POP_STYLE_VAR", ImGuiPopStyleVar);
+	RegisterCommand("IMGUI_POP_STYLE_COLOR", ImGuiPopStyleColor);
 }
