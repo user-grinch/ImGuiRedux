@@ -1224,6 +1224,47 @@ static HandlerResult ImGuiPopStyleColor(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiTabs(Context ctx)
+{
+	char buf[STR_MAX_LEN], itemsBuf[STR_MAX_LEN];
+	GetString(ctx, buf, STR_MAX_LEN);
+	ScriptExData* data = ScriptExData::Get();
+	GetStringParam(ctx, itemsBuf, STR_MAX_LEN);
+	std::vector<std::string> items;
+
+	std::string temp;
+	for (auto &c: itemsBuf)
+	{
+		if (c == ',' || c == '\0')
+		{
+			items.push_back(temp);
+			temp = "";
+		}
+		else
+		{
+			temp += c;
+		}
+	}
+	
+	data->imgui += [=]()
+	{	
+		if (ImGui::BeginTabBar(buf))
+		{
+			for (int i = 0; i < items.size(); ++i)
+			{
+				if (ImGui::BeginTabItem(items[i].c_str()))
+				{
+					data->SetData(buf, 0, i);
+					ImGui::EndTabItem();
+				}
+			}
+			ImGui::EndTabBar();
+		}
+	};
+	SetIntParam(ctx, data->GetData(buf, 0, 0));
+	return HandlerResult::CONTINUE;
+}
+
 void OpcodeMgr::RegisterCommands()
 {
 	RegisterCommand("IMGUI_BEGIN_FRAME", ImGuiBeginFrame);
@@ -1309,4 +1350,5 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_PUSH_STYLE_COLOR", ImGuiPushStyleColor);
 	RegisterCommand("IMGUI_POP_STYLE_VAR", ImGuiPopStyleVar);
 	RegisterCommand("IMGUI_POP_STYLE_COLOR", ImGuiPopStyleColor);
+	RegisterCommand("IMGUI_TABS", ImGuiTabs);
 }

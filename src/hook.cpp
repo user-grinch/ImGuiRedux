@@ -131,7 +131,8 @@ void Hook::ProcessFrame(void* ptr)
             ImGuiStyle* style = &ImGui::GetStyle();
             float scaleX = width / 1366.0f;
             float scaleY = height / 768.0f;
-
+            
+            style->TabRounding = 0.0f;
             style->ChildBorderSize = 0;
             style->WindowBorderSize = 0;
             style->FrameBorderSize = 0;
