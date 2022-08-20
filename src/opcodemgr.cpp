@@ -1238,7 +1238,14 @@ static HandlerResult ImGuiTabs(Context ctx)
 		if (c == ',' || c == '\0')
 		{
 			items.push_back(temp);
-			temp = "";
+			if (c == '\0')
+			{
+				break;
+			}
+			else
+			{
+				temp = "";
+			}
 		}
 		else
 		{
