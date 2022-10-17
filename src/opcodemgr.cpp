@@ -1257,7 +1257,7 @@ static HandlerResult ImGuiTabs(Context ctx)
 	{	
 		if (ImGui::BeginTabBar(buf))
 		{
-			for (int i = 0; i < items.size(); ++i)
+			for (int i = 0; i < static_cast<int>(items.size()); ++i)
 			{
 				if (ImGui::BeginTabItem(items[i].c_str()))
 				{
@@ -1268,7 +1268,9 @@ static HandlerResult ImGuiTabs(Context ctx)
 			ImGui::EndTabBar();
 		}
 	};
-	SetIntParam(ctx, data->GetData(buf, 0, 0));
+
+	int val = data->GetData(buf, 0, 0);
+	SetIntParam(ctx, val);
 	return HandlerResult::CONTINUE;
 }
 

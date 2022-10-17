@@ -66,13 +66,22 @@ private:
             buf.clear();
         }
     };
+    /*
+    *   Handles the return data between imgui frame & script
+    */
+    struct ComData
+    {
+        bool m_bPassed; // Was the data passed to the script, if yes, replace with new data 
+        std::any m_Val;
+    };
+
     std::string ID; // script indentifier
     /*
     * Cached return data of previous frame
     * Due to some limitations we can't run the ImGui realtime with the script
     * We run the ImGui frames independent of the script and cache the returns to retun back to script
     */
-    Table<std::string, std::vector<std::any>> frame_cache;
+    Table<std::string, std::vector<ComData>> frameData;
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
     static inline bool showCursor; // global cursor state flag
     static inline std::string curScriptID; // current script identifier
@@ -120,7 +129,10 @@ public:
     {
         try
         {
-            return  std::any_cast<T>(frame_cache[label].at(index));
+            ComData *pData = &frameData[label].at(index);
+            T val = std::any_cast<T>(pData->m_Val);
+            pData->m_bPassed = true;
+            return val;
         }
         catch(...)
         {
@@ -133,14 +145,20 @@ public:
         /*
         * Probably a shitty way to do this and gonna fk me later
         * But it works so..
+        * 
+        * We're only gonna set data if previous one was extracted!
+        * This fixes an issue with race condition
         */
-        if (frame_cache[label].size() < index+1)
+        if (frameData[label].size() < index+1)
         {
-            frame_cache[label].push_back(val);
+            frameData[label].push_back({false, val});
         }
         else
         {
-            frame_cache[label].at(index) = val;
+            if (frameData[label].at(index).m_bPassed)
+            {
+                frameData[label].at(index) = {false, val};
+            }
         }
     }
 
