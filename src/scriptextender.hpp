@@ -6,6 +6,7 @@
 #include "hook.h"
 #include <functional>
 #include <any>
+#include <time.h>
 #include <tuple>
 #include "opcodemgr.h"
 #include "notifypopup.h"
