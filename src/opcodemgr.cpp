@@ -84,12 +84,38 @@ static HandlerResult ImGuiImageButton(Context ctx)
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
 	{
-		bool isPressed = ImGui::ImageButton(pInfo->pTexture, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1), 1, ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+		bool isPressed = ImGui::ImageButton(pInfo->pTexture, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1), 0, data->imgui.m_ImGCol.m_fBgCol, data->imgui.m_ImGCol.m_fTintCol);
 		data->SetData(buf, 0, isPressed);
 	};
 
 	bool rtn = data->GetData(buf, 0, false);
 	UpdateCompareFlag(ctx, rtn);
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiSetImageTintColor(Context ctx)
+{
+	ImVec4 col;
+	col.x = GetFloatParam(ctx);
+	col.y = GetFloatParam(ctx);
+	col.z = GetFloatParam(ctx);
+	col.w = GetFloatParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui.m_ImGCol.m_fTintCol = col;
+	
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiSetImageBgColor(Context ctx)
+{
+	ImVec4 col;
+	col.x = GetFloatParam(ctx);
+	col.y = GetFloatParam(ctx);
+	col.z = GetFloatParam(ctx);
+	col.w = GetFloatParam(ctx);
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui.m_ImGCol.m_fBgCol = col;
+	
 	return HandlerResult::CONTINUE;
 }
 
@@ -1351,6 +1377,8 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_BULLET", ImGuiBullet);
 	RegisterCommand("IMGUI_COMBO", ImGuiCombo);
 
+	RegisterCommand("IMGUI_SET_IMAGE_BG_COLOR", ImGuiSetImageBgColor);
+	RegisterCommand("IMGUI_SET_IMAGE_TINT_COLOR", ImGuiSetImageTintColor);
 	RegisterCommand("IMGUI_LOAD_IMAGE", ImGuiLoadImage);
 	RegisterCommand("IMGUI_FREE_IMAGE", ImGuiFreeImage);
 

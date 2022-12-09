@@ -22,6 +22,16 @@ private:
     struct ImGuiFrame
     {
     public:
+        /*
+        * Overlay colors for imgui images
+        * Used by ButtonImage(..)
+        */
+        struct ImgOverlay
+        {
+            ImVec4 m_fTintCol = ImVec4(1, 1, 1, 1);
+            ImVec4 m_fBgCol = ImVec4(1, 1, 1, 1);
+        } m_ImGCol;
+
         bool m_bRender; // is backBuffer ready for render
         long long lastScriptCall; // last time script called ImGui::Begin(), hide if no script call
 
@@ -79,14 +89,13 @@ private:
     /*
     * Cached return data of previous frame
     * Due to some limitations we can't run the ImGui realtime with the script
-    * We run the ImGui frames independent of the script and cache the returns to retun back to script
+    * We run the ImGui frames independent of the script and cache the returns to return back to script
     */
     Table<std::string, std::vector<ComData>> frameData;
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
     static inline bool showCursor; // global cursor state flag
     static inline std::string curScriptID; // current script identifier
 	static inline size_t m_nFramerate;
-    
 public:
 
     ImGuiFrame imgui;

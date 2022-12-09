@@ -275,18 +275,18 @@ void Hook::ProcessMouse()
             {
                 if (mouseShown)
                 {
-                    injector::WriteMemory<unsigned char>(0x6194A0, 0xC3);
-                    injector::MakeNOP(0x541DD7, 5);
+                    injector::WriteMemory<unsigned char>(0x6194A0, 0xC3, true);
+                    injector::MakeNOP(0x541DD7, 5, true);
                 }
                 else
                 {
-                    injector::WriteMemory<unsigned char>(0x6194A0, 0xE9);
-                    injector::WriteMemoryRaw(0x541DD7, (char*)"\xE8\xE4\xD5\xFF\xFF", 5, false);
+                    injector::WriteMemory<unsigned char>(0x6194A0, 0xE9, true);
+                    injector::WriteMemoryRaw(0x541DD7, (char*)"\xE8\xE4\xD5\xFF\xFF", 5, true);
                 }
 
                 // ClearMouseStates
-                injector::WriteMemory<float>(0xB73418 + 12, 0); // X
-                injector::WriteMemory<float>(0xB73418 + 16, 0); // Y
+                injector::WriteMemory<float>(0xB73418 + 12, 0, true); // X
+                injector::WriteMemory<float>(0xB73418 + 16, 0, true); // Y
 
                 reinterpret_cast<void(__cdecl*)()>(0x541BD0)(); // CPad::ClearMouseHistory();
                 reinterpret_cast<void(__cdecl*)()>(0x541DD0)(); // CPad::UpdatePads();
@@ -305,8 +305,8 @@ void Hook::ProcessMouse()
                 }
 
                 // ClearMouseStates
-                injector::WriteMemory<float>(0x94D788 + 8, 0); // X
-                injector::WriteMemory<float>(0x94D788 + 12, 0);// Y
+                injector::WriteMemory<float>(0x94D788 + 8, 0, true); // X
+                injector::WriteMemory<float>(0x94D788 + 12, 0, true);// Y
 
                 reinterpret_cast<void(__cdecl*)()>(0x4ADB30)(); // CPad::ClearMouseHistory();
                 reinterpret_cast<void(__cdecl*)()>(0x4AB6C0)(); // CPad::UpdatePads();
@@ -325,8 +325,8 @@ void Hook::ProcessMouse()
                 }
 
                 // ClearMouseStates
-                injector::WriteMemory<float>(0x8809F0 + 8, 0); // X
-                injector::WriteMemory<float>(0x8809F0 + 12, 0);// Y
+                injector::WriteMemory<float>(0x8809F0 + 8, 0, true); // X
+                injector::WriteMemory<float>(0x8809F0 + 12, 0, true);// Y
                 
                 int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
                 reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();

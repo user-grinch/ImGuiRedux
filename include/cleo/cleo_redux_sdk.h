@@ -27,7 +27,24 @@ enum class HostId
 	SA_UNREAL = 8,
 	IV = 9,
 	BULLY = 10,
+	MANIFEST = 254,
 	UNKNOWN = 255
+};
+
+enum class Directory
+{
+	// /CLEO directory
+	CLEO = 0,
+	// /CLEO/.config
+	CONFIG = 1,
+	// /CLEO/CLEO_TEXT
+	TEXT = 2,
+	// /CLEO/CLEO_PLUGINS
+	PLUGINS = 3,
+	// Current working directory
+	CWD = 4,
+	// Host root directory
+	HOST = 5,
 };
 
 typedef void* Context;
@@ -37,6 +54,7 @@ typedef HandlerResult (*CommandHandler)(Context);
 typedef void* (*CustomLoader)(const char*);
 typedef void (*OnTickCallback)(unsigned int current_time, int time_step);
 typedef void (*OnRuntimeInitCallback)();
+typedef void (*OnShowTextBoxCallback)(const char*);
 
 extern "C" {
 	// since v1
@@ -50,6 +68,7 @@ extern "C" {
 	void ResolvePath(const char* src, char* dest);
 	// since v1
 	// Returns the absolute path to the CLEO directory
+	// deprecated: use GetDirectoryPath
 	void GetCLEOFolder(char* dest);
 	// since v1
 	// Returns the absolute path to the current working directory (normally the game directory)
@@ -111,5 +130,26 @@ extern "C" {
 	// since v4
 	// Registers a new callback invoked on each runtime init event (new game, saved game load, or SDK's RuntimeInit)
     void OnRuntimeInit(OnRuntimeInitCallback callback);
+	// since v5
+	// Registers a new callback invoked on a ShowTextBox function call. Providing a callback shadows built-in ShowTextBox implementation.
+    void OnShowTextBox(OnShowTextBoxCallback callback);
+    /// since v6
+	/// Returns the absolute path to the CLEO root directory or one of its sub-directories
+    void GetDirectoryPath(Directory dir, char* dest);
+    /// since v6
+    /// Returns CLEO Redux version as a string
+    void GetCLEOVersion(char* dest);
+    /// since v6
+    /// Returns a memory address for the given symbol, or 0 if not found
+    void* GetSymbolAddress(const char* symbol);
+    /// since v6
+    /// Returns number of active CS scripts
+    size_t GetNumberOfActiveCSScripts();
+    /// since v6
+    /// Returns number of active JS scripts
+    size_t GetNumberOfActiveJSScripts();
+	/// since v6
+	/// Is end of arguments reached
+	bool IsEndOfArguments(Context ctx);
 }
 
