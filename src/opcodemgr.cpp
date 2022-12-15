@@ -897,28 +897,28 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 	data->imgui += [=]()
 	{
 		float col[4];
-		col[0] = data->GetData(buf, 0, 0.0f);
-		col[1] = data->GetData(buf, 1, 0.0f);
-		col[2] = data->GetData(buf, 2, 0.0f);
-		col[3] = data->GetData(buf, 3, 0.0f);
+		col[0] = data->GetData(buf, 0, 0) / 255.0f;
+		col[1] = data->GetData(buf, 1, 0) / 255.0f;
+		col[2] = data->GetData(buf, 2, 0) / 255.0f;
+		col[3] = data->GetData(buf, 3, 0) / 255.0f;
 
 		ImGui::ColorEdit4(buf, reinterpret_cast<float*>(&col));
 		
-		data->SetData(buf, 0, col[0]);
-		data->SetData(buf, 1, col[1]);
-		data->SetData(buf, 2, col[2]);
-		data->SetData(buf, 3, col[3]);
+		data->SetData(buf, 0, col[0] * 255);
+		data->SetData(buf, 1, col[1] * 255);
+		data->SetData(buf, 2, col[2] * 255);
+		data->SetData(buf, 3, col[3] * 255);
 	};
 
-	float r = data->GetData(buf, 0, 0.0f);
-	float g = data->GetData(buf, 1, 0.0f);
-	float b = data->GetData(buf, 2, 0.0f);
-	float a = data->GetData(buf, 3, 0.0f);
+	int r = data->GetData(buf, 0, 0);
+	int g = data->GetData(buf, 1, 0);
+	int b = data->GetData(buf, 2, 0);
+	int a = data->GetData(buf, 3, 0);
 
-	SetFloatParam(ctx, r);
-	SetFloatParam(ctx, g);
-	SetFloatParam(ctx, b);
-	SetFloatParam(ctx, a);
+	SetIntParam(ctx, r);
+	SetIntParam(ctx, g);
+	SetIntParam(ctx, b);
+	SetIntParam(ctx, a);
 	return HandlerResult::CONTINUE;
 }
 
@@ -1250,6 +1250,102 @@ static HandlerResult ImGuiPopStyleColor(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiGetWindowDrawList(Context ctx)
+{
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImDrawList *drawList = ImGui::GetWindowDrawList();
+		data->SetData("__WindowDrawlist__", 0, reinterpret_cast<int>(drawList));
+	};
+
+	SetIntParam(ctx, data->GetData("__WindowDrawlist__", 0, 0));
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiGetBackgroundDrawList(Context ctx)
+{
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImDrawList *drawList = ImGui::GetBackgroundDrawList();
+		data->SetData("__BackgroundDrawlist__", 0, reinterpret_cast<int>(drawList));
+	};
+
+	SetIntParam(ctx, data->GetData("__BackgroundDrawlist__", 0, 0));
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiGetForegroundDrawList(Context ctx)
+{
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		ImDrawList *drawList = ImGui::GetForegroundDrawList();
+		data->SetData("__ForegroundDrawlist__", 0, reinterpret_cast<int>(drawList));
+	};
+
+	SetIntParam(ctx, data->GetData("__ForegroundDrawlist__", 0, 0));
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiDrawListAddText(Context ctx)
+{
+	ImVec2 pos;
+	ImVec4 col;
+	ImDrawList *pDrawList = reinterpret_cast<ImDrawList*>(GetIntParam(ctx));
+	pos.x = GetFloatParam(ctx);
+	pos.y = GetFloatParam(ctx);
+	
+	col.x = GetIntParam(ctx) / 255.0f;
+	col.y = GetIntParam(ctx) / 255.0f;
+	col.z = GetIntParam(ctx) / 255.0f;
+	col.w = GetIntParam(ctx) / 255.0f;
+	
+	char text[STR_MAX_LEN];
+	GetString(ctx, text, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		if (pDrawList)
+		{
+			pDrawList->AddText(pos, IM_COL32(col.x, col.y, col.z, col.w), text);
+		}
+	};
+
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiDrawListAddLine(Context ctx)
+{
+	ImVec2 p1, p2;
+	ImVec4 col;
+	ImDrawList *pDrawList = reinterpret_cast<ImDrawList*>(GetIntParam(ctx));
+	p1.x = GetFloatParam(ctx);
+	p1.y = GetFloatParam(ctx);
+	p2.x = GetFloatParam(ctx);
+	p2.y = GetFloatParam(ctx);	
+	
+	col.x = GetIntParam(ctx) / 255.0f;
+	col.y = GetIntParam(ctx) / 255.0f;
+	col.z = GetIntParam(ctx) / 255.0f;
+	col.w = GetIntParam(ctx) / 255.0f;
+	
+	float thickness = GetFloatParam(ctx);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->imgui += [=]()
+	{	
+		if (pDrawList)
+		{
+			pDrawList->AddLine(p1, p2, IM_COL32(col.x, col.y, col.z, col.w), thickness);
+		}
+	};
+
+	return HandlerResult::CONTINUE;
+}
+
 static HandlerResult ImGuiTabs(Context ctx)
 {
 	char buf[STR_MAX_LEN], itemsBuf[STR_MAX_LEN];
@@ -1388,4 +1484,10 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_POP_STYLE_VAR", ImGuiPopStyleVar);
 	RegisterCommand("IMGUI_POP_STYLE_COLOR", ImGuiPopStyleColor);
 	RegisterCommand("IMGUI_TABS", ImGuiTabs);
+
+	RegisterCommand("IMGUI_GET_FOREGROUND_DRAWLIST", ImGuiGetForegroundDrawList);
+	RegisterCommand("IMGUI_GET_BACKGROUND_DRAWLIST", ImGuiGetBackgroundDrawList);
+	RegisterCommand("IMGUI_GET_WINDOW_DRAWLIST", ImGuiGetWindowDrawList);
+	RegisterCommand("IMGUI_DRAWLIST_ADD_TEXT", ImGuiDrawListAddText);
+	RegisterCommand("IMGUI_DRAWLIST_ADD_LINE", ImGuiDrawListAddLine);
 }
