@@ -3,12 +3,35 @@
 #include "opcodemgr.h"
 #include "hook.h"
 #include "injector.hpp"
+#include "MinHook.h"
+
+void f_GTA_SPCheck()
+{
+	std::string moduleName = "SilentPatchSA.asi";
+	if (gGameVer == eGameVer::VC)
+	{
+		moduleName = "SilentPatchVC.asi";
+	}
+	else if (gGameVer == eGameVer::III)
+	{
+		moduleName = "SilentPatchIII.asi";
+	}
+
+	if (!GetModuleHandle(moduleName.c_str()))
+	{
+		Log("[ImGuiRedux] SilentPatch not found. Please install it from here https://gtaforums.com/topic/669045-silentpatch/");
+		int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
+
+		if (msgID == IDOK)
+		{
+			ShellExecute(nullptr, "open", "https://gtaforums.com/topic/669045-silentpatch/", nullptr, nullptr, SW_SHOWNORMAL);
+		};
+		return;
+	}
+}
 
 void ImGuiThread(void* param)
 {
-    // wait for game init
-    Sleep(3000);
-
 	/*
 		Need SP for mouse fixes
 		Only need for classics
@@ -16,27 +39,18 @@ void ImGuiThread(void* param)
 	*/
 	if (gGameVer <= eGameVer::SA)
 	{
-		std::string moduleName = "SilentPatchSA.asi";
-		if (gGameVer == eGameVer::VC)
-		{
-			moduleName = "SilentPatchVC.asi";
-		}
-		else if (gGameVer == eGameVer::III)
-		{
-			moduleName = "SilentPatchIII.asi";
-		}
+		MH_Initialize();
+		uint32_t addr = (gGameVer == eGameVer::SA) ? 0x5BF3A1 : 
+					((gGameVer == eGameVer::VC) ? 0x4A5B6B : 0x48D52F);
 
-		if (!GetModuleHandle(moduleName.c_str()))
-		{
-			Log("[ImGuiRedux] SilentPatch not found. Please install it from here https://gtaforums.com/topic/669045-silentpatch/");
-			int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
-
-			if (msgID == IDOK)
-			{
-				ShellExecute(nullptr, "open", "https://gtaforums.com/topic/669045-silentpatch/", nullptr, nullptr, SW_SHOWNORMAL);
-			};
-			return;
-		}
+		void *ptr = NULL;
+        MH_CreateHook((void*)addr, f_GTA_SPCheck, &ptr);
+        MH_EnableHook(ptr);
+	}
+	else
+	{
+		// wait for game init
+		Sleep(5000);
 	}
 
 	if (!Hook::Inject(&ScriptExData::DrawFrames))
