@@ -47,11 +47,8 @@ void ImGuiThread(void* param)
         MH_CreateHook((void*)addr, f_GTA_SPCheck, &ptr);
         MH_EnableHook(ptr);
 	}
-	else
-	{
-		// wait for game init
-		Sleep(5000);
-	}
+
+	Sleep(3000);
 
 	if (!Hook::Inject(&ScriptExData::DrawFrames))
 	{
