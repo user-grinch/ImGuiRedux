@@ -511,7 +511,7 @@ static HandlerResult ImGuiTextColored(Context ctx)
 static HandlerResult ImGuiSetTooltip(Context ctx)
 {
 	char buf[STR_MAX_LEN];
-	GetString(ctx, buf, STR_MAX_LEN);
+	GetStringParam(ctx, buf, STR_MAX_LEN);
 
 	ScriptExData* data = ScriptExData::Get();
 	data->imgui += [=]()
