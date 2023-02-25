@@ -31,6 +31,14 @@ static const ImWchar* GetGlyphRanges()
         0x0400, 0x052F, // Cyrillic + Cyrillic Supplement
         0x2DE0, 0x2DFF, // Cyrillic Extended-A
         0xA640, 0xA69F, // Cyrillic Extended-B
+	
+        //Turkish
+        0x011E, 0x011F,
+	0x015E, 0x015F,
+        0x0130, 0x0131,
+	
+	
+
         0,
     };
     return &ranges[0];
