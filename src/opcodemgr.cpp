@@ -902,12 +902,12 @@ static HandlerResult ImGuiColorPicker(Context ctx)
 		col[2] = data->GetData(buf, 2, 0) / 255.0f;
 		col[3] = data->GetData(buf, 3, 0) / 255.0f;
 
-		ImGui::ColorEdit4(buf, reinterpret_cast<float*>(&col));
+		ImGui::ColorEdit4(buf, reinterpret_cast<float*>(&col), ImGuiColorEditFlags_AlphaBar);
 		
-		data->SetData(buf, 0, col[0] * 255);
-		data->SetData(buf, 1, col[1] * 255);
-		data->SetData(buf, 2, col[2] * 255);
-		data->SetData(buf, 3, col[3] * 255);
+		data->SetData(buf, 0, static_cast<int>(col[0] * 255));
+		data->SetData(buf, 1, static_cast<int>(col[1] * 255));
+		data->SetData(buf, 2, static_cast<int>(col[2] * 255));
+		data->SetData(buf, 3, static_cast<int>(col[3] * 255));
 	};
 
 	int r = data->GetData(buf, 0, 0);
