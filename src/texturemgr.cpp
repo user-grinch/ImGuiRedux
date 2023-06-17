@@ -135,7 +135,7 @@ TextureInfo* TextureMgr::FindInfo(std::string &&path)
 
 bool TextureMgr::Exists(TextureInfo *pInfo)
 {
-	for (auto item : textureList)
+	for (TextureInfo item : textureList)
 	{
 		if (item == static_cast<TextureInfo>(*pInfo))
 		{
