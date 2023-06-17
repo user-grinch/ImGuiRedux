@@ -76,7 +76,7 @@ static HandlerResult ImGuiImageButton(Context ctx)
 
 	// FIX:
 	// Due to an issue textures aren't loaded in LoadImage but on ImageButton first call
-	if (pInfo && TextureMgr::Exists(pInfo) && !pInfo->pTexture)
+	if (pInfo && TextureMgr::Exists(pInfo))
 	{
 		TextureMgr::LoadTexture(*pInfo);
 	}

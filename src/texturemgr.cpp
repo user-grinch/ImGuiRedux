@@ -137,7 +137,7 @@ bool TextureMgr::Exists(TextureInfo *pInfo)
 {
 	for (TextureInfo item : textureList)
 	{
-		if (item == static_cast<TextureInfo>(*pInfo))
+		if (item == static_cast<const TextureInfo&>(*pInfo))
 		{
 			return true;
 		}

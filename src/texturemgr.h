@@ -8,9 +8,10 @@ public:
     void *pTexture;
     unsigned int lastAccessed; // last time when the texture was accessed (seconds)
 
+    TextureInfo(){};
     bool operator==(const TextureInfo &pInfo)
     {
-        return (path == pInfo.path && pTexture == pInfo.pTexture);
+        return (path == pInfo.path && pInfo.pTexture && pTexture == pInfo.pTexture);
     }
 };
 
