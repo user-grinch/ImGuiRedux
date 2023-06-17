@@ -760,6 +760,42 @@ static HandlerResult ImGuiCollapsingHeader(Context ctx)
 	return HandlerResult::CONTINUE;
 }
 
+static HandlerResult ImGuiSetWidgetInt(Context ctx)
+{
+	char id[STR_MAX_LEN];
+	GetString(ctx, id, STR_MAX_LEN);
+	int val = GetIntParam(ctx);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->SetData(id, 0, val);
+
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiSetWidgetFloat(Context ctx)
+{
+	char id[STR_MAX_LEN];
+	GetString(ctx, id, STR_MAX_LEN);
+	float val = GetFloatParam(ctx);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->SetData(id, 0, val);
+
+	return HandlerResult::CONTINUE;
+}
+
+static HandlerResult ImGuiSetWidgetText(Context ctx)
+{
+	char id[STR_MAX_LEN], text[STR_MAX_LEN];
+	GetString(ctx, id, STR_MAX_LEN);
+	GetString(ctx, text, STR_MAX_LEN);
+
+	ScriptExData* data = ScriptExData::Get();
+	data->SetData(id, 0, text);
+
+	return HandlerResult::CONTINUE;
+}
+
 static HandlerResult ImGuiSliderInt(Context ctx)
 {
 	char buf[STR_MAX_LEN];
@@ -1490,4 +1526,8 @@ void OpcodeMgr::RegisterCommands()
 	RegisterCommand("IMGUI_GET_WINDOW_DRAWLIST", ImGuiGetWindowDrawList);
 	RegisterCommand("IMGUI_DRAWLIST_ADD_TEXT", ImGuiDrawListAddText);
 	RegisterCommand("IMGUI_DRAWLIST_ADD_LINE", ImGuiDrawListAddLine);
+
+	RegisterCommand("IMGUI_SET_WIDGET_INT", ImGuiSetWidgetInt);
+	RegisterCommand("IMGUI_SET_WIDGET_FLOAT", ImGuiSetWidgetFloat);
+	RegisterCommand("IMGUI_SET_WIDGET_TEXT", ImGuiSetWidgetText);
 }

@@ -172,6 +172,21 @@ while (true)
             ImGui.Spacing()
             let text = ImGui.InputText("Text input widget")
             ImGui.Spacing()
+
+            let size = ImGui.GetScalingSize("S012", 2, 0)
+            if (ImGui.Button("Rest Inputs", size.x, size.y))
+            {
+                ImGui.SetWidgetValueInt("Int input", 420)
+                ImGui.SetWidgetValueInt("Int slider", 5)
+            }
+            ImGui.SameLine()
+            if (ImGui.Button("Rest Sliders", size.x, size.y))
+            {
+                ImGui.SetWidgetValueFloat("Float input", 69.9)
+                ImGui.SetWidgetValueFloat("Float slider", 5.0)
+            }
+
+            ImGui.Dummy(0, 20)
             var col = ImGui.ColorPicker("Color Picker", 0)
             ImGui.ButtonColored("COLORBTN", col.red, col.green, col.blue, col.alpha, 70.0, 30.0)
 
