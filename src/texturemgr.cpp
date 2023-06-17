@@ -137,7 +137,7 @@ bool TextureMgr::Exists(TextureInfo *pInfo)
 {
 	for (auto item : textureList)
 	{
-		if (item == *pInfo)
+		if (item == (*pInfo))
 		{
 			return true;
 		}
