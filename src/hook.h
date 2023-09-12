@@ -36,10 +36,11 @@ private:
     static LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     static void ProcessMouse();
 
+    static BOOL CALLBACK hkSetCursorPos(int, int);
+    static BOOL CALLBACK hkShowCursor(bool);
     // DirectX9
     static HRESULT CALLBACK hkEndScene(IDirect3DDevice9* pDevice);
     static HRESULT CALLBACK hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
-
 
     // DirectX11, Renderhook
     static HRESULT CALLBACK hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);

@@ -375,7 +375,7 @@ void Hook::ProcessMouse()
                 int pad = reinterpret_cast<int(__thiscall*)(int)>(0x492F60)(NULL); // CPad::GetPads();
                 reinterpret_cast<void(__thiscall*)(int)>(0x491B50)(pad); // CPad::ClearMouseHistory();
                 reinterpret_cast<void(__cdecl*)()>(0x492720)(); // CPad::UpdatePads();
-            }
+            } 
         }
 
         curState = mouseShown;
@@ -506,6 +506,24 @@ bool Hook::GetDinputDevice(void** pMouse, size_t size)
 	return true;
 }
 
+BOOL CALLBACK Hook::hkSetCursorPos(int x, int y)
+{
+    if (ImGui::GetIO().MouseDrawCursor)
+    {
+        return true;
+    }
+    return SetCursorPos(x, y);
+}
+
+BOOL CALLBACK Hook::hkShowCursor(bool flag)
+{
+    if (ImGui::GetIO().MouseDrawCursor)
+    {
+        return true;
+    }
+    return ShowCursor(flag);
+}
+
 bool Hook::Inject(void *pCallback)
 {
     static bool injected;
@@ -513,6 +531,13 @@ bool Hook::Inject(void *pCallback)
     {
         return false;
     }
+    MH_Initialize();
+    PVOID pSetCursorPos = GetProcAddress(GetModuleHandle("user32.dll"), "SetCursorPos");
+    PVOID pShowCursor = GetProcAddress(GetModuleHandle("user32.dll"), "ShowCursor");
+    MH_CreateHook(pSetCursorPos, hkSetCursorPos, nullptr);
+    MH_CreateHook(pShowCursor, hkSetCursorPos, nullptr);
+    MH_EnableHook(pSetCursorPos);
+    MH_EnableHook(pShowCursor);
 
     /*
         Must check for d3d9 first!
@@ -545,7 +570,6 @@ bool Hook::Inject(void *pCallback)
             return false;
         }
         FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
-        MH_Initialize();
         MH_CreateHook(addr, hkGlSwapBuffer, reinterpret_cast<LPVOID*>(&oGlSwapBuffer));
         MH_EnableHook(addr);
         pCallbackFunc = pCallback;
@@ -566,7 +590,6 @@ bool Hook::Inject(void *pCallback)
         static void *diMouse[32];
         if (GetDinputDevice(diMouse, sizeof(diMouse)))
         {
-            MH_Initialize();
             MH_CreateHook(diMouse[9], hkGetDeviceState, reinterpret_cast<LPVOID*>(&oGetDeviceState));
             MH_EnableHook(diMouse[9]);
         }
