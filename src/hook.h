@@ -13,6 +13,8 @@ private:
     using f_Present = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT);
     using f_Reset = HRESULT(CALLBACK*)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
     using f_ResizeBuffers = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
+    using f_SetCursorPos = BOOL(CALLBACK*)(int, int);
+    using f_ShowCursor = BOOL(CALLBACK*)(bool);
     using f_SwapBuffer = BOOL(CALLBACK*) (HDC hDc);
     using f_GetDeviceState = HRESULT(CALLBACK*)(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
 
@@ -21,6 +23,8 @@ private:
     static inline f_EndScene oEndScene;
     static inline f_Reset oReset;
     static inline f_ResizeBuffers oResizeBuffers;
+    static inline f_SetCursorPos oSetCursorPos;
+    static inline f_ShowCursor oShowCursor;
     static inline f_SwapBuffer oGlSwapBuffer;
     static inline f_GetDeviceState oGetDeviceState;
     static inline ID3D11DeviceContext* pDeviceContext;

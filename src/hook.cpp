@@ -55,7 +55,8 @@ LRESULT Hook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 {
     ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
-    if (ImGui::GetIO().WantTextInput)
+    if (ImGui::GetIO().WantTextInput 
+    || (gGameVer >= eGameVer::SA && ImGui::GetIO().MouseDrawCursor))
     {
         if (gGameVer == eGameVer::SA)
         {
@@ -254,6 +255,7 @@ void Hook::ProcessFrame(void* ptr)
 
         ImGui_ImplWin32_EnableDpiAwareness();
 
+        ShowCursor(false);
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
@@ -304,7 +306,7 @@ bool Hook::hkGlSwapBuffer(_In_ HDC hDc)
 
 void Hook::ProcessMouse()
 {
-    static bool curState;
+    static bool curState = false;
     if (curState != mouseShown)
     {
         ImGui::GetIO().MouseDrawCursor = mouseShown;
@@ -512,7 +514,7 @@ BOOL CALLBACK Hook::hkSetCursorPos(int x, int y)
     {
         return true;
     }
-    return SetCursorPos(x, y);
+    return oSetCursorPos(x, y);
 }
 
 BOOL CALLBACK Hook::hkShowCursor(bool flag)
@@ -521,7 +523,7 @@ BOOL CALLBACK Hook::hkShowCursor(bool flag)
     {
         return true;
     }
-    return ShowCursor(flag);
+    return oShowCursor(flag);
 }
 
 bool Hook::Inject(void *pCallback)
@@ -534,8 +536,8 @@ bool Hook::Inject(void *pCallback)
     MH_Initialize();
     PVOID pSetCursorPos = GetProcAddress(GetModuleHandle("user32.dll"), "SetCursorPos");
     PVOID pShowCursor = GetProcAddress(GetModuleHandle("user32.dll"), "ShowCursor");
-    MH_CreateHook(pSetCursorPos, hkSetCursorPos, nullptr);
-    MH_CreateHook(pShowCursor, hkSetCursorPos, nullptr);
+    MH_CreateHook(pSetCursorPos, hkSetCursorPos, reinterpret_cast<LPVOID*>(&oSetCursorPos));
+    MH_CreateHook(pShowCursor, hkShowCursor, reinterpret_cast<LPVOID*>(&oShowCursor));
     MH_EnableHook(pSetCursorPos);
     MH_EnableHook(pShowCursor);
 
