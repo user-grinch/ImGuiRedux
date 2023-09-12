@@ -48,7 +48,7 @@ void ImGuiThread(void* param)
         MH_EnableHook(ptr);
 	}
 
-	Sleep(3000);
+	Sleep(5000);
 
 	if (!Hook::Inject(&ScriptExData::DrawFrames))
 	{

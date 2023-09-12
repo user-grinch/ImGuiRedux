@@ -12,6 +12,7 @@ private:
     using f_EndScene = HRESULT(CALLBACK*)(IDirect3DDevice9*);
     using f_Present = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT);
     using f_Reset = HRESULT(CALLBACK*)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
+    using f_ResizeBuffers = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
     using f_SwapBuffer = BOOL(CALLBACK*) (HDC hDc);
     using f_GetDeviceState = HRESULT(CALLBACK*)(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
 
@@ -19,8 +20,13 @@ private:
     static inline f_Present oPresent;
     static inline f_EndScene oEndScene;
     static inline f_Reset oReset;
+    static inline f_ResizeBuffers oResizeBuffers;
     static inline f_SwapBuffer oGlSwapBuffer;
     static inline f_GetDeviceState oGetDeviceState;
+    static inline ID3D11DeviceContext* pDeviceContext;
+    static inline ID3D11RenderTargetView* pRenderTargetView;
+
+    static inline bool flag = false;
 
     static inline bool mouseShown;
     static inline void* pCallbackFunc = nullptr;
@@ -34,8 +40,10 @@ private:
     static HRESULT CALLBACK hkEndScene(IDirect3DDevice9* pDevice);
     static HRESULT CALLBACK hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 
+
     // DirectX11, Renderhook
     static HRESULT CALLBACK hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+    static HRESULT CALLBACK hkResizeBuffers(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
 
     // OpenGL
     static bool CALLBACK hkGlSwapBuffer(_In_ HDC hDc);

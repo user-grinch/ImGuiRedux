@@ -34,11 +34,8 @@ static const ImWchar* GetGlyphRanges()
 	
         //Turkish
         0x011E, 0x011F,
-	0x015E, 0x015F,
+	    0x015E, 0x015F,
         0x0130, 0x0131,
-	
-	
-
         0,
     };
     return &ranges[0];
@@ -79,12 +76,6 @@ HRESULT Hook::hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresent
 
 void Hook::ProcessFrame(void* ptr)
 {
-    if (!ImGui::GetCurrentContext())
-    {
-        ImGui::CreateContext();
-    }
-
-    ImGuiIO& io = ImGui::GetIO();
     static bool init;
     if (init)
     {
@@ -177,6 +168,7 @@ void Hook::ProcessFrame(void* ptr)
         {
             static_cast<void(*)()>(pCallbackFunc)();
         }
+        // ImGui::ShowDemoWindow();
 
         ImGui::EndFrame();
         ImGui::Render();
@@ -187,6 +179,7 @@ void Hook::ProcessFrame(void* ptr)
         }
         else if (gRenderer == eRenderer::Dx11)
         {
+            pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         }
         else
@@ -196,10 +189,7 @@ void Hook::ProcessFrame(void* ptr)
     }
     else
     {
-        if (!ImGui_ImplWin32_Init(hwnd))
-        {
-            return;
-        }
+        ImGui::CreateContext();
 
         if (gGameVer == eGameVer::SA)
         {
@@ -208,6 +198,12 @@ void Hook::ProcessFrame(void* ptr)
 
         if (gRenderer == eRenderer::Dx9)
         {
+            hwnd = GetForegroundWindow();
+            if (!ImGui_ImplWin32_Init(hwnd))
+            {
+                return;
+            }
+
             if (!ImGui_ImplDX9_Init(reinterpret_cast<IDirect3DDevice9*>(ptr)))
             {
                 return;
@@ -216,18 +212,40 @@ void Hook::ProcessFrame(void* ptr)
         }
         else if (gRenderer == eRenderer::Dx11)
         {
-            // for dx11 device ptr is swapchain
-            reinterpret_cast<IDXGISwapChain*>(ptr)->GetDevice(__uuidof(ID3D11Device), &ptr);
-            ID3D11DeviceContext* context;
-            reinterpret_cast<ID3D11Device*>(ptr)->GetImmediateContext(&context);
-            if(!ImGui_ImplDX11_Init(reinterpret_cast<ID3D11Device*>(ptr), context))
+            IDXGISwapChain* pSwapChain = reinterpret_cast<IDXGISwapChain*>(ptr);
+            if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), &ptr))) 
             {
-                return;
+                ID3D11Device *pDevice = reinterpret_cast<ID3D11Device*>(ptr);
+                pDevice->GetImmediateContext(&pDeviceContext);
+
+                DXGI_SWAP_CHAIN_DESC Desc;
+                pSwapChain->GetDesc(&Desc);
+                hwnd = Desc.OutputWindow;
+
+                ID3D11Texture2D* backBuffer;
+                pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
+                pDevice->CreateRenderTargetView(backBuffer, NULL, &pRenderTargetView);
+                backBuffer->Release();
+
+                if (!ImGui_ImplWin32_Init(hwnd))
+                {
+                    return;
+                }
+                ImGui_ImplDX11_Init(pDevice, pDeviceContext);
+                ImGui_ImplDX11_CreateDeviceObjects();
+                ImGui::GetIO().ImeWindowHandle = hwnd;
             }
+
             gD3DDevice = ptr;
         }
         else
         {
+            hwnd = GetForegroundWindow();
+            if (!ImGui_ImplWin32_Init(hwnd))
+            {
+                return;
+            }
+
             if(!ImGui_ImplOpenGL3_Init())
             {
                 return;
@@ -236,6 +254,7 @@ void Hook::ProcessFrame(void* ptr)
 
         ImGui_ImplWin32_EnableDpiAwareness();
 
+        ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -258,6 +277,23 @@ HRESULT Hook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flag
 {
     ProcessFrame(pSwapChain);
     return oPresent(pSwapChain, SyncInterval, Flags);
+}
+
+HRESULT Hook::hkResizeBuffers(IDXGISwapChain* pSwapChain, UINT a, UINT b, UINT c, DXGI_FORMAT d, UINT e)
+{
+    if (pRenderTargetView) 
+    {
+        pRenderTargetView->Release();
+        pRenderTargetView = nullptr;
+        pDeviceContext->Flush();
+    }
+ 
+    HRESULT hr = oResizeBuffers(pSwapChain, a, b, c, d, e);
+    ID3D11Texture2D* back_buffer{};
+    pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&back_buffer);
+    reinterpret_cast<ID3D11Device*>(pSwapChain)->CreateRenderTargetView(back_buffer, nullptr, &pRenderTargetView);
+    back_buffer->Release();
+    return hr;
 }
 
 bool Hook::hkGlSwapBuffer(_In_ HDC hDc)
@@ -478,15 +514,13 @@ bool Hook::Inject(void *pCallback)
         return false;
     }
 
-    ImGui::CreateContext();
-
     /*
         Must check for d3d9 first!
         Seems to crash with nvidia geforce experience overlay
         if anything else is checked before d3d9
     */
-    hwnd = GetForegroundWindow();
-    if (GetModuleHandle("_gtaRenderHook.asi"))
+    if (GetModuleHandle("_gtaRenderHook.asi") 
+    || gGameVer == eGameVer::III_DE || gGameVer == eGameVer::VC_DE || gGameVer == eGameVer::SA_DE)
     {
         goto dx11;
     }
@@ -522,6 +556,7 @@ bool Hook::Inject(void *pCallback)
     {
         gRenderer = eRenderer::Dx11;
         kiero::bind(8, reinterpret_cast<LPVOID*>(&oPresent), hkPresent);
+        kiero::bind(13, reinterpret_cast<LPVOID*>(&oResizeBuffers), hkResizeBuffers);
         pCallbackFunc = pCallback;
         injected = true;
     }
