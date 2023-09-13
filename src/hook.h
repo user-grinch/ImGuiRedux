@@ -32,7 +32,7 @@ private:
 
     static inline bool flag = false;
 
-    static inline bool mouseShown;
+    static inline bool mouseVisible;
     static inline void* pCallbackFunc = nullptr;
     static inline HWND hwnd = NULL;
 

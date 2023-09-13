@@ -43,12 +43,12 @@ static const ImWchar* GetGlyphRanges()
 
 bool Hook::GetMouseState()
 {
-    return mouseShown;
+    return mouseVisible;
 }
 
 void Hook::SetMouseState(bool state)
 {
-    mouseShown = state;
+    mouseVisible = state;
 }
 
 LRESULT Hook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -56,7 +56,7 @@ LRESULT Hook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
     if (ImGui::GetIO().WantTextInput 
-    || (gGameVer >= eGameVer::SA && ImGui::GetIO().MouseDrawCursor))
+    || (gGameVer > eGameVer::SA && mouseVisible))
     {
         if (gGameVer == eGameVer::SA)
         {
@@ -169,7 +169,6 @@ void Hook::ProcessFrame(void* ptr)
         {
             static_cast<void(*)()>(pCallbackFunc)();
         }
-        // ImGui::ShowDemoWindow();
 
         ImGui::EndFrame();
         ImGui::Render();
@@ -259,7 +258,7 @@ void Hook::ProcessFrame(void* ptr)
         ImGuiIO& io = ImGui::GetIO();
         io.IniFilename = nullptr;
         io.LogFilename = nullptr;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NoMouseCursorChange;
 #ifdef _WIN64
         oWndProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LRESULT)hkWndProc);
 #else
@@ -307,9 +306,9 @@ bool Hook::hkGlSwapBuffer(_In_ HDC hDc)
 void Hook::ProcessMouse()
 {
     static bool curState = false;
-    if (curState != mouseShown)
+    if (curState != mouseVisible)
     {
-        ImGui::GetIO().MouseDrawCursor = mouseShown;
+        ImGui::GetIO().MouseDrawCursor = mouseVisible;
 
         /* 
             Skip mouse patches on unknown host
@@ -319,7 +318,7 @@ void Hook::ProcessMouse()
         {
             if (gGameVer == eGameVer::SA)
             {
-                if (mouseShown)
+                if (ImGui::GetIO().MouseDrawCursor)
                 {
                     injector::WriteMemory<unsigned char>(0x6194A0, 0xC3, true);
                     injector::MakeNOP(0x541DD7, 5, true);
@@ -339,7 +338,7 @@ void Hook::ProcessMouse()
             } 
             else if (gGameVer == eGameVer::VC)
             {
-                if (mouseShown)
+                if (ImGui::GetIO().MouseDrawCursor)
                 {
                     injector::WriteMemory<unsigned char>(0x6020A0, 0xC3, true);
                     injector::MakeNOP(0x4AB6CA, 5, true);
@@ -359,7 +358,7 @@ void Hook::ProcessMouse()
             }
             else if (gGameVer == eGameVer::III)
             {
-                if (mouseShown)
+                if (ImGui::GetIO().MouseDrawCursor)
                 {
                     injector::WriteMemory<unsigned char>(0x580D20, 0xC3, true);
                     injector::MakeNOP(0x49272F, 5, true);
@@ -380,7 +379,7 @@ void Hook::ProcessMouse()
             } 
         }
 
-        curState = mouseShown;
+        curState = mouseVisible;
     }
 }
 
@@ -398,8 +397,7 @@ HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData
     * This probably should work for other games using dinput too..?
 	*/
 	ImGuiIO& io = ImGui::GetIO();
-
-	if (io.MouseDrawCursor)
+	if (ImGui::GetIO().MouseDrawCursor)
 	{
 		int frameCount = ImGui::GetFrameCount();
 		if (cbData == 16) // mouse
@@ -521,7 +519,7 @@ BOOL CALLBACK Hook::hkShowCursor(bool flag)
 {
     if (ImGui::GetIO().MouseDrawCursor)
     {
-        return true;
+        return oShowCursor(TRUE);
     }
     return oShowCursor(flag);
 }
