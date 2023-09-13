@@ -1,14 +1,13 @@
 #pragma once
-#pragma warning(push, 0)  
+#pragma warning(push, 0)
 #include <d3d9.h>
 #include <d3d11.h>
 #include <GL/gl.h>
 #include <dinput.h>
 #pragma warning(pop)
 
-class Hook
-{
-private:
+class Hook {
+  private:
     using f_EndScene = HRESULT(CALLBACK*)(IDirect3DDevice9*);
     using f_Present = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT);
     using f_Reset = HRESULT(CALLBACK*)(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*);
@@ -54,9 +53,11 @@ private:
     static bool CALLBACK hkGlSwapBuffer(_In_ HDC hDc);
 
     // Bully
+  #ifndef _WIN64
     static bool GetDinputDevice(void** pMouse, size_t size);
     static HRESULT CALLBACK hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
-public:
+  #endif
+  public:
 
     Hook() = delete;
     Hook(Hook const&) = delete;

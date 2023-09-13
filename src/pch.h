@@ -7,8 +7,7 @@
 #include "imgui_stdlib.h"
 #include "scriptextender.hpp"
 
-enum class eRenderer
-{
+enum class eRenderer {
     Dx9,
     Dx11,
     Dx12,
@@ -16,8 +15,7 @@ enum class eRenderer
     Unknown
 };
 
-enum class eGameVer
-{
+enum class eGameVer {
     III,
     VC,
     SA,

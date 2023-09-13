@@ -1,16 +1,14 @@
 #pragma once
 #include "pch.h"
 
-struct TextureInfo
-{
-public:
+struct TextureInfo {
+  public:
     std::string path;
     void *pTexture;
     unsigned int lastAccessed; // last time when the texture was accessed (seconds)
 
-    TextureInfo(){};
-    bool operator==(const TextureInfo &pInfo)
-    {
+    TextureInfo() {};
+    bool operator==(const TextureInfo &pInfo) {
         return (path == pInfo.path && pInfo.pTexture && pTexture == pInfo.pTexture);
     }
 };
@@ -18,13 +16,12 @@ public:
 /*
     Handles loading, unloading images
 */
-class TextureMgr
-{
-private:
-    // static inline constexpr unsigned int TIMEOUT = 30; // Unload unused textures 
+class TextureMgr {
+  private:
+    // static inline constexpr unsigned int TIMEOUT = 30; // Unload unused textures
     static inline std::vector<TextureInfo> textureList;
 
-public:
+  public:
     TextureMgr() = delete;
     TextureMgr(TextureMgr&) = delete;
 
