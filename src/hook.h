@@ -14,7 +14,7 @@ class Hook {
     using f_ResizeBuffers = HRESULT(CALLBACK*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
     using f_SetCursorPos = BOOL(CALLBACK*)(int, int);
     using f_ShowCursor = BOOL(CALLBACK*)(bool);
-    using f_SwapBuffer = BOOL(CALLBACK*) (HDC hDc);
+    using f_SwapBuffer = BOOL(CALLBACK*) (HDC, UINT);
     using f_GetDeviceState = HRESULT(CALLBACK*)(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
 
     static inline WNDPROC oWndProc;
@@ -28,8 +28,6 @@ class Hook {
     static inline f_GetDeviceState oGetDeviceState;
     static inline ID3D11DeviceContext* pDeviceContext;
     static inline ID3D11RenderTargetView* pRenderTargetView;
-
-    static inline bool flag = false;
 
     static inline bool mouseVisible;
     static inline void* pCallbackFunc = nullptr;
@@ -50,7 +48,7 @@ class Hook {
     static HRESULT CALLBACK hkResizeBuffers(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
 
     // OpenGL
-    static bool CALLBACK hkGlSwapBuffer(_In_ HDC hDc);
+    static bool CALLBACK hkGlSwapBuffer(HDC  unnamedParam1, UINT unnamedParam2);
 
     // Bully
   #ifndef _WIN64

@@ -9,10 +9,10 @@
             "name": "Launch Game",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "D:\\Games\\Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5\\Grand.Theft.Auto.San.Andreas\\Gameface\\Binaries\\Win64\\SanAndreas.exe",
+            "program": "D:/Games/Bully/Bully.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "D:\\Games\\Grand.Theft.Auto.The.Trilogy.The.Definitive.Edition.v1.04.5\\Grand.Theft.Auto.San.Andreas\\Gameface\\Binaries\\Win64\\",
+            "cwd": "D:/Games/Bully/",
             "environment": [],
             "console": "internalConsole"
         },

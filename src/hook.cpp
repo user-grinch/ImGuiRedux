@@ -164,7 +164,9 @@ void Hook::ProcessFrame(void* ptr) {
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     } else {
-        ImGui::CreateContext();
+        if (!ImGui::GetCurrentContext()) {
+            ImGui::CreateContext();
+        }
 
         if (gGameVer == eGameVer::SA) {
             injector::MakeNOP(0x00531155, 5); // shift trigger fix
@@ -256,9 +258,9 @@ HRESULT Hook::hkResizeBuffers(IDXGISwapChain* pSwapChain, UINT a, UINT b, UINT c
     return hr;
 }
 
-bool Hook::hkGlSwapBuffer(_In_ HDC hDc) {
+bool Hook::hkGlSwapBuffer(HDC unnamedParam1, UINT unnamedParam2) {
     ProcessFrame(nullptr);
-    return oGlSwapBuffer(hDc);
+    return oGlSwapBuffer(unnamedParam1, unnamedParam2);
 }
 
 void Hook::ProcessMouse() {
@@ -450,6 +452,7 @@ bool Hook::Inject(void *pCallback) {
     if (injected) {
         return false;
     }
+    ImGui::CreateContext();
     MH_Initialize();
     PVOID pSetCursorPos = GetProcAddress(GetModuleHandle("user32.dll"), "SetCursorPos");
     PVOID pShowCursor = GetProcAddress(GetModuleHandle("user32.dll"), "ShowCursor");
