@@ -1,9 +1,10 @@
 workspace "ImGuiRedux"
     configurations { 
         "Debug", 
-        "Release" 
+        "Release", 
+        "DebugCleo", 
+        "ReleaseCleo"
     }
-
     platforms {
         "Win32",
         "Win64"
@@ -16,16 +17,13 @@ workspace "ImGuiRedux"
     targetdir "../build/bin"
     kind "SharedLib"
     targetextension ".cleo"
-
     files { 
         "../include/**", 
         "../src/**"
     }
-    
     includedirs {
         "../include/**"
     }
-
     libdirs {
         "../lib/"
     }
@@ -38,11 +36,48 @@ project "ImGuiRedux"
             "d3d9",
             "d3dx9",
             "d3d11",
-            "cleo_redux",
+            "delayimp",
             "libMinHook-x86",
             "dinput8.lib",
             "dxguid.lib"
         }
+        filter "configurations:DebugCleo"
+            symbols "On"
+            defines {
+                "RUNTIME_CLEO" 
+            }
+            links { 
+                "CLEO",
+            }
+
+        filter "configurations:ReleaseCleo"
+            optimize "On"
+            defines {
+                "NDEBUG",
+                "RUNTIME_CLEO" 
+            }
+            links { 
+                "CLEO",
+            }
+        
+        filter "configurations:Debug"
+            symbols "On"
+            defines {
+                "RUNTIME_REDUX" 
+            }
+            links { 
+                "cleo_redux",
+            }
+
+        filter "configurations:Release"
+            optimize "On"
+            defines {
+                "NDEBUG",
+                "RUNTIME_REDUX" 
+            }
+            links { 
+                "cleo_redux",
+            }
     
     filter { "platforms:Win64" }
         targetname "ImGuiReduxWin64"
@@ -51,17 +86,22 @@ project "ImGuiRedux"
             "d3d9",
             "d3dx9x64",
             "d3d11",
+            "delayimp",
             "cleo_redux64",
             "libMinHook-x64",
             "dinput8.lib",
             "dxguid.lib"
         }
 
-    filter "configurations:Debug"
-        symbols "On"
+        filter "configurations:Debug"
+            symbols "On"
+            defines {
+                "RUNTIME_REDUX" 
+            }
 
-    filter "configurations:Release"
-        optimize "On"
-        defines {
-            "NDEBUG"
-        }
+        filter "configurations:Release"
+            optimize "On"
+            defines {
+                "NDEBUG",
+                "RUNTIME_REDUX" 
+            }

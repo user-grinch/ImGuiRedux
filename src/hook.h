@@ -51,10 +51,9 @@ class Hook {
     static bool CALLBACK hkGlSwapBuffer(HDC  unnamedParam1, UINT unnamedParam2);
 
     // Bully
-  #ifndef _WIN64
     static bool GetDinputDevice(void** pMouse, size_t size);
     static HRESULT CALLBACK hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
-  #endif
+
   public:
 
     Hook() = delete;

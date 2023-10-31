@@ -58,6 +58,60 @@
             },
         },
         {
+            "label": "Build Debug CLEO",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/DebugCleo.bat",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/d", "/c"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "Build Release CLEO",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/ReleaseCleo.bat",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/d", "/c"
+                        ]
+                    }
+                }
+            },
+        },
+        {
             "label": "Build Debug64",
             "type": "shell",
             "command": "${workspaceFolder}/tools/Debug64.bat",

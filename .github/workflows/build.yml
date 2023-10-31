@@ -6,6 +6,7 @@ jobs:
     strategy:
       matrix:
         platform: [Win32, Win64]
+        buildtype: [Release, ReleaseCleo]
     steps:
       - name: Checkout
         uses: actions/checkout@v3.0.0
@@ -22,7 +23,7 @@ jobs:
           cd tools
           premake5 vs2022
           cd ../build
-          MsBuild ImGuiRedux.sln /property:Configuration=Release /p:Platform=${{matrix.platform}} /t:ImGuiRedux
+          MsBuild ImGuiRedux.sln /property:Configuration=${{matrix.buildtype}} /p:Platform=${{matrix.platform}} /t:ImGuiRedux
       - name: Upload plugin
         uses: actions/upload-artifact@v3
         with:
