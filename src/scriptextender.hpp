@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "cleo_redux_sdk.h"
 #include "table.hpp"
 #include "hook.h"
 #include <functional>

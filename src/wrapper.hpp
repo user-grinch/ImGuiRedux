@@ -1,81 +1,108 @@
 #pragma once
-#include "../cleo/cleo_redux_sdk.h"
-#include "../cleo/cleo_sdk.h"
+#include "pch.h"
 
-static void wGetStringParam(Context ctx, char* label, unsigned char length) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        CLEO_ReadStringOpcodeParam(reinterpret_cast<CScriptThread*>(ctx), label, length);
-    } else {
-        GetStringParam(ctx, label, length);
-    } 
+#ifdef RUNTIME_CLEO
+#include "../include/cleo/CLEO.h"
+#define RTN_CONTINUE CLEO::OR_CONTINUE
+#define RTN_TYPE CLEO::OpcodeResult
+#define RUNTIME_API WINAPI
+#define RUNTIME_CONTEXT CLEO::CRunningScript*
+#define CMD_DEF CLEO::_pOpcodeHandler
+#define INT int
+#else
+#include "../include/cleo/cleo_redux_sdk.h"
+#define RTN_CONTINUE HandlerResult::CONTINUE
+#define RTN_TYPE HandlerResult 
+#define RUNTIME_API
+#define RUNTIME_CONTEXT Context
+#define CMD_DEF CommandHandler
+#define INT isize
+#endif
+
+#define RUNTIME_STR_LEN 128
+
+
+static void wGetStringParam(RUNTIME_CONTEXT ctx, char* label, unsigned char length) {
+#ifdef RUNTIME_CLEO
+    CLEO_ReadStringOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), label, length);
+#else
+    GetStringParam(ctx, label, length);
+#endif
 }
 
 /*
 	Appending BeginFrame uniqueID to widget names
 	This ensures scripts won't clash with each other
 */
-static void wGetStringWithFrame(Context ctx, char* label, unsigned char length) {
+static void wGetStringWithFrame(RUNTIME_CONTEXT ctx, char* label, unsigned char length) {
     wGetStringParam(ctx, label, length);
     strcat(label, "##");
     strcat(label, ScriptExData::GetCurrentScript().c_str());
 }
 
-static void wSetIntParam(Context ctx, isize value) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        CLEO_SetIntOpcodeParam(reinterpret_cast<CScriptThread*>(ctx), value);
-    } else {
-        SetIntParam(ctx, value);
-    } 
+static void wSetIntParam(RUNTIME_CONTEXT ctx, INT value) {
+#ifdef RUNTIME_CLEO
+    CLEO_SetIntOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), value);
+#else
+    SetIntParam(ctx, value);
+#endif
 }
 
-static void wSetFloatParam(Context ctx, float value) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        CLEO_SetFloatOpcodeParam(reinterpret_cast<CScriptThread*>(ctx), value);
-    } else {
-        SetFloatParam(ctx, value);
-    } 
+static void wSetFloatParam(RUNTIME_CONTEXT ctx, float value) {
+#ifdef RUNTIME_CLEO
+    CLEO_SetFloatOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), value);
+#else
+    SetFloatParam(ctx, value);
+#endif
 }
 
-static isize wGetIntParam(Context ctx) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        return CLEO_GetIntOpcodeParam(reinterpret_cast<CScriptThread*>(ctx));
-    } else {
-        return GetIntParam(ctx);
-    } 
-    return -1;
+static INT wGetIntParam(RUNTIME_CONTEXT ctx) {
+#ifdef RUNTIME_CLEO
+    return CLEO_GetIntOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx));
+#else
+    return GetIntParam(ctx);
+#endif
 }
 
-static float wGetFloatParam(Context ctx) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        return CLEO_GetFloatOpcodeParam(reinterpret_cast<CScriptThread*>(ctx));
-    } else {
-        return GetFloatParam(ctx);
-    } 
+static bool wGetBoolParam(RUNTIME_CONTEXT ctx) {
+#ifdef RUNTIME_CLEO
+    return static_cast<bool>(CLEO_GetIntOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx)));
+#else
+    return static_cast<bool>(GetIntParam(ctx));
+#endif
+}
+
+static float wGetFloatParam(RUNTIME_CONTEXT ctx) {
+#ifdef RUNTIME_CLEO
+    return CLEO_GetFloatOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx));
+#else
+    return GetFloatParam(ctx);
+#endif
     return -1.0f;
 }
 
-static void wUpdateCompareFlag(Context ctx, bool flag) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        ((void(*)(Context, bool))0x4859D0)(ctx, flag); // CRunningScript::UpdateCompareFlag();
-    } else {
-        UpdateCompareFlag(ctx, flag);
-    }
+static void wUpdateCompareFlag(RUNTIME_CONTEXT ctx, bool flag) {
+#ifdef RUNTIME_CLEO
+    ((void(*)(RUNTIME_CONTEXT, bool))0x4859D0)(ctx, flag); // CRunningScript::UpdateCompareFlag();
+#else
+    UpdateCompareFlag(ctx, flag);
+#endif
 }
 
-static void wRegisterCommand(const char *name, CommandHandler handler) {
-    static size_t startOpcode = 0x2100;
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        CLEO_RegisterOpcode(startOpcode, reinterpret_cast<_pOpcodeHandler>(handler));
-        startOpcode++;
-    } else {
-        RegisterCommand(name, handler);
-    }
+static void wRegisterCommand(const char *name, CMD_DEF handler) {
+#ifdef RUNTIME_CLEO
+    static size_t opcode = 0x0C00;
+    CLEO_RegisterOpcode(opcode, handler);
+    opcode++;
+#else
+    RegisterCommand(name, handler);
+#endif
 }
 
-static void wSetStringParam(Context ctx, const char* buf) {
-    if constexpr (gRunTime == eRunTime::Cleo) {
-        CLEO_WriteStringOpcodeParam(reinterpret_cast<CScriptThread*>(ctx), buf);
-    } else {
-        SetStringParam(ctx, buf);
-    }
+static void wSetStringParam(RUNTIME_CONTEXT ctx, const char* buf) {
+#ifdef RUNTIME_CLEO
+    CLEO_WriteStringOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), buf);
+#else
+    SetStringParam(ctx, buf);
+#endif
 }

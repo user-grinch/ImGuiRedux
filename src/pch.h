@@ -28,29 +28,6 @@ enum class eGameVer {
     Unknown
 };
 
-enum class eRunTime {
-    Cleo,
-    Redux,
-};
-
-enum class eArch {
-    Win32,
-    Win64,
-};
-
 extern eRenderer gRenderer;
 extern eGameVer gGameVer;
-
-#ifdef RUNTIME_CLEO
-constexpr eRunTime gRunTime = eRunTime::Cleo;
-#else // RUNTIME_REDUX
-constexpr eRunTime gRunTime = eRunTime::Redux;
-#endif
-
-#ifdef _WIN64
-constexpr eArch gArch = eArch::Win64;
-#else // RUNTIME_REDUX
-constexpr eArch gArch = eArch::Win32;
-#endif
-
 extern void* gD3DDevice;

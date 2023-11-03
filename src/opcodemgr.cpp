@@ -4,22 +4,22 @@
 #include "texturemgr.h"
 #include "wrapper.hpp"
 
-static HandlerResult ImGuiBegin(Context ctx) {
-    char label[STR_MAX_LEN];
+static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
+    char label[RUNTIME_STR_LEN];
 
-    wGetStringWithFrame(ctx, label, STR_MAX_LEN);
-    bool openFlag = static_cast<bool>(wGetIntParam(ctx));
-    bool noTitleBar = static_cast<bool>(wGetIntParam(ctx));
-    bool noResize = static_cast<bool>(wGetIntParam(ctx));
-    bool noMove = static_cast<bool>(wGetIntParam(ctx));
-    bool autoResize = static_cast<bool>(wGetIntParam(ctx));
+    wGetStringWithFrame(ctx, label, RUNTIME_STR_LEN);
+    bool openFlag = wGetBoolParam(ctx);
+    bool noTitleBar = wGetBoolParam(ctx);
+    bool noResize = wGetBoolParam(ctx);
+    bool noMove = wGetBoolParam(ctx);
+    bool autoResize = wGetBoolParam(ctx);
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
     if (noTitleBar) flags |= ImGuiWindowFlags_NoTitleBar;
     if (noResize) flags |= ImGuiWindowFlags_NoResize;
     if (noMove) flags |= ImGuiWindowFlags_NoMove;
     if (autoResize) flags |= ImGuiWindowFlags_AlwaysAutoResize;
-
+    
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         bool isOpen = openFlag;
@@ -28,14 +28,14 @@ static HandlerResult ImGuiBegin(Context ctx) {
     };
     data->imgui.lastScriptCall = time(NULL);
     wSetIntParam(ctx, data->GetData(label, 0, true));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiButton(Context ctx) {
-    char buf[STR_MAX_LEN];
+static RTN_TYPE RUNTIME_API ImGuiButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
     ImVec2 size;
 
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
 
@@ -47,14 +47,14 @@ static HandlerResult ImGuiButton(Context ctx) {
 
     bool rtn = data->GetData(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiImageButton(Context ctx) {
-    char buf[STR_MAX_LEN];
+static RTN_TYPE RUNTIME_API ImGuiImageButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
     ImVec2 size;
 
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     TextureInfo *pInfo = reinterpret_cast<TextureInfo*>(wGetIntParam(ctx));
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
@@ -73,10 +73,10 @@ static HandlerResult ImGuiImageButton(Context ctx) {
 
     bool rtn = data->GetData(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetImageTintColor(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetImageTintColor(RUNTIME_CONTEXT ctx) {
     ImVec4 col;
     col.x = wGetFloatParam(ctx);
     col.y = wGetFloatParam(ctx);
@@ -85,10 +85,10 @@ static HandlerResult ImGuiSetImageTintColor(Context ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui.m_ImGCol.m_fTintCol = col;
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetImageBgColor(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetImageBgColor(RUNTIME_CONTEXT ctx) {
     ImVec4 col;
     col.x = wGetFloatParam(ctx);
     col.y = wGetFloatParam(ctx);
@@ -97,30 +97,30 @@ static HandlerResult ImGuiSetImageBgColor(Context ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui.m_ImGCol.m_fBgCol = col;
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiLoadImage(Context ctx) {
-    char fullPath[STR_MAX_LEN*2], path[STR_MAX_LEN];
-    wGetStringParam(ctx, path, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiLoadImage(RUNTIME_CONTEXT ctx) {
+    char fullPath[RUNTIME_STR_LEN*2], path[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, path, RUNTIME_STR_LEN);
     // ResolvePath(path, fullPath);
     wSetIntParam(ctx, reinterpret_cast<int>(TextureMgr::LoadTextureFromPath(fullPath)));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiFreeImage(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiFreeImage(RUNTIME_CONTEXT ctx) {
     TextureInfo *pInfo = reinterpret_cast<TextureInfo*>(wGetIntParam(ctx));
     TextureMgr::FreeTexture(pInfo);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiArrowButton(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiArrowButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     int side = wGetIntParam(ctx);
     if (side < ImGuiDir_Left || side > ImGuiDir_Down) {
         wUpdateCompareFlag(ctx, false);
-        return HandlerResult::CONTINUE;
+        return RTN_CONTINUE;
     }
 
     ScriptExData* data = ScriptExData::Get();
@@ -131,14 +131,14 @@ static HandlerResult ImGuiArrowButton(Context ctx) {
 
     bool rtn = data->GetData(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiInvisibleButton(Context ctx) {
-    char buf[STR_MAX_LEN];
+static RTN_TYPE RUNTIME_API ImGuiInvisibleButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
     ImVec2 size;
 
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
 
@@ -150,16 +150,16 @@ static HandlerResult ImGuiInvisibleButton(Context ctx) {
 
     bool rtn = data->GetData(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiColorButton(Context ctx) {
-    char buf[STR_MAX_LEN];
+static RTN_TYPE RUNTIME_API ImGuiColorButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
     ImVec4 rgba;
     ImVec2 size;
 
     // label, r, g, b, a, width, height
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     rgba.x = wGetFloatParam(ctx);
     rgba.y = wGetFloatParam(ctx);
     rgba.z = wGetFloatParam(ctx);
@@ -175,13 +175,13 @@ static HandlerResult ImGuiColorButton(Context ctx) {
 
     bool rtn = data->GetData(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiCheckbox(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
-    bool state = static_cast<bool>(wGetIntParam(ctx));
+static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
+    bool state = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -201,85 +201,85 @@ static HandlerResult ImGuiCheckbox(Context ctx) {
         wSetIntParam(ctx, state);
     }
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiEnd(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiEnd(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::End();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSameLine(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSameLine(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
 
     data->imgui += [=]() {
         ImGui::SameLine();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiNewLine(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiNewLine(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += []() {
         ImGui::NewLine();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiColumns(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiColumns(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::Columns(count, NULL, false);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiNextColumn(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiNextColumn(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::NextColumn();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSpacing(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSpacing(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::Spacing();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSeparator(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSeparator(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::Separator();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetFramerate(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetFramerate(RUNTIME_CONTEXT ctx) {
     wSetIntParam(ctx, ScriptExData::GetGameFPS());
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetVersion(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetVersion(RUNTIME_CONTEXT ctx) {
     char* buf = const_cast<char*>(ImGui::GetVersion());
     unsigned char len = static_cast<unsigned char>(strlen(buf));
     wSetStringParam(ctx, buf);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetPluginVersion(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetPluginVersion(RUNTIME_CONTEXT ctx) {
     wSetFloatParam(ctx, IMGUI_REDUX_VERSION);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetNextWindowPos(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetNextWindowPos(RUNTIME_CONTEXT ctx) {
     ImVec2 pos;
     pos.x = wGetFloatParam(ctx);
     pos.y = wGetFloatParam(ctx);
@@ -290,10 +290,10 @@ static HandlerResult ImGuiSetNextWindowPos(Context ctx) {
         ImGui::SetNextWindowPos(pos, cond);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetNextWindowTransparency(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetNextWindowTransparency(RUNTIME_CONTEXT ctx) {
     float alpha = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
@@ -301,10 +301,10 @@ static HandlerResult ImGuiSetNextWindowTransparency(Context ctx) {
         ImGui::SetNextWindowBgAlpha(alpha);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetWindowPos(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetWindowPos(RUNTIME_CONTEXT ctx) {
     ImVec2 pos;
     pos.x = wGetFloatParam(ctx);
     pos.y = wGetFloatParam(ctx);
@@ -315,10 +315,10 @@ static HandlerResult ImGuiSetWindowPos(Context ctx) {
         ImGui::SetWindowPos(pos, cond);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetNextWindowSize(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetNextWindowSize(RUNTIME_CONTEXT ctx) {
     ImVec2 size;
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
@@ -329,10 +329,10 @@ static HandlerResult ImGuiSetNextWindowSize(Context ctx) {
         ImGui::SetNextWindowSize(size, cond);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetWindowSize(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiSetWindowSize(RUNTIME_CONTEXT ctx) {
     ImVec2 size;
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
@@ -343,10 +343,10 @@ static HandlerResult ImGuiSetWindowSize(Context ctx) {
         ImGui::SetWindowSize(size, cond);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiDummy(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiDummy(RUNTIME_CONTEXT ctx) {
     ImVec2 size;
     size.x = wGetFloatParam(ctx);
     size.y = wGetFloatParam(ctx);
@@ -356,23 +356,23 @@ static HandlerResult ImGuiDummy(Context ctx) {
         ImGui::Dummy(size);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiText(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiText(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::TextUnformatted(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiTextCentered(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiTextCentered(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -382,45 +382,45 @@ static HandlerResult ImGuiTextCentered(Context ctx) {
         ImGui::SameLine(width/2);
         ImGui::TextUnformatted(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiTextDisabled(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiTextDisabled(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::TextDisabled(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiTextWrapped(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiTextWrapped(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::TextWrapped(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiBulletText(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiBulletText(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::BulletText(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiTextColored(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiTextColored(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
     ImVec4 col;
     col.x = wGetFloatParam(ctx);
     col.y = wGetFloatParam(ctx);
@@ -431,22 +431,22 @@ static HandlerResult ImGuiTextColored(Context ctx) {
     data->imgui += [=]() {
         ImGui::TextColored(col, buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetTooltip(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringParam(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSetTooltip(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::SetTooltip(buf);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetCursorVisible(Context ctx) {
-    bool flag = static_cast<bool>(wGetIntParam(ctx));
+static RTN_TYPE RUNTIME_API ImGuiSetCursorVisible(RUNTIME_CONTEXT ctx) {
+    bool flag = wGetBoolParam(ctx);
 
     // Only update if cursor needs to be shown
     // Hidden by default
@@ -457,21 +457,21 @@ static HandlerResult ImGuiSetCursorVisible(Context ctx) {
         };
     }
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetFrameHeight(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetFrameHeight(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight());
     };
     wSetFloatParam(ctx, data->GetData("__frameHeight__", 0, 0.0f));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetWindowSize(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiGetWindowSize(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -483,20 +483,20 @@ static HandlerResult ImGuiGetWindowSize(Context ctx) {
     ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
     wSetFloatParam(ctx, size.x);
     wSetFloatParam(ctx, size.y);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetDisplaySize(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetDisplaySize(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     ImVec2 size = ImGui::GetIO().DisplaySize;
     wSetFloatParam(ctx, size.x);
     wSetFloatParam(ctx, size.y);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetWindowPos(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiGetWindowPos(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -508,12 +508,12 @@ static HandlerResult ImGuiGetWindowPos(Context ctx) {
     ImVec2 pos = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
     wSetFloatParam(ctx, pos.x);
     wSetFloatParam(ctx, pos.y);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiCalcTextSize(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiCalcTextSize(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -525,12 +525,12 @@ static HandlerResult ImGuiCalcTextSize(Context ctx) {
     ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
     wSetFloatParam(ctx, size.x);
     wSetFloatParam(ctx, size.y);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiGetWindowContentRegionWidth(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -539,12 +539,12 @@ static HandlerResult ImGuiGetWindowContentRegionWidth(Context ctx) {
     };
 
     wSetFloatParam(ctx, data->GetData(buf, 0, 0.0f));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiBeginMainMenuBar(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiBeginMainMenuBar(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -553,23 +553,23 @@ static HandlerResult ImGuiBeginMainMenuBar(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiEndMainMenuBar(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiEndMainMenuBar(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::EndMainMenuBar();
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiMenuItem(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
-    bool selected = static_cast<bool>(wGetIntParam(ctx));
-    bool enabled = static_cast<bool>(wGetIntParam(ctx));
+static RTN_TYPE RUNTIME_API ImGuiMenuItem(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
+    bool selected = wGetBoolParam(ctx);
+    bool enabled = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -578,13 +578,13 @@ static HandlerResult ImGuiMenuItem(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSelectable(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
-    bool selected = static_cast<bool>(wGetIntParam(ctx));
+static RTN_TYPE RUNTIME_API ImGuiSelectable(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
+    bool selected = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -593,32 +593,32 @@ static HandlerResult ImGuiSelectable(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiBeginChild(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiBeginChild(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::BeginChild(buf);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiEndChild(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiEndChild(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::EndChild();
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
 
-static HandlerResult ImGuiPushItemWidth(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPushItemWidth(RUNTIME_CONTEXT ctx) {
     float width = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
@@ -626,21 +626,21 @@ static HandlerResult ImGuiPushItemWidth(Context ctx) {
         ImGui::PushItemWidth(width);
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPopItemWidth(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPopItemWidth(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::PopItemWidth();
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiCollapsingHeader(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiCollapsingHeader(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -649,45 +649,45 @@ static HandlerResult ImGuiCollapsingHeader(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetWidgetInt(Context ctx) {
-    char id[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, id, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSetWidgetInt(RUNTIME_CONTEXT ctx) {
+    char id[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, id, RUNTIME_STR_LEN);
     int val = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
     data->SetData(id, 0, val);
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetWidgetFloat(Context ctx) {
-    char id[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, id, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSetWidgetFloat(RUNTIME_CONTEXT ctx) {
+    char id[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, id, RUNTIME_STR_LEN);
     float val = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
     data->SetData(id, 0, val);
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetWidgetText(Context ctx) {
-    char id[STR_MAX_LEN], text[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, id, STR_MAX_LEN);
-    wGetStringWithFrame(ctx, text, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSetWidgetText(RUNTIME_CONTEXT ctx) {
+    char id[RUNTIME_STR_LEN], text[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, id, RUNTIME_STR_LEN);
+    wGetStringWithFrame(ctx, text, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->SetData(id, 0, text);
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSliderInt(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSliderInt(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     int initVal = wGetIntParam(ctx);
     int min = wGetIntParam(ctx);
     int max = wGetIntParam(ctx);
@@ -701,12 +701,12 @@ static HandlerResult ImGuiSliderInt(Context ctx) {
 
     int value = data->GetData(buf, 0, initVal);
     wSetIntParam(ctx, value);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSliderFloat(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSliderFloat(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     float initVal = wGetFloatParam(ctx);
     float min = wGetFloatParam(ctx);
     float max = wGetFloatParam(ctx);
@@ -720,12 +720,12 @@ static HandlerResult ImGuiSliderFloat(Context ctx) {
 
     float value = data->GetData(buf, 0, initVal);
     wSetFloatParam(ctx, value);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiInputFloat(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiInputFloat(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     float initVal = wGetFloatParam(ctx);
     float min = wGetFloatParam(ctx);
     float max = wGetFloatParam(ctx);
@@ -748,12 +748,12 @@ static HandlerResult ImGuiInputFloat(Context ctx) {
 
     float value = data->GetData(buf, 0, initVal);
     wSetFloatParam(ctx, value);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiInputInt(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiInputInt(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     int initVal = wGetIntParam(ctx);
     int min = wGetIntParam(ctx);
     int max = wGetIntParam(ctx);
@@ -776,12 +776,12 @@ static HandlerResult ImGuiInputInt(Context ctx) {
 
     int value = data->GetData(buf, 0, initVal);
     wSetIntParam(ctx, value);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiInputText(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiInputText(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -793,12 +793,12 @@ static HandlerResult ImGuiInputText(Context ctx) {
 
     std::string value = data->GetData(buf, 0, std::string(""));
     wSetStringParam(ctx, static_cast<char*>(&value[0]));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiColorPicker(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiColorPicker(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData* data = ScriptExData::Get();
 
     data->imgui += [=]() {
@@ -825,12 +825,12 @@ static HandlerResult ImGuiColorPicker(Context ctx) {
     wSetIntParam(ctx, g);
     wSetIntParam(ctx, b);
     wSetIntParam(ctx, a);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiRadioButton(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiRadioButton(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     int curSelectedBtn = wGetIntParam(ctx);
     int btnNo = wGetIntParam(ctx);
 
@@ -856,29 +856,29 @@ static HandlerResult ImGuiRadioButton(Context ctx) {
     } else {
         wSetIntParam(ctx, curSelectedBtn);
     }
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiBeginFrame(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiBeginFrame(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData::SetCurrentScript(std::string(buf));
     ScriptExData *data = ScriptExData::Get();
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiEndFrame(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiEndFrame(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui.m_bRender = true;
     ScriptExData::SetCurrentScript("");
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiCombo(Context ctx) {
-    char buf[STR_MAX_LEN], options[256];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiCombo(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN], options[256];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     // fill
     for (unsigned i = 0; i < 255; ++i) {
         options[i] = '\0';
@@ -914,12 +914,12 @@ static HandlerResult ImGuiCombo(Context ctx) {
     } else {
         wSetIntParam(ctx, selectedOption);
     }
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiIsItemActive(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiIsItemActive(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -927,12 +927,12 @@ static HandlerResult ImGuiIsItemActive(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiIsItemHovered(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiIsItemHovered(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -941,12 +941,12 @@ static HandlerResult ImGuiIsItemHovered(Context ctx) {
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
     wUpdateCompareFlag(ctx, data->GetData(buf, 0, 0));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiIsItemClicked(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiIsItemClicked(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -954,12 +954,12 @@ static HandlerResult ImGuiIsItemClicked(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiIsItemFocused(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiIsItemFocused(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -967,26 +967,26 @@ static HandlerResult ImGuiIsItemFocused(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData(buf, 0, false));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiBullet(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiBullet(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::Bullet();
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiSetMessage(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiSetMessage(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     // Remove everything after #
     // Also split the text if longer than window width
     float windowWidth = ImGui::GetIO().DisplaySize.x / 5.0f;
     const char* _start = buf;
-    for (size_t i = 0; i < STR_MAX_LEN; ++i) {
+    for (size_t i = 0; i < RUNTIME_STR_LEN; ++i) {
         if (buf[i] == '\0') break;
 
         if (buf[i] == '#') {
@@ -1008,12 +1008,12 @@ static HandlerResult ImGuiSetMessage(Context ctx) {
     }
 
     NotifiyPopup::AddToQueue(std::string(buf));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetScalingSize(Context ctx) {
-    char buf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     int count = wGetIntParam(ctx);
     int spacing = wGetIntParam(ctx);
 
@@ -1045,20 +1045,20 @@ static HandlerResult ImGuiGetScalingSize(Context ctx) {
 
     wSetFloatParam(ctx, data->GetData(buf, 0, 10.0f));
     wSetFloatParam(ctx, data->GetData(buf, 1, 10.0f));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPushStyleVar(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPushStyleVar(RUNTIME_CONTEXT ctx) {
     int idx = wGetIntParam(ctx);
     float val = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::PushStyleVar(idx, val);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPushStyleVar2(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPushStyleVar2(RUNTIME_CONTEXT ctx) {
     int idx = wGetIntParam(ctx);
     float x = wGetFloatParam(ctx);
     float y = wGetFloatParam(ctx);
@@ -1066,19 +1066,19 @@ static HandlerResult ImGuiPushStyleVar2(Context ctx) {
     data->imgui += [=]() {
         ImGui::PushStyleVar(idx, ImVec2(x, y));
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPopStyleVar(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPopStyleVar(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::PopStyleVar(count);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPushStyleColor(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPushStyleColor(RUNTIME_CONTEXT ctx) {
     int idx = wGetIntParam(ctx);
     int r = wGetIntParam(ctx);
     int g = wGetIntParam(ctx);
@@ -1089,19 +1089,19 @@ static HandlerResult ImGuiPushStyleColor(Context ctx) {
     data->imgui += [=]() {
         ImGui::PushStyleColor(idx, IM_COL32(r, g, b, a));
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiPopStyleColor(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiPopStyleColor(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::PopStyleColor(count);
     };
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetWindowDrawList(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetWindowDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImDrawList *drawList = ImGui::GetWindowDrawList();
@@ -1109,10 +1109,10 @@ static HandlerResult ImGuiGetWindowDrawList(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData("__WindowDrawlist__", 0, 0));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetBackgroundDrawList(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetBackgroundDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImDrawList *drawList = ImGui::GetBackgroundDrawList();
@@ -1120,10 +1120,10 @@ static HandlerResult ImGuiGetBackgroundDrawList(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData("__BackgroundDrawlist__", 0, 0));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiGetForegroundDrawList(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiGetForegroundDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImDrawList *drawList = ImGui::GetForegroundDrawList();
@@ -1131,10 +1131,10 @@ static HandlerResult ImGuiGetForegroundDrawList(Context ctx) {
     };
 
     wSetIntParam(ctx, data->GetData("__ForegroundDrawlist__", 0, 0));
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiDrawListAddText(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiDrawListAddText(RUNTIME_CONTEXT ctx) {
     ImVec2 pos;
     ImVec4 col;
     ImDrawList *pDrawList = reinterpret_cast<ImDrawList*>(wGetIntParam(ctx));
@@ -1146,8 +1146,8 @@ static HandlerResult ImGuiDrawListAddText(Context ctx) {
     col.z = wGetIntParam(ctx) / 255.0f;
     col.w = wGetIntParam(ctx) / 255.0f;
 
-    char text[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, text, STR_MAX_LEN);
+    char text[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, text, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
@@ -1156,10 +1156,10 @@ static HandlerResult ImGuiDrawListAddText(Context ctx) {
         }
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiDrawListAddLine(Context ctx) {
+static RTN_TYPE RUNTIME_API ImGuiDrawListAddLine(RUNTIME_CONTEXT ctx) {
     ImVec2 p1, p2;
     ImVec4 col;
     ImDrawList *pDrawList = reinterpret_cast<ImDrawList*>(wGetIntParam(ctx));
@@ -1182,14 +1182,14 @@ static HandlerResult ImGuiDrawListAddLine(Context ctx) {
         }
     };
 
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
-static HandlerResult ImGuiTabs(Context ctx) {
-    char buf[STR_MAX_LEN], itemsBuf[STR_MAX_LEN];
-    wGetStringWithFrame(ctx, buf, STR_MAX_LEN);
+static RTN_TYPE RUNTIME_API ImGuiTabs(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN], itemsBuf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData* data = ScriptExData::Get();
-    wGetStringParam(ctx, itemsBuf, STR_MAX_LEN);
+    wGetStringParam(ctx, itemsBuf, RUNTIME_STR_LEN);
     std::vector<std::string> items;
 
     std::string temp;
@@ -1220,7 +1220,7 @@ static HandlerResult ImGuiTabs(Context ctx) {
 
     int val = data->GetData(buf, 0, 0);
     wSetIntParam(ctx, val);
-    return HandlerResult::CONTINUE;
+    return RTN_CONTINUE;
 }
 
 void OpcodeMgr::RegisterCommands() {

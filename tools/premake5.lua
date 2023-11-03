@@ -30,7 +30,6 @@ workspace "ImGuiRedux"
 
 project "ImGuiRedux"
     filter { "platforms:Win32" }
-        targetname "ImGuiReduxWin32"
         architecture "x86"
         links { 
             "d3d9",
@@ -42,6 +41,7 @@ project "ImGuiRedux"
             "dxguid.lib"
         }
         filter "configurations:DebugCleo"
+            targetname "ImGuiCleoWin32"
             symbols "On"
             defines {
                 "RUNTIME_CLEO" 
@@ -51,6 +51,7 @@ project "ImGuiRedux"
             }
 
         filter "configurations:ReleaseCleo"
+            targetname "ImGuiCleoWin32"
             optimize "On"
             defines {
                 "NDEBUG",
@@ -61,6 +62,7 @@ project "ImGuiRedux"
             }
         
         filter "configurations:Debug"
+            targetname "ImGuiReduxWin32"
             symbols "On"
             defines {
                 "RUNTIME_REDUX" 
@@ -70,6 +72,7 @@ project "ImGuiRedux"
             }
 
         filter "configurations:Release"
+            targetname "ImGuiReduxWin32"
             optimize "On"
             defines {
                 "NDEBUG",

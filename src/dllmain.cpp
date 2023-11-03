@@ -2,8 +2,12 @@
 #include <windows.h>
 #include "opcodemgr.h"
 #include "hook.h"
-#include "injector.hpp"
+
+#ifdef RUNTIME_REDUX
+#include "wrapper.hpp"
+#else
 #include "MinHook.h"
+#include "injector.hpp"
 
 void f_GTA_SPCheck() {
     std::string moduleName = "SilentPatchSA.asi";
@@ -21,8 +25,11 @@ void f_GTA_SPCheck() {
         return;
     }
 }
+#endif
 
 void ImGuiThread(void* param) {
+
+#ifdef RUNTIME_CLEO
     /*
     	Need SP for mouse fixes
     	Only need for classics
@@ -37,6 +44,7 @@ void ImGuiThread(void* param) {
         MH_CreateHook((void*)addr, f_GTA_SPCheck, &ptr);
         MH_EnableHook(ptr);
     }
+#endif
 
     Sleep(5000);
 
@@ -51,45 +59,22 @@ void ImGuiThread(void* param) {
 
 BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
     if (nReason == DLL_PROCESS_ATTACH) {
+#ifdef RUNTIME_CLEO
         auto gvm = injector::game_version_manager();
         gvm.Detect();
-
+        
         if (gvm.GetMajorVersion() == 1 && gvm.GetMinorVersion() == 0) {
-            if (gvm.IsIII()) {
-                gGameVer = eGameVer::III;
-            }
-
-            if (gvm.IsVC()) {
-                gGameVer = eGameVer::VC;
-            }
-
-            if (gvm.IsSA()) {
-                gGameVer = eGameVer::SA;
-            }
+            if (gvm.IsIII()) gGameVer = eGameVer::III;
+            if (gvm.IsVC()) gGameVer = eGameVer::VC;
+            if (gvm.IsSA()) gGameVer = eGameVer::SA;
         }
-
-        if constexpr (gRunTime == eRunTime::Redux) {
-            HostId id = GetHostId();
-            switch (id) {
-                case HostId::GTA3_UNREAL: {
-                    gGameVer = eGameVer::III_DE;
-                    break;
-                }
-                case HostId::VC_UNREAL: {
-                    gGameVer = eGameVer::VC_DE;
-                    break;
-                }
-                case HostId::SA_UNREAL: {
-                    gGameVer = eGameVer::SA_DE;
-                    break;
-                }
-                case HostId::BULLY: {
-                    gGameVer = eGameVer::BullySE;
-                    break;
-                }
-            }
-        } 
-
+#else
+        auto id = GetHostId();
+        if (id == HostId::GTA3_UNREAL) gGameVer = eGameVer::III_DE;
+        if (id == HostId::VC_UNREAL) gGameVer = eGameVer::VC_DE;
+        if (id == HostId::SA_UNREAL) gGameVer = eGameVer::SA_DE;
+        if (id == HostId::BULLY) gGameVer = eGameVer::BullySE;
+#endif
         OpcodeMgr::RegisterCommands();
         CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
     }
