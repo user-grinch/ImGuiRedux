@@ -24,7 +24,7 @@
 
 static void wGetStringParam(RUNTIME_CONTEXT ctx, char* label, unsigned char length) {
 #ifdef RUNTIME_CLEO
-    CLEO_ReadStringOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), label, length);
+    CLEO_ReadStringOpcodeParam(ctx, label, length);
 #else
     GetStringParam(ctx, label, length);
 #endif
@@ -83,7 +83,8 @@ static float wGetFloatParam(RUNTIME_CONTEXT ctx) {
 
 static void wUpdateCompareFlag(RUNTIME_CONTEXT ctx, bool flag) {
 #ifdef RUNTIME_CLEO
-    ((void(*)(RUNTIME_CONTEXT, bool))0x4859D0)(ctx, flag); // CRunningScript::UpdateCompareFlag();
+    typedef unsigned __int16 (__thiscall* _type)(RUNTIME_CONTEXT, bool);
+    ((_type)0x4859D0)(ctx, flag); // CRunningScript::UpdateCompareFlag();
 #else
     UpdateCompareFlag(ctx, flag);
 #endif
