@@ -39,7 +39,7 @@ jobs:
         with:
           artifacts: ImGuiRedux${{matrix.platform}}.zip
           name: "${{matrix.platform}} Builds"
-          body: "This release is updated frequently with newer builds.\nImGuiCleo${{matrix.platform}}.cleo for regular CLEO\nImGuiRedux${{matrix.platform}}.cleo for CLEORedux"
+          body: "This release is updated frequently with newer builds.\n\n- ImGuiCleo${{matrix.platform}}.cleo for regular CLEO\n- ImGuiRedux${{matrix.platform}}.cleo for CLEORedux"
           allowUpdates: true
           tag: "${{matrix.platform}}-latest"
   ImGuiCleo:
@@ -76,7 +76,7 @@ jobs:
         with:
           artifacts: ImGuiCleoWin32.zip
           name: "Win32 Builds"
-          body: "This release is updated frequently with newer builds.\nImGuiCleoWin32.cleo for regular CLEO\nImGuiReduxWin32.cleo for CLEORedux"
+          body: "This release is updated frequently with newer builds.\n\n-ImGuiCleoWin32.cleo for regular CLEO\n-ImGuiReduxWin32.cleo for CLEORedux"
           allowUpdates: true
           tag: "Win32-latest"
         

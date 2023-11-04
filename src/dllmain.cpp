@@ -68,8 +68,16 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
             if (gvm.IsVC()) gGameVer = eGameVer::VC;
             if (gvm.IsSA()) gGameVer = eGameVer::SA;
         }
-#else
+#else   
+        if (GetModuleHandle("ImGuiCleoWin32.cleo")) {
+            Log("ImGuiReduxWin32: ImGuiCleoWin32 detected. Closing...");
+            return TRUE;
+        }
+
         auto id = GetHostId();
+        if (id == HostId::GTA3) gGameVer = eGameVer::III;
+        if (id == HostId::VC) gGameVer = eGameVer::VC;
+        if (id == HostId::SA) gGameVer = eGameVer::SA;
         if (id == HostId::GTA3_UNREAL) gGameVer = eGameVer::III_DE;
         if (id == HostId::VC_UNREAL) gGameVer = eGameVer::VC_DE;
         if (id == HostId::SA_UNREAL) gGameVer = eGameVer::SA_DE;
