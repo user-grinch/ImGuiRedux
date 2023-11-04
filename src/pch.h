@@ -1,6 +1,6 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_REDUX_VERSION 1.5f
+#define IMGUI_REDUX_VERSION 2.0f
 
 #include "imgui.h"
 #include "imgui_stdlib.h"

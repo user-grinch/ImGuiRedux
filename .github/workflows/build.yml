@@ -1,12 +1,12 @@
 name: Build ImGuiRedux
 on: push
 jobs:
-  build:
+  ImGuiRedux:
     runs-on: windows-latest
     strategy:
       matrix:
         platform: [Win32, Win64]
-        buildtype: [Release, ReleaseCleo]
+        buildtype: [Release]
     steps:
       - name: Checkout
         uses: actions/checkout@v3.0.0
@@ -38,8 +38,45 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: ImGuiRedux${{matrix.platform}}.zip
-          name: "ImGuiRedux ${{matrix.platform}}"
-          body: "ImGuiRedux for ${{matrix.platform}}. This release is updated regularly"
+          name: "${{matrix.platform}} Builds"
+          body: "This release is updated frequently with newer builds.\nImGuiCleo${{matrix.platform}}.cleo for regular CLEO\nImGuiRedux${{matrix.platform}}.cleo for CLEORedux"
           allowUpdates: true
           tag: "${{matrix.platform}}-latest"
+  ImGuiCleo:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.0.0
+      - name: Setup premake
+        uses: abel0b/setup-premake@v2
+        with:
+          version: "5.0.0-beta1"
+      - name: Configure build
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: Win32 
+      - name: Build plugin
+        run: |
+          cd tools
+          premake5 vs2022
+          cd ../build
+          MsBuild ImGuiRedux.sln /property:Configuration=ReleaseCleo /p:Platform=Win32 /t:ImGuiRedux
+      - name: Upload plugin
+        uses: actions/upload-artifact@v3
+        with:
+          name: ImGuiCleoWin32
+          path: build\bin\ImGuiCleoWin32.cleo
+      - name: Archive plugin
+        uses: papeloto/action-zip@v1
+        with:
+          files: build\bin\ImGuiCleoWin32.cleo
+          dest: ImGuiCleoWin32.zip
+      - name: Add build to release tag
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ImGuiCleoWin32.zip
+          name: "Win32 Builds"
+          body: "This release is updated frequently with newer builds.\nImGuiCleoWin32.cleo for regular CLEO\nImGuiReduxWin32.cleo for CLEORedux"
+          allowUpdates: true
+          tag: "Win32-latest"
         

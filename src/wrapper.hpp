@@ -89,9 +89,18 @@ static void wUpdateCompareFlag(RUNTIME_CONTEXT ctx, bool flag) {
 #endif
 }
 
+static void wResolvePath(RUNTIME_CONTEXT ctx, const char* src, char* dest, size_t maxLength) {
+#ifdef RUNTIME_CLEO
+    strcpy(dest, src);
+    CLEO_ResolvePath(ctx, dest, maxLength);
+#else
+    ResolvePath(src, dest);
+#endif
+}
+
 static void wRegisterCommand(const char *name, CMD_DEF handler) {
 #ifdef RUNTIME_CLEO
-    static size_t opcode = 0x0C00;
+    static size_t opcode = 0x2200;
     CLEO_RegisterOpcode(opcode, handler);
     opcode++;
 #else

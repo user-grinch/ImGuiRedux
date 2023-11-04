@@ -103,7 +103,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetImageBgColor(RUNTIME_CONTEXT ctx) {
 static RTN_TYPE RUNTIME_API ImGuiLoadImage(RUNTIME_CONTEXT ctx) {
     char fullPath[RUNTIME_STR_LEN*2], path[RUNTIME_STR_LEN];
     wGetStringParam(ctx, path, RUNTIME_STR_LEN);
-    // ResolvePath(path, fullPath);
+    wResolvePath(ctx, path, fullPath, sizeof(fullPath));
     wSetIntParam(ctx, reinterpret_cast<int>(TextureMgr::LoadTextureFromPath(fullPath)));
     return RTN_CONTINUE;
 }
@@ -1232,94 +1232,94 @@ void OpcodeMgr::RegisterCommands() {
     wRegisterCommand("IMGUI_BEGIN", ImGuiBegin);
     wRegisterCommand("IMGUI_END", ImGuiEnd);
 
-    // wRegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos);
-    // wRegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowSize);
-    // wRegisterCommand("IMGUI_SET_NEXT_WINDOW_POS", ImGuiSetNextWindowPos);
-    // wRegisterCommand("IMGUI_SET_NEXT_WINDOW_SIZE", ImGuiSetNextWindowSize);
-    // wRegisterCommand("IMGUI_DUMMY", ImGuiDummy);
+    wRegisterCommand("IMGUI_BEGIN_MAINMENUBAR", ImGuiBeginMainMenuBar);
+    wRegisterCommand("IMGUI_END_MAINMENUBAR", ImGuiEndMainMenuBar);
 
-    // wRegisterCommand("IMGUI_TEXT", ImGuiText);
-    // wRegisterCommand("IMGUI_TEXT_CENTERED", ImGuiTextCentered);
-    // wRegisterCommand("IMGUI_TEXT_DISABLED", ImGuiTextDisabled);
-    // wRegisterCommand("IMGUI_TEXT_WRAPPED", ImGuiTextWrapped);
-    // wRegisterCommand("IMGUI_TEXT_COLORED", ImGuiTextColored);
-    // wRegisterCommand("IMGUI_BULLET_TEXT", ImGuiBulletText);
-    // wRegisterCommand("IMGUI_SET_TOOLTIP", ImGuiSetTooltip);
+    wRegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChild);
+    wRegisterCommand("IMGUI_END_CHILD", ImGuiEndChild);
 
-    // wRegisterCommand("IMGUI_BUTTON", ImGuiButton);
-    // wRegisterCommand("IMGUI_IMAGE_BUTTON", ImGuiImageButton);
-    // wRegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton);
-    // wRegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton);
-    // wRegisterCommand("IMGUI_ARROW_BUTTON", ImGuiArrowButton);
+    wRegisterCommand("IMGUI_TABS", ImGuiTabs);
+    wRegisterCommand("IMGUI_COLLAPSING_HEADER", ImGuiCollapsingHeader);
 
-    // wRegisterCommand("IMGUI_CHECKBOX", ImGuiCheckbox);
+    wRegisterCommand("IMGUI_SET_WINDOW_POS", ImGuiSetWindowPos);
+    wRegisterCommand("IMGUI_SET_WINDOW_SIZE", ImGuiSetWindowSize);
+    wRegisterCommand("IMGUI_SET_NEXT_WINDOW_POS", ImGuiSetNextWindowPos);
+    wRegisterCommand("IMGUI_SET_NEXT_WINDOW_SIZE", ImGuiSetNextWindowSize);
+    
+    wRegisterCommand("IMGUI_TEXT", ImGuiText);
+    wRegisterCommand("IMGUI_TEXT_CENTERED", ImGuiTextCentered);
+    wRegisterCommand("IMGUI_TEXT_DISABLED", ImGuiTextDisabled);
+    wRegisterCommand("IMGUI_TEXT_WRAPPED", ImGuiTextWrapped);
+    wRegisterCommand("IMGUI_TEXT_COLORED", ImGuiTextColored);
+    wRegisterCommand("IMGUI_BULLET_TEXT", ImGuiBulletText);
+    
+    wRegisterCommand("IMGUI_BULLET", ImGuiBullet);
+    wRegisterCommand("IMGUI_CHECKBOX", ImGuiCheckbox);
+    wRegisterCommand("IMGUI_COMBO", ImGuiCombo);
+    wRegisterCommand("IMGUI_SET_TOOLTIP", ImGuiSetTooltip);
 
-    // wRegisterCommand("IMGUI_SAMELINE", ImGuiSameLine);
-    // wRegisterCommand("IMGUI_NEWLINE", ImGuiNewLine);
-    // wRegisterCommand("IMGUI_COLUMNS", ImGuiColumns);
-    // wRegisterCommand("IMGUI_NEXT_COLUMN", ImGuiNextColumn);
-    // wRegisterCommand("IMGUI_SPACING", ImGuiSpacing);
-    // wRegisterCommand("IMGUI_SEPARATOR", ImGuiSeparator);
+    wRegisterCommand("IMGUI_BUTTON", ImGuiButton);
+    wRegisterCommand("IMGUI_IMAGE_BUTTON", ImGuiImageButton);
+    wRegisterCommand("IMGUI_INVISIBLE_BUTTON", ImGuiInvisibleButton);
+    wRegisterCommand("IMGUI_COLOR_BUTTON", ImGuiColorButton);
+    wRegisterCommand("IMGUI_ARROW_BUTTON", ImGuiArrowButton);
+    
+    wRegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt);
+    wRegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat);
+    wRegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt);
+    wRegisterCommand("IMGUI_INPUT_FLOAT", ImGuiInputFloat);
+    wRegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText);
+    wRegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton);
+    wRegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker);
+    wRegisterCommand("IMGUI_MENU_ITEM", ImGuiMenuItem);
+    wRegisterCommand("IMGUI_SELECTABLE", ImGuiSelectable);
 
-    // wRegisterCommand("GET_FRAMERATE", ImGuiGetFramerate);
-    // wRegisterCommand("IMGUI_GET_VERSION", ImGuiGetVersion);
-    // wRegisterCommand("IMGUI_GET_PLUGIN_VERSION", ImGuiGetPluginVersion);
+    wRegisterCommand("IMGUI_DUMMY", ImGuiDummy);
+    wRegisterCommand("IMGUI_SAMELINE", ImGuiSameLine);
+    wRegisterCommand("IMGUI_NEWLINE", ImGuiNewLine);
+    wRegisterCommand("IMGUI_COLUMNS", ImGuiColumns);
+    wRegisterCommand("IMGUI_NEXT_COLUMN", ImGuiNextColumn);
+    wRegisterCommand("IMGUI_SPACING", ImGuiSpacing);
+    wRegisterCommand("IMGUI_SEPARATOR", ImGuiSeparator);
 
-    // wRegisterCommand("IMGUI_SET_CURSOR_VISIBLE", ImGuiSetCursorVisible);
-    // wRegisterCommand("IMGUI_GET_FRAME_HEIGHT", ImGuiGetFrameHeight);
-    // wRegisterCommand("IMGUI_GET_WINDOW_POS", ImGuiGetWindowPos);
-    // wRegisterCommand("IMGUI_GET_WINDOW_SIZE", ImGuiGetWindowSize);
-    // wRegisterCommand("IMGUI_CALC_TEXT_SIZE", ImGuiCalcTextSize);
-    // wRegisterCommand("IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH", ImGuiGetWindowContentRegionWidth);
-    // wRegisterCommand("IMGUI_BEGIN_MAINMENUBAR", ImGuiBeginMainMenuBar);
-    // wRegisterCommand("IMGUI_END_MAINMENUBAR", ImGuiEndMainMenuBar);
-    // wRegisterCommand("IMGUI_MENU_ITEM", ImGuiMenuItem);
-    // wRegisterCommand("IMGUI_SELECTABLE", ImGuiSelectable);
-    // wRegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChild);
-    // wRegisterCommand("IMGUI_END_CHILD", ImGuiEndChild);
-    // wRegisterCommand("IMGUI_PUSH_ITEM_WIDTH", ImGuiPushItemWidth);
-    // wRegisterCommand("IMGUI_POP_ITEM_WIDTH", ImGuiPopItemWidth);
+    wRegisterCommand("IMGUI_PUSH_ITEM_WIDTH", ImGuiPushItemWidth);
+    wRegisterCommand("IMGUI_POP_ITEM_WIDTH", ImGuiPopItemWidth);
+    wRegisterCommand("IMGUI_IS_ITEM_ACTIVE", ImGuiIsItemActive);
+    wRegisterCommand("IMGUI_IS_ITEM_CLICKED", ImGuiIsItemClicked);
+    wRegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused);
+    wRegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered);
+    wRegisterCommand("IMGUI_SET_ITEM_INT", ImGuiSetWidgetInt);
+    wRegisterCommand("IMGUI_SET_ITEM_FLOAT", ImGuiSetWidgetFloat);
+    wRegisterCommand("IMGUI_SET_ITEM_TEXT", ImGuiSetWidgetText);
+ 
+    wRegisterCommand("IMGUI_SET_IMAGE_BG_COLOR", ImGuiSetImageBgColor);
+    wRegisterCommand("IMGUI_SET_IMAGE_TINT_COLOR", ImGuiSetImageTintColor);
+    wRegisterCommand("IMGUI_LOAD_IMAGE", ImGuiLoadImage);
+    wRegisterCommand("IMGUI_FREE_IMAGE", ImGuiFreeImage);
 
-    // wRegisterCommand("IMGUI_COLLAPSING_HEADER", ImGuiCollapsingHeader);
+    wRegisterCommand("IMGUI_PUSH_STYLE_VAR", ImGuiPushStyleVar);
+    wRegisterCommand("IMGUI_PUSH_STYLE_VAR2", ImGuiPushStyleVar2);
+    wRegisterCommand("IMGUI_PUSH_STYLE_COLOR", ImGuiPushStyleColor);
+    wRegisterCommand("IMGUI_POP_STYLE_VAR", ImGuiPopStyleVar);
+    wRegisterCommand("IMGUI_POP_STYLE_COLOR", ImGuiPopStyleColor);
+ 
+    wRegisterCommand("IMGUI_GET_FOREGROUND_DRAWLIST", ImGuiGetForegroundDrawList);
+    wRegisterCommand("IMGUI_GET_BACKGROUND_DRAWLIST", ImGuiGetBackgroundDrawList);
+    wRegisterCommand("IMGUI_GET_WINDOW_DRAWLIST", ImGuiGetWindowDrawList);
+    wRegisterCommand("IMGUI_DRAWLIST_ADD_TEXT", ImGuiDrawListAddText);
+    wRegisterCommand("IMGUI_DRAWLIST_ADD_LINE", ImGuiDrawListAddLine);
 
-    // wRegisterCommand("IMGUI_SLIDER_INT", ImGuiSliderInt);
-    // wRegisterCommand("IMGUI_SLIDER_FLOAT", ImGuiSliderFloat);
-    // wRegisterCommand("IMGUI_INPUT_INT", ImGuiInputInt);
-    // wRegisterCommand("IMGUI_INPUT_FLOAT", ImGuiInputFloat);
-    // wRegisterCommand("IMGUI_INPUT_TEXT", ImGuiInputText);
-    // wRegisterCommand("IMGUI_RADIO_BUTTON", ImGuiRadioButton);
-    // wRegisterCommand("IMGUI_COLOR_PICKER", ImGuiColorPicker);
-
-    // wRegisterCommand("IMGUI_IS_ITEM_ACTIVE", ImGuiIsItemActive);
-    // wRegisterCommand("IMGUI_IS_ITEM_CLICKED", ImGuiIsItemClicked);
-    // wRegisterCommand("IMGUI_IS_ITEM_FOCUSED", ImGuiIsItemFocused);
-    // wRegisterCommand("IMGUI_IS_ITEM_HOVERED", ImGuiIsItemHovered);
-    // wRegisterCommand("IMGUI_GET_SCALING_SIZE", ImGuiGetScalingSize);
-    // wRegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
-    // wRegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
-    // wRegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
-    // wRegisterCommand("IMGUI_BULLET", ImGuiBullet);
-    // wRegisterCommand("IMGUI_COMBO", ImGuiCombo);
-
-    // wRegisterCommand("IMGUI_SET_IMAGE_BG_COLOR", ImGuiSetImageBgColor);
-    // wRegisterCommand("IMGUI_SET_IMAGE_TINT_COLOR", ImGuiSetImageTintColor);
-    // wRegisterCommand("IMGUI_LOAD_IMAGE", ImGuiLoadImage);
-    // wRegisterCommand("IMGUI_FREE_IMAGE", ImGuiFreeImage);
-
-    // wRegisterCommand("IMGUI_PUSH_STYLE_VAR", ImGuiPushStyleVar);
-    // wRegisterCommand("IMGUI_PUSH_STYLE_VAR2", ImGuiPushStyleVar2);
-    // wRegisterCommand("IMGUI_PUSH_STYLE_COLOR", ImGuiPushStyleColor);
-    // wRegisterCommand("IMGUI_POP_STYLE_VAR", ImGuiPopStyleVar);
-    // wRegisterCommand("IMGUI_POP_STYLE_COLOR", ImGuiPopStyleColor);
-    // wRegisterCommand("IMGUI_TABS", ImGuiTabs);
-
-    // wRegisterCommand("IMGUI_GET_FOREGROUND_DRAWLIST", ImGuiGetForegroundDrawList);
-    // wRegisterCommand("IMGUI_GET_BACKGROUND_DRAWLIST", ImGuiGetBackgroundDrawList);
-    // wRegisterCommand("IMGUI_GET_WINDOW_DRAWLIST", ImGuiGetWindowDrawList);
-    // wRegisterCommand("IMGUI_DRAWLIST_ADD_TEXT", ImGuiDrawListAddText);
-    // wRegisterCommand("IMGUI_DRAWLIST_ADD_LINE", ImGuiDrawListAddLine);
-
-    // wRegisterCommand("IMGUI_SET_WIDGET_INT", ImGuiSetWidgetInt);
-    // wRegisterCommand("IMGUI_SET_WIDGET_FLOAT", ImGuiSetWidgetFloat);
-    // wRegisterCommand("IMGUI_SET_WIDGET_TEXT", ImGuiSetWidgetText);
+    wRegisterCommand("GET_FRAMERATE", ImGuiGetFramerate);
+    wRegisterCommand("IMGUI_GET_VERSION", ImGuiGetVersion);
+    wRegisterCommand("IMGUI_GET_PLUGIN_VERSION", ImGuiGetPluginVersion);
+    wRegisterCommand("IMGUI_SET_CURSOR_VISIBLE", ImGuiSetCursorVisible);
+    wRegisterCommand("IMGUI_GET_FRAME_HEIGHT", ImGuiGetFrameHeight);
+    wRegisterCommand("IMGUI_GET_WINDOW_POS", ImGuiGetWindowPos);
+    wRegisterCommand("IMGUI_GET_WINDOW_SIZE", ImGuiGetWindowSize);
+    wRegisterCommand("IMGUI_CALC_TEXT_SIZE", ImGuiCalcTextSize);
+    wRegisterCommand("IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH", ImGuiGetWindowContentRegionWidth);
+    wRegisterCommand("IMGUI_GET_SCALING_SIZE", ImGuiGetScalingSize);
+    wRegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
+    wRegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
+    wRegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
 }
