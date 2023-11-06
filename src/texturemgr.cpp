@@ -119,7 +119,7 @@ TextureInfo* TextureMgr::FindInfo(std::string &&path) {
 
 bool TextureMgr::Exists(TextureInfo *pInfo) {
     for (TextureInfo item : textureList) {
-        if (item == static_cast<const TextureInfo&>(*pInfo)) {
+        if (item.path == pInfo->path) {
             return true;
         }
     }

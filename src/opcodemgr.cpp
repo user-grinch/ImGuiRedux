@@ -195,7 +195,7 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
     };
 
     bool clicked = data->GetData(buf, 0, state);
-    wUpdateCompareFlag(ctx, clicked ? data->GetData(buf, 1, state) : state);
+    wSetIntParam(ctx, clicked ? data->GetData(buf, 1, state) : state);
     return RTN_CONTINUE;
 }
 
