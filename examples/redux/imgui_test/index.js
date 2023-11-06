@@ -11,7 +11,7 @@ var gRadioBtn = 1
 var gTimerExample = 0
 var gPrevTimer = 0
 var gComboSelection = 1
-var gImage = ImGui.LoadImage("./example.jpg")
+var gImage = ImGui.LoadImage("cleo/imgui_test/example.jpg")
 
 function textBox(text) 
 {
@@ -45,7 +45,7 @@ while (true)
 
     if (gShowWindow)
     {
-        ImGui.SetNextWindowSize(350, 600, 2) // 2 = ImGuiCond_Once
+        ImGui.SetNextWindowSize(350.0, 600.0, 2) // 2 = ImGuiCond_Once
         gShowWindow = ImGui.Begin("ImGuiRedux Demo Window", gShowWindow, 0, 0, 0, 0)
 
         let reduxVer = ImGui.GetPluginVersion()
@@ -176,14 +176,14 @@ while (true)
             let size = ImGui.GetScalingSize("S012", 2, 0)
             if (ImGui.Button("Rest Inputs", size.x, size.y))
             {
-                ImGui.SetWidgetValueInt("Int input", 420)
-                ImGui.SetWidgetValueInt("Int slider", 5)
+                ImGui.SetItemValueInt("Int input", 420)
+                ImGui.SetItemValueInt("Int slider", 5)
             }
             ImGui.SameLine()
             if (ImGui.Button("Rest Sliders", size.x, size.y))
             {
-                ImGui.SetWidgetValueFloat("Float input", 69.9)
-                ImGui.SetWidgetValueFloat("Float slider", 5.0)
+                ImGui.SetItemValueFloat("Float input", 69.9)
+                ImGui.SetItemValueFloat("Float slider", 5.0)
             }
 
             ImGui.Dummy(0, 20)
