@@ -85,13 +85,13 @@ lst = {
 }
 
 # Retrieve JSON data from the file
-with open("C:/Users/Grinch_/Desktop/test.json", "r") as f:
+with open("E:/ImGuiRedux/tools/test.json", "r") as f:
     data = json.load(f)
 
     outdata = []
-    with open("C:/Users/Grinch_/Desktop/out.json", "w") as w:
+    with open("E:/ImGuiRedux/tools/out.json", "w") as w:
         for e in data["commands"]:
-            e["id"] = str(hex(lst[e["name"]])).replace("0x", "");
+            e["id"] = str(hex(lst[e["name"]])).replace("0x", "").upper();
             outdata.insert(-1, e);
         formatted_data = json.dumps(outdata, indent=2)
 

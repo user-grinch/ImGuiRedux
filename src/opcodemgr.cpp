@@ -195,12 +195,7 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
     };
 
     bool clicked = data->GetData(buf, 0, state);
-    if (clicked) {
-        wSetIntParam(ctx, data->GetData(buf, 1, state));
-    } else {
-        wSetIntParam(ctx, state);
-    }
-
+    wUpdateCompareFlag(ctx, clicked ? data->GetData(buf, 1, state) : state);
     return RTN_CONTINUE;
 }
 
@@ -552,7 +547,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginMainMenuBar(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, state);
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -577,7 +572,7 @@ static RTN_TYPE RUNTIME_API ImGuiMenuItem(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, state);
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -592,7 +587,7 @@ static RTN_TYPE RUNTIME_API ImGuiSelectable(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, state);
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -648,7 +643,7 @@ static RTN_TYPE RUNTIME_API ImGuiCollapsingHeader(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, state);
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -926,7 +921,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemActive(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, ImGui::IsItemActive());
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -939,7 +934,6 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemHovered(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, ImGui::IsItemHovered());
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
     wUpdateCompareFlag(ctx, data->GetData(buf, 0, 0));
     return RTN_CONTINUE;
 }
@@ -953,7 +947,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemClicked(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, ImGui::IsItemClicked());
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -966,7 +960,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemFocused(RUNTIME_CONTEXT ctx) {
         data->SetData(buf, 0, ImGui::IsItemFocused());
     };
 
-    wSetIntParam(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
     return RTN_CONTINUE;
 }
 
