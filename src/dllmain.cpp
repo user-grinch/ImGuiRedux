@@ -78,6 +78,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
         if (id == HostId::GTA3) gGameVer = eGameVer::III;
         if (id == HostId::VC) gGameVer = eGameVer::VC;
         if (id == HostId::SA) gGameVer = eGameVer::SA;
+        if (id == HostId::IV) gGameVer = eGameVer::IV;
         if (id == HostId::GTA3_UNREAL) gGameVer = eGameVer::III_DE;
         if (id == HostId::VC_UNREAL) gGameVer = eGameVer::VC_DE;
         if (id == HostId::SA_UNREAL) gGameVer = eGameVer::SA_DE;

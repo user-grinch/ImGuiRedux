@@ -18,6 +18,8 @@ enum class eGameVer {
     III,
     VC,
     SA,
+    IV,
+    V,
     III_DE,
     VC_DE,
     SA_DE,

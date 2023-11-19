@@ -50,7 +50,7 @@ void Hook::SetMouseState(bool state) {
 LRESULT Hook::hkWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
-    if (ImGui::GetIO().WantTextInput|| (gGameVer > eGameVer::SA && mouseVisible)) {
+    if (ImGui::GetIO().WantTextInput || (gGameVer > eGameVer::SA && mouseVisible)) {
 #ifndef _WIN64
         if (gGameVer == eGameVer::SA) {
             reinterpret_cast<void(__cdecl*)()>(0x53F1E0)(); // CPad::ClearKeyboardHistory
@@ -441,6 +441,20 @@ BOOL CALLBACK Hook::hkShowCursor(bool flag) {
     return oShowCursor(flag);
 }
 
+void Hook::InputWatcher()
+{
+	while (true)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+        if (io.MouseDrawCursor) {
+			io.MouseDown[0] = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
+			io.MouseDown[1] = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+			io.MouseDown[2] = (GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0;
+        }
+		Sleep(1);
+	}
+}
+
 bool Hook::Inject(void *pCallback) {
     static bool injected;
     if (injected) {
@@ -503,6 +517,10 @@ dx11:
             MH_CreateHook(diMouse[9], hkGetDeviceState, reinterpret_cast<LPVOID*>(&oGetDeviceState));
             MH_EnableHook(diMouse[9]);
         }
+    }
+
+    if (gGameVer == eGameVer::IV) {
+        CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(InputWatcher), nullptr, 0, nullptr);
     }
 
     return injected;

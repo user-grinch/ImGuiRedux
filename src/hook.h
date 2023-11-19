@@ -54,6 +54,9 @@ class Hook {
     static bool GetDinputDevice(void** pMouse, size_t size);
     static HRESULT CALLBACK hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData);
 
+    // IV
+    static void InputWatcher();
+
   public:
 
     Hook() = delete;
