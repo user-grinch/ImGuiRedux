@@ -3,8 +3,12 @@
 
 ## Supported Games
 - GTA III 
+- GTA III DE
 - GTA Vice City
+- GTA Vice City DE
 - GTA San Andreas
+- GTA San Andreas DE
+- GTA 4 Complete Edition
 - Bully Scholarship Edition
 
 ### Installation 
