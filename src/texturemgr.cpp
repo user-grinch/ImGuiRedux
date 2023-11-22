@@ -88,7 +88,8 @@ TextureInfo* TextureMgr::LoadTextureFromPath(const char *path) {
     TextureInfo info;
     info.path = std::string(path);
     info.pTexture = nullptr;
-    LoadTexture(info);
+    // FIX ME
+    // LoadTexture(info);
     textureList.push_back(std::move(info));
     return &textureList.back();
 }

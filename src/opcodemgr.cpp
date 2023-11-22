@@ -3,6 +3,7 @@
 #include <time.h>
 #include "texturemgr.h"
 #include "wrapper.hpp"
+#include "imgui_internal.h"
 
 static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
     char label[RUNTIME_STR_LEN];
@@ -61,13 +62,17 @@ static RTN_TYPE RUNTIME_API ImGuiImageButton(RUNTIME_CONTEXT ctx) {
 
     // FIX:
     // Due to an issue textures aren't loaded in LoadImage but on ImageButton first call
-    if (pInfo && TextureMgr::Exists(pInfo)) {
+
+    if (!pInfo->pTexture && TextureMgr::Exists(pInfo)) {
         TextureMgr::LoadTexture(*pInfo);
     }
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
-        bool isPressed = ImGui::ImageButton(pInfo->pTexture, ImVec2(size.x, size.y), ImVec2(0, 0), ImVec2(1, 1), 0, data->imgui.m_ImGCol.m_fBgCol, data->imgui.m_ImGCol.m_fTintCol);
+        ImGui::PushID(buf);
+        const ImGuiID id = ImGui::GetID(buf);
+        bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, data->imgui.m_ImGCol.m_fBgCol, data->imgui.m_ImGCol.m_fTintCol);
+        ImGui::PopID();
         data->SetData(buf, 0, isPressed);
     };
 
