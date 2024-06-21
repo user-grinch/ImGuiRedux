@@ -10,6 +10,9 @@
 #include "opcodemgr.h"
 #include "notifypopup.h"
 
+extern enum class eGameVer;
+extern eGameVer gGameVer;
+
 class ScriptExData
 {
 private:
@@ -65,8 +68,20 @@ private:
             time_t curTime = time(NULL);
 
             // We're clearing our buffer if script isn't responding anymore
-            if (curTime-lastScriptCall > 2)
-            {
+            bool scriptsPaused = false;
+            switch(static_cast<int>(gGameVer)) {
+                case 0: // III
+                    scriptsPaused = *(bool*)0x95CD7C;
+                    break;
+                case 1: // VC
+                    scriptsPaused = *(bool*)0xA10B36;
+                    break;
+                case 2: // SA
+                    scriptsPaused = *(bool*)0xB7CB49;
+                    break;
+            }
+            
+            if (curTime-lastScriptCall > 2 || scriptsPaused) {
                 ClearFrames();
             }
         }
