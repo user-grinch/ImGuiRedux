@@ -1354,5 +1354,5 @@ void OpcodeMgr::RegisterCommands() {
     wRegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
     wRegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
     wRegisterCommand("IMGUI_SETCOLUMN_WIDTH", ImGuiSetColumnWidth);
-    wRegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChildEx);
+    wRegisterCommand("IMGUI_BEGIN_CHILDEX", ImGuiBeginChildEx);
 }
