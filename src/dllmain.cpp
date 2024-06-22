@@ -56,6 +56,10 @@ void ImGuiThread(void* param) {
     }
 }
 
+void __stdcall _wrapper(DWORD saveSlot) {
+    ScriptExData::Clear();
+}
+
 BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
     if (nReason == DLL_PROCESS_ATTACH) {
 #ifdef RUNTIME_CLEO
@@ -83,7 +87,12 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
         if (id == HostId::SA_UNREAL) gGameVer = eGameVer::SA_DE;
         if (id == HostId::BULLY) gGameVer = eGameVer::BullySE;
 #endif
-        wOnGameLoadEvent(ScriptExData::Clear);
+
+#ifdef RUNTIME_CLEO
+        CLEO::CLEO_RegisterCallback(CLEO::eCallbackId::GameBegin, _wrapper);
+#else
+        OnRuntimeInit((OnRuntimeInitCallback)ScriptExData::Clear);
+#endif
 
         OpcodeMgr::RegisterCommands();
         CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
