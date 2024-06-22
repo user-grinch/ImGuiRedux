@@ -231,9 +231,20 @@ static RTN_TYPE RUNTIME_API ImGuiNewLine(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiColumns(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
+    count = max(count, 1);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::Columns(count, NULL, false);
+    };
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiSetColumnWidth(RUNTIME_CONTEXT ctx) {
+    int idx = wGetIntParam(ctx);
+    float width = wGetFloatParam(ctx);
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::SetColumnWidth(idx, width);
     };
     return RTN_CONTINUE;
 }
@@ -488,9 +499,11 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowSize(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetDisplaySize(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    ImVec2 size = ImGui::GetIO().DisplaySize;
-    wSetFloatParam(ctx, size.x);
-    wSetFloatParam(ctx, size.y);
+    MONITORINFO info = {sizeof(info)};
+    GetMonitorInfo(MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY), &info);
+
+    wSetFloatParam(ctx, info.rcMonitor.right - info.rcMonitor.left);
+    wSetFloatParam(ctx, info.rcMonitor.bottom - info.rcMonitor.top);
     return RTN_CONTINUE;
 }
 
@@ -603,6 +616,25 @@ static RTN_TYPE RUNTIME_API ImGuiBeginChild(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImGui::BeginChild(buf);
+    };
+
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiBeginChildEx(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    float szX = 0, szY = 0;
+    bool border = false;
+    int flags = 0;
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
+    szX = wGetFloatParam(ctx);
+    szY = wGetFloatParam(ctx);
+    border = wGetIntParam(ctx);
+    flags = wGetIntParam(ctx);
+
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::BeginChild(buf, {szX, szY}, border, flags);
     };
 
     return RTN_CONTINUE;
@@ -1321,4 +1353,6 @@ void OpcodeMgr::RegisterCommands() {
     wRegisterCommand("IMGUI_GET_DISPLAY_SIZE", ImGuiGetDisplaySize);
     wRegisterCommand("IMGUI_SET_NEXT_WINDOW_TRANSPARENCY", ImGuiSetNextWindowTransparency);
     wRegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
+    wRegisterCommand("IMGUI_SETCOLUMN_WIDTH", ImGuiSetColumnWidth);
+    wRegisterCommand("IMGUI_BEGIN_CHILD", ImGuiBeginChildEx);
 }
