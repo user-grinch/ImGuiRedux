@@ -2,10 +2,9 @@
 #include <windows.h>
 #include "opcodemgr.h"
 #include "hook.h"
-
-#ifdef RUNTIME_REDUX
 #include "wrapper.hpp"
-#else
+
+#ifdef RUNTIME_CLEO
 #include "MinHook.h"
 #include "injector.hpp"
 
@@ -84,6 +83,8 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
         if (id == HostId::SA_UNREAL) gGameVer = eGameVer::SA_DE;
         if (id == HostId::BULLY) gGameVer = eGameVer::BullySE;
 #endif
+        wOnGameLoadEvent(ScriptExData::Clear);
+
         OpcodeMgr::RegisterCommands();
         CreateThread(nullptr, NULL, (LPTHREAD_START_ROUTINE)&ImGuiThread, nullptr, NULL, nullptr);
     }

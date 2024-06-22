@@ -9,9 +9,11 @@
 #include <tuple>
 #include "opcodemgr.h"
 #include "notifypopup.h"
+#include "imgui_internal.h"
 
 extern enum class eGameVer;
 extern eGameVer gGameVer;
+extern ImGuiContext* GImGui;
 
 class ScriptExData
 {
@@ -106,7 +108,7 @@ private:
     * Due to some limitations we can't run the ImGui realtime with the script
     * We run the ImGui frames independent of the script and cache the returns to return back to script
     */
-    Table<std::string, std::vector<ComData>> frameData;
+    static inline Table<std::string, std::vector<ComData>> frameData;
     static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
     static inline bool showCursor; // global cursor state flag
     static inline std::string curScriptID; // current script identifier
@@ -206,5 +208,47 @@ public:
         // update stuff
         Hook::SetMouseState(showCursor);
         m_nFramerate = (size_t)ImGui::GetIO().Framerate;
+    }
+
+    // Clears all the internal stuff
+    static void Clear() {
+        scripts.clear();
+        frameData.Clear();
+
+        // Clear ImGui internal states here
+        auto e = ImGui::GetCurrentContext();
+        if (Hook::m_bInitialized && e) {
+            e->Windows.clear_delete();
+            e->WindowsFocusOrder.clear();
+            e->WindowsTempSortBuffer.clear();
+            e->CurrentWindow = NULL;
+            e->CurrentWindowStack.clear();
+            e->WindowsById.Clear();
+            e->NavWindow = NULL;
+            e->HoveredWindow = e->HoveredWindowUnderMovingWindow = NULL;
+            e->ActiveIdWindow = e->ActiveIdPreviousFrameWindow = NULL;
+            e->MovingWindow = NULL;
+            e->ColorStack.clear();
+            e->StyleVarStack.clear();
+            e->OpenPopupStack.clear();
+            e->BeginPopupStack.clear();
+
+            e->TabBars.Clear();
+            e->CurrentTabBarStack.clear();
+            e->ShrinkWidthBuffer.clear();
+
+            e->ClipperTempData.clear_destruct();
+
+            e->Tables.Clear();
+            e->TablesTempData.clear_destruct();
+            e->DrawChannelsTempMergeBuffer.clear();
+
+            e->ClipboardHandlerData.clear();
+            e->MenusIdSubmittedThisFrame.clear();
+            e->InputTextState.ClearFreeMemory();
+
+            e->SettingsWindows.clear();
+            e->SettingsHandlers.clear();
+        }
     }
 };

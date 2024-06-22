@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-
 #ifdef RUNTIME_CLEO
 #include "../include/cleo/CLEO.h"
 #define RTN_CONTINUE CLEO::OR_CONTINUE
@@ -21,6 +20,14 @@
 
 #define RUNTIME_STR_LEN 128
 
+
+static void wOnGameLoadEvent(void* func) {
+#ifdef RUNTIME_CLEO
+    CLEO::CLEO_RegisterCallback(CLEO::eCallbackId::GameBegin, func);
+#else
+    OnRuntimeInit((OnRuntimeInitCallback)func);
+#endif
+}
 
 static void wGetStringParam(RUNTIME_CONTEXT ctx, char* label, unsigned char length) {
 #ifdef RUNTIME_CLEO

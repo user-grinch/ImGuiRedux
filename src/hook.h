@@ -58,6 +58,7 @@ class Hook {
     static void InputWatcher();
 
   public:
+    static inline bool m_bInitialized = false;
 
     Hook() = delete;
     Hook(Hook const&) = delete;
