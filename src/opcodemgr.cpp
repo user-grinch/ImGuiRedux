@@ -499,11 +499,11 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowSize(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetDisplaySize(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    MONITORINFO info = {sizeof(info)};
-    GetMonitorInfo(MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY), &info);
+    RECT rect;
+    GetClientRect(GetForegroundWindow(), &rect); 
 
-    wSetFloatParam(ctx, info.rcMonitor.right - info.rcMonitor.left);
-    wSetFloatParam(ctx, info.rcMonitor.bottom - info.rcMonitor.top);
+    wSetFloatParam(ctx, rect.right - rect.left);
+    wSetFloatParam(ctx, rect.bottom - rect.top);
     return RTN_CONTINUE;
 }
 
