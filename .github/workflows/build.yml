@@ -39,7 +39,7 @@ jobs:
         with:
           artifacts: ImGuiRedux${{matrix.platform}}.zip
           name: "${{matrix.platform}} Builds"
-          body: "This release is updated frequently with newer builds.\n\n- ImGuiCleo${{matrix.platform}}.zip for regular CLEO\n- ImGuiRedux${{matrix.platform}}.zip for CLEORedux"
+          body: "This release is updated frequently with newer builds.\n\n- ImGuiRedux${{matrix.platform}}.zip for CLEORedux"
           allowUpdates: true
           tag: "${{matrix.platform}}-latest"
   ImGuiCleo:
