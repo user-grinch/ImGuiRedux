@@ -4,6 +4,7 @@
 #include "texturemgr.h"
 #include "wrapper.hpp"
 #include "imgui_internal.h"
+#include "hook.h"
 
 static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
     char label[RUNTIME_STR_LEN];
@@ -336,8 +337,13 @@ static RTN_TYPE RUNTIME_API ImGuiSetNextWindowSize(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
+    cond = data->imgui.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
     data->imgui += [=]() {
-        ImGui::SetNextWindowSize(size, cond);
+        ImGui::SetNextWindowSize({size.x * data->imgui.m_vecScaling.x, size.y * data->imgui.m_vecScaling.y}, cond);
+
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
 
     return RTN_CONTINUE;
@@ -350,8 +356,13 @@ static RTN_TYPE RUNTIME_API ImGuiSetWindowSize(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
+    cond = data->imgui.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
     data->imgui += [=]() {
-        ImGui::SetWindowSize(size, cond);
+        ImGui::SetWindowSize({size.x * data->imgui.m_vecScaling.x, size.y * data->imgui.m_vecScaling.y}, cond);
+        
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
 
     return RTN_CONTINUE;
@@ -487,8 +498,8 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowSize(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         ImVec2 size = ImGui::GetWindowSize();
-        data->SetData(buf, 0, size.x);
-        data->SetData(buf, 1, size.y);
+        data->SetData(buf, 0, size.x / data->imgui.m_vecScaling.x);
+        data->SetData(buf, 1, size.y / data->imgui.m_vecScaling.y);
     };
 
     ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };

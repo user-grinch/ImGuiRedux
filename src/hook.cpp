@@ -9,6 +9,7 @@
 #include "injector.hpp"
 #include "font.h"
 #include "kiero.h"
+#include "scriptextender.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -134,6 +135,7 @@ void Hook::ProcessFrame(void* ptr) {
             style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->WindowTitleAlign = ImVec2(0.5f, 0.5f);
             fScreenSize = ImVec2((float)width, (float)height);
+            ScriptExData::SetScaling({scaleX, scaleY});
         }
 
         ImGui_ImplWin32_NewFrame();

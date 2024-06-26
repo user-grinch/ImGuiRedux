@@ -38,6 +38,9 @@ private:
         } m_ImGCol;
 
         bool m_bRender; // is backBuffer ready for render
+        ImVec2 m_vecScaling = ImVec2(1, 1);
+        bool m_bWasScalingUpdatedThisFrame; // was scaling updated
+        bool m_bNeedToUpdateScaling; // does imgui scaling needs updating for this script
         long long lastScriptCall; // last time script called ImGui::Begin(), hide if no script call
 
         std::vector<std::function<void()>> buf; // finished buffer for render
@@ -85,6 +88,11 @@ private:
             
             if (curTime-lastScriptCall > 2 || scriptsPaused) {
                 ClearFrames();
+            }
+
+            if (m_bWasScalingUpdatedThisFrame) {
+                m_bNeedToUpdateScaling = false;
+                m_bWasScalingUpdatedThisFrame = false;
             }
         }
 
@@ -208,6 +216,14 @@ public:
         // update stuff
         Hook::SetMouseState(showCursor);
         m_nFramerate = (size_t)ImGui::GetIO().Framerate;
+    }
+
+    static void SetScaling(ImVec2 scaling) {
+        for (auto it = scripts.begin(); it != scripts.end(); ++it)
+        {
+            (*it)->imgui.m_vecScaling = scaling;
+            (*it)->imgui.m_bNeedToUpdateScaling = true;
+        }
     }
 
     // Clears all the internal stuff
