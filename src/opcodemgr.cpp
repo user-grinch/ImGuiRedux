@@ -245,8 +245,13 @@ static RTN_TYPE RUNTIME_API ImGuiSetColumnWidth(RUNTIME_CONTEXT ctx) {
     float width = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
-        ImGui::SetColumnWidth(idx, width);
+        ImGui::SetColumnWidth(idx, width * data->imgui.m_vecScaling.x);
+
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
+
     return RTN_CONTINUE;
 }
 
@@ -485,7 +490,11 @@ static RTN_TYPE RUNTIME_API ImGuiSetCursorVisible(RUNTIME_CONTEXT ctx) {
 static RTN_TYPE RUNTIME_API ImGuiGetFrameHeight(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
-        data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight());
+        data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight() / data->imgui.m_vecScaling.y);
+
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
     wSetFloatParam(ctx, data->GetData("__frameHeight__", 0, 0.0f));
     return RTN_CONTINUE;
@@ -559,7 +568,11 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowContentRegionWidth(RUNTIME_CONTEXT ctx
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         float width = ImGui::GetWindowContentRegionWidth();
-        data->SetData(buf, 0, width);
+        data->SetData(buf, 0, width / data->imgui.m_vecScaling.x);
+
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
 
     wSetFloatParam(ctx, data->GetData(buf, 0, 0.0f));
@@ -666,7 +679,10 @@ static RTN_TYPE RUNTIME_API ImGuiPushItemWidth(RUNTIME_CONTEXT ctx) {
 
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
-        ImGui::PushItemWidth(width);
+        ImGui::PushItemWidth(width * data->imgui.m_vecScaling.x);
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
 
     return RTN_CONTINUE;
@@ -1081,8 +1097,12 @@ static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
 
         y = ImGui::GetFrameHeight() * 1.3f;
 
-        data->SetData(buf, 0, x);
-        data->SetData(buf, 1, y);
+        data->SetData(buf, 0, x / data->imgui.m_vecScaling.x);
+        data->SetData(buf, 1, y / data->imgui.m_vecScaling.y);
+
+        if (data->imgui.m_bNeedToUpdateScaling) {
+            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        }
     };
 
     wSetFloatParam(ctx, data->GetData(buf, 0, 10.0f));
