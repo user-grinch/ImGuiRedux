@@ -29,7 +29,7 @@ static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
         data->SetData(label, 0, isOpen);
     };
     data->imgui.lastScriptCall = time(NULL);
-    wSetIntParam(ctx, data->GetData(label, 0, true));
+    wUpdateCompareFlag(ctx, data->GetData(label, 0, true));
     return RTN_CONTINUE;
 }
 
@@ -590,6 +590,47 @@ static RTN_TYPE RUNTIME_API ImGuiBeginMainMenuBar(RUNTIME_CONTEXT ctx) {
     };
 
     wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiBeginDisabled(RUNTIME_CONTEXT ctx) {
+    bool flag = wGetIntParam(ctx);
+
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::BeginDisabled(flag);
+    };
+
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiEndDisabled(RUNTIME_CONTEXT ctx) {
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::EndDisabled();
+    };
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiBeginMenu(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
+    bool enabled = wGetIntParam(ctx);
+
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        bool state = ImGui::BeginMenu(buf, enabled);
+        data->SetData(buf, 0, state);
+    };
+    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiEndMenu(RUNTIME_CONTEXT ctx) {
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::EndMenu();
+    };
     return RTN_CONTINUE;
 }
 
@@ -1386,4 +1427,8 @@ void OpcodeMgr::RegisterCommands() {
     wRegisterCommand("IMGUI_SET_MESSAGE", ImGuiSetMessage);
     wRegisterCommand("IMGUI_SETCOLUMN_WIDTH", ImGuiSetColumnWidth);
     wRegisterCommand("IMGUI_BEGIN_CHILDEX", ImGuiBeginChildEx);
+    wRegisterCommand("IMGUI_BEGIN_DISABLED", ImGuiBeginDisabled);
+    wRegisterCommand("IMGUI_END_DISABLED", ImGuiEndDisabled);
+    wRegisterCommand("IMGUI_BEGIN_MENU", ImGuiBeginMenu);
+    wRegisterCommand("IMGUI_END_MENU", ImGuiEndMenu);
 }
