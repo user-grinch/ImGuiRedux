@@ -29,7 +29,7 @@ static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
         data->SetData(label, 0, isOpen);
     };
     data->imgui.lastScriptCall = time(NULL);
-    wUpdateCompareFlag(ctx, data->GetData(label, 0, true));
+    wSetIntParam(ctx, data->GetData(label, 0, true));
     return RTN_CONTINUE;
 }
 
