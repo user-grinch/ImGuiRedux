@@ -25,13 +25,50 @@ static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->imgui += [=]() {
         bool isOpen = openFlag;
-        ImGui::Begin(label, &isOpen, flags);
-        data->SetData(label, 0, isOpen);
+        if (isOpen) {
+            ImGui::Begin(label, &isOpen, flags);
+            data->SetData(label, 0, isOpen);
+        }
     };
     data->imgui.lastScriptCall = time(NULL);
-    wUpdateCompareFlag(ctx, data->GetData(label, 0, true));
+    wUpdateCompareFlag(ctx, data->GetData(label, 0, false));
     return RTN_CONTINUE;
 }
+
+static RTN_TYPE RUNTIME_API ImGuiEnd(RUNTIME_CONTEXT ctx) {
+    ScriptExData* data = ScriptExData::Get();
+    data->imgui += [=]() {
+        ImGui::End();
+    };
+    return RTN_CONTINUE;
+}
+
+// static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
+//     char label[RUNTIME_STR_LEN];
+
+//     wGetStringWithFrame(ctx, label, RUNTIME_STR_LEN);
+//     bool openFlag = wGetBoolParam(ctx);
+//     bool noTitleBar = wGetBoolParam(ctx);
+//     bool noResize = wGetBoolParam(ctx);
+//     bool noMove = wGetBoolParam(ctx);
+//     bool autoResize = wGetBoolParam(ctx);
+
+//     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+//     if (noTitleBar) flags |= ImGuiWindowFlags_NoTitleBar;
+//     if (noResize) flags |= ImGuiWindowFlags_NoResize;
+//     if (noMove) flags |= ImGuiWindowFlags_NoMove;
+//     if (autoResize) flags |= ImGuiWindowFlags_AlwaysAutoResize;
+    
+//     ScriptExData* data = ScriptExData::Get();
+//     data->imgui += [=]() {
+//         bool isOpen = openFlag;
+//         ImGui::Begin(label, &isOpen, flags);
+//         data->SetData(label, 0, isOpen);
+//     };
+//     data->imgui.lastScriptCall = time(NULL);
+//     wSetIntParam(ctx, data->GetData(label, 0, true));
+//     return RTN_CONTINUE;
+// }
 
 static RTN_TYPE RUNTIME_API ImGuiButton(RUNTIME_CONTEXT ctx) {
     char buf[RUNTIME_STR_LEN];
@@ -202,14 +239,6 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
 
     bool clicked = data->GetData(buf, 0, state);
     wSetIntParam(ctx, clicked ? data->GetData(buf, 1, state) : state);
-    return RTN_CONTINUE;
-}
-
-static RTN_TYPE RUNTIME_API ImGuiEnd(RUNTIME_CONTEXT ctx) {
-    ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
-        ImGui::End();
-    };
     return RTN_CONTINUE;
 }
 
