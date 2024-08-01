@@ -1,4 +1,5 @@
 @echo off
+<<<<<<< HEAD
 set "projectdir=%CD%"
 set "PLUGIN_NAME="GrinchTrainer""
 
@@ -45,3 +46,10 @@ premake5.exe vs2022
 :run_dev
 cd "%projectdir%\build"
 call %vs_path%"\Common7\Tools\VsDevCmd.bat"
+=======
+rem Set game paths below
+cd tools
+premake5.exe vs2022
+cd ../build
+call "C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\Tools\VsDevCmd.bat"
+>>>>>>> d1a2aba3c3bc211b773c9c44dee2eeb385378b81
