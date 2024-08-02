@@ -39,7 +39,7 @@ jobs:
         with:
           artifacts: ImGuiRedux${{matrix.platform}}.zip
           name: "${{matrix.platform}} Builds"
-          body: "This release is updated frequently with newer builds.\n\n- ImGuiRedux${{matrix.platform}}.zip for CLEORedux"
+          body: "This release is updated frequently with newer builds.\n\n- ImGuiReduxWin64 -> For CLEORedux (Supports 64 bit games)"
           allowUpdates: true
           tag: "${{matrix.platform}}-latest"
   ImGuiCleo:
@@ -76,7 +76,7 @@ jobs:
         with:
           artifacts: ImGuiCleoWin32.zip
           name: "Win32 Builds"
-          body: "This release is updated frequently with newer builds.\n\n- ImGuiCleoWin32.zip for regular CLEO\n- ImGuiReduxWin32.zip for CLEORedux"
+          body: "This release is updated frequently with newer builds.\n\n- ImGuiCleoWin32 -> For CLEO5 (Supports GTA SA). Only required if you use ImGui in .cs scripts. \n- ImGuiReduxWin32 -> For CLEORedux (Supports 32 bit games). GTA SA Support is also included."
           allowUpdates: true
           tag: "Win32-latest"
         

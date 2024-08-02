@@ -11,6 +11,12 @@
 - GTA 4 Complete Edition
 - Bully Scholarship Edition
 
+## Versions
+- ImGuiCleoWin32 -> For CLEO5 (Supports GTA SA). Only required if you use ImGui in .cs scripts. 
+- ImGuiReduxWin32 -> For CLEORedux (Supports 32 bit games). GTA SA Support is also included.
+- ImGuiReduxWin64 -> For CLEORedux (Supports 64 bit games)
+
+
 ### Installation 
 1. Install [ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader/releases) & [ImGuiRedux x86](https://github.com/user-grinch/ImGuiRedux/releases/tag/Win32-latest)
 3. For GTAs install [SilentPatch](https://gtaforums.com/topic/669045-silentpatch/)
