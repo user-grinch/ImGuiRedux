@@ -43,33 +43,6 @@ static RTN_TYPE RUNTIME_API ImGuiEnd(RUNTIME_CONTEXT ctx) {
     return RTN_CONTINUE;
 }
 
-// static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
-//     char label[RUNTIME_STR_LEN];
-
-//     wGetStringWithFrame(ctx, label, RUNTIME_STR_LEN);
-//     bool openFlag = wGetBoolParam(ctx);
-//     bool noTitleBar = wGetBoolParam(ctx);
-//     bool noResize = wGetBoolParam(ctx);
-//     bool noMove = wGetBoolParam(ctx);
-//     bool autoResize = wGetBoolParam(ctx);
-
-//     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-//     if (noTitleBar) flags |= ImGuiWindowFlags_NoTitleBar;
-//     if (noResize) flags |= ImGuiWindowFlags_NoResize;
-//     if (noMove) flags |= ImGuiWindowFlags_NoMove;
-//     if (autoResize) flags |= ImGuiWindowFlags_AlwaysAutoResize;
-    
-//     ScriptExData* data = ScriptExData::Get();
-//     data->imgui += [=]() {
-//         bool isOpen = openFlag;
-//         ImGui::Begin(label, &isOpen, flags);
-//         data->SetData(label, 0, isOpen);
-//     };
-//     data->imgui.lastScriptCall = time(NULL);
-//     wSetIntParam(ctx, data->GetData(label, 0, true));
-//     return RTN_CONTINUE;
-// }
-
 static RTN_TYPE RUNTIME_API ImGuiButton(RUNTIME_CONTEXT ctx) {
     char buf[RUNTIME_STR_LEN];
     ImVec2 size;
@@ -314,14 +287,12 @@ static RTN_TYPE RUNTIME_API ImGuiGetFramerate(RUNTIME_CONTEXT ctx) {
 }
 
 static RTN_TYPE RUNTIME_API ImGuiGetVersion(RUNTIME_CONTEXT ctx) {
-    char* buf = const_cast<char*>(ImGui::GetVersion());
-    unsigned char len = static_cast<unsigned char>(strlen(buf));
-    wSetStringParam(ctx, buf);
+    wSetIntParam(ctx, IMGUI_VERSION_NUM);
     return RTN_CONTINUE;
 }
 
 static RTN_TYPE RUNTIME_API ImGuiGetPluginVersion(RUNTIME_CONTEXT ctx) {
-    wSetFloatParam(ctx, IMGUI_REDUX_VERSION);
+    wSetIntParam(ctx, IMGUI_REDUX_VERSION_NUM);
     return RTN_CONTINUE;
 }
 
@@ -551,8 +522,8 @@ static RTN_TYPE RUNTIME_API ImGuiGetDisplaySize(RUNTIME_CONTEXT ctx) {
     RECT rect;
     GetClientRect(GetForegroundWindow(), &rect); 
 
-    wSetFloatParam(ctx, rect.right - rect.left);
-    wSetFloatParam(ctx, rect.bottom - rect.top);
+    wSetFloatParam(ctx, float(rect.right - rect.left));
+    wSetFloatParam(ctx, float(rect.bottom - rect.top));
     return RTN_CONTINUE;
 }
 

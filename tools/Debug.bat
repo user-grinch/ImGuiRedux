@@ -5,14 +5,7 @@ echo --------------------------------------------------
 echo[
 call "tools\Setup.bat"
 MsBuild ImGuiRedux.sln /property:Configuration=Debug /t:ImGuiRedux /property:Platform=Win32
-<<<<<<< HEAD
 del "%GTA_SA_DIR%\cleo\CLEO_PLUGINS\ImGuiReduxWin32.cleo" /Q
 del "%GTA_SA_DIR%\cleo\CLEO_PLUGINS\ImGuiReduxWin32.pdb" /Q
 xcopy /s "bin\ImGuiReduxWin32.cleo" "%GTA_SA_DIR%\cleo\CLEO_PLUGINS\" /K /D /H /Y 
 xcopy /s "bin\ImGuiReduxWin32.pdb" "%GTA_SA_DIR%\cleo\CLEO_PLUGINS\" /K /D /H /Y 
-=======
-del "%SA_DIR%\cleo\CLEO_PLUGINS\ImGuiReduxWin32.cleo" /Q
-del "%SA_DIR%\cleo\CLEO_PLUGINS\ImGuiReduxWin32.pdb" /Q
-xcopy /s "bin\ImGuiReduxWin32.cleo" "%SA_DIR%\cleo\CLEO_PLUGINS\" /K /D /H /Y 
-xcopy /s "bin\ImGuiReduxWin32.pdb" "%SA_DIR%\cleo\CLEO_PLUGINS\" /K /D /H /Y 
->>>>>>> d1a2aba3c3bc211b773c9c44dee2eeb385378b81

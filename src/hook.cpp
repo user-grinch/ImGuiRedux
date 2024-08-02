@@ -77,7 +77,8 @@ void Hook::ProcessFrame(void* ptr) {
 
         // Scale the menu if game resolution changed
         static int height, width, RsGlobal;
-#ifdef RUNTIME_CLEO
+
+#ifndef _WIN64
         if (gGameVer == eGameVer::III) {
             RsGlobal = 0x8F4360;
             width = injector::ReadMemory<int>(RsGlobal + 4, 0);      // width
@@ -96,12 +97,13 @@ void Hook::ProcessFrame(void* ptr) {
             width = rect.right - rect.left;
             height = rect.bottom - rect.top;
         }
-#else
+#else 
         RECT rect;
         GetWindowRect(hwnd, &rect);
         width = rect.right - rect.left;
         height = rect.bottom - rect.top;
 #endif
+
         static ImVec2 fScreenSize = ImVec2(-1, -1);
         if (fScreenSize.x != width && fScreenSize.y != height) {
             if (gRenderer == eRenderer::Dx9) {
@@ -170,7 +172,7 @@ void Hook::ProcessFrame(void* ptr) {
         }
 
         if (gGameVer == eGameVer::SA) {
-            injector::MakeNOP(0x00531155, 5); // shift trigger fix
+            injector::MakeNOP(0x531155, 5); // shift trigger fix
         }
 
         if (gRenderer == eRenderer::Dx9) {

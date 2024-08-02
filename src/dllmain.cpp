@@ -1,14 +1,62 @@
 #include "pch.h"
-#include <windows.h>
 #include "opcodemgr.h"
 #include "hook.h"
 #include "wrapper.hpp"
 
-#ifdef RUNTIME_CLEO
-#include "MinHook.h"
-#include "injector.hpp"
+#include <psapi.h>
+#include <windows.h>
 
-void f_GTA_SPCheck() {
+HINSTANCE gDllHandle;
+
+DWORD GetProcessIdFromModule(HMODULE hModule) {
+    DWORD processId = 0;
+    HANDLE hProcess = NULL;
+    MODULEINFO moduleInfo;
+    
+    hProcess = GetCurrentProcess();
+    if (hProcess != NULL) {
+        if (GetModuleInformation(hProcess, hModule, &moduleInfo, sizeof(moduleInfo))) {
+            processId = GetProcessId(hProcess);
+        }
+        CloseHandle(hProcess);
+    }
+
+    return processId;
+}
+
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+    DWORD processId = 0;
+    GetWindowThreadProcessId(hwnd, &processId);
+
+    if (processId == static_cast<DWORD>(lParam)) {
+        return FALSE; // Stop
+    }
+    return TRUE; // Continue
+}
+
+bool HasGameLaunched(HMODULE hModule, int maxRetries, int sleepDuration) {
+    DWORD processId = GetProcessIdFromModule(hModule);
+    if (processId == 0) {
+        MessageBox(NULL, "Failed to get process ID", "ImGuiRedux", MB_ICONERROR);
+        return false;
+    }
+
+    int retries = 0;
+    while (retries < maxRetries) {
+        Sleep(sleepDuration);
+        if (!EnumWindows(EnumWindowsProc, static_cast<LPARAM>(processId))) {
+            return true;
+        }
+        retries++;
+    }
+    MessageBox(NULL, "Failed to detect game window.", "ImGuiRedux", MB_ICONERROR);
+    return false;
+}
+void ImGuiThread(void* param) {
+    if (!HasGameLaunched(gDllHandle, 30, 5000)) {
+        return;
+    }
+
     std::string moduleName = "SilentPatchSA.asi";
     if (gGameVer == eGameVer::VC) {
         moduleName = "SilentPatchVC.asi";
@@ -23,29 +71,6 @@ void f_GTA_SPCheck() {
         };
         return;
     }
-}
-#endif
-
-void ImGuiThread(void* param) {
-
-#ifdef RUNTIME_CLEO
-    /*
-    	Need SP for mouse fixes
-    	Only need for classics
-    	TODO: Get the mouse patches from MTA later
-    */
-    if (gGameVer <= eGameVer::SA) {
-        MH_Initialize();
-        uint32_t addr = (gGameVer == eGameVer::SA) ? 0x5BF3A1 :
-                        ((gGameVer == eGameVer::VC) ? 0x4A5B6B : 0x48D52F);
-
-        void *ptr = NULL;
-        MH_CreateHook((void*)addr, f_GTA_SPCheck, &ptr);
-        MH_EnableHook(ptr);
-    }
-#endif
-
-    Sleep(5000);
 
     if (!Hook::Inject(&ScriptExData::DrawFrames)) {
         MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
@@ -63,14 +88,11 @@ void __stdcall _wrapper(DWORD saveSlot) {
 BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
     if (nReason == DLL_PROCESS_ATTACH) {
 #ifdef RUNTIME_CLEO
-        auto gvm = injector::game_version_manager();
-        gvm.Detect();
-        
-        if (gvm.GetMajorVersion() == 1 && gvm.GetMinorVersion() == 0) {
-            if (gvm.IsIII()) gGameVer = eGameVer::III;
-            if (gvm.IsVC()) gGameVer = eGameVer::VC;
-            if (gvm.IsSA()) gGameVer = eGameVer::SA;
+        CLEO::eGameVersion ver = CLEO::CLEO_GetGameVersion();
+        if (ver != CLEO::eGameVersion::GV_US10) {
+            MessageBox(HWND_DESKTOP, "Unknown game/ version detected. gta_sa.exe v1.0 US required!", "ImGuiRedux", MB_ICONERROR);
         }
+        gGameVer = eGameVer::SA;
 #else   
         if (GetModuleHandle("ImGuiCleoWin32.cleo")) {
             Log("ImGuiReduxWin32: ImGuiCleoWin32 detected. Closing...");

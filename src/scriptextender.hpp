@@ -84,6 +84,8 @@ private:
                 case 2: // SA
                     scriptsPaused = *(bool*)0xB7CB49;
                     break;
+                default:
+                    break;
             }
             
             if (curTime-lastScriptCall > 2 || scriptsPaused) {

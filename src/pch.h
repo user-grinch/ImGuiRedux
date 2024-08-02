@@ -1,6 +1,7 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
-#define IMGUI_REDUX_VERSION 2.0f
+#define IMGUI_REDUX_VERSION 3.0f
+#define IMGUI_REDUX_VERSION_NUM 30000
 #include "imgui.h"
 #include "imgui_stdlib.h"
 #include "scriptextender.hpp"
