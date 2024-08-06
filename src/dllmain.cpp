@@ -52,24 +52,27 @@ bool HasGameLaunched(HMODULE hModule, int maxRetries, int sleepDuration) {
     MessageBox(NULL, "Failed to detect game window.", "ImGuiRedux", MB_ICONERROR);
     return false;
 }
+
 void ImGuiThread(void* param) {
     if (!HasGameLaunched(gDllHandle, 30, 5000)) {
         return;
     }
 
-    std::string moduleName = "SilentPatchSA.asi";
-    if (gGameVer == eGameVer::VC) {
-        moduleName = "SilentPatchVC.asi";
-    } else if (gGameVer == eGameVer::III) {
-        moduleName = "SilentPatchIII.asi";
-    }
+    if (gGameVer <= eGameVer::SA) {
+        std::string moduleName = "SilentPatchSA.asi";
+        if (gGameVer == eGameVer::VC) {
+            moduleName = "SilentPatchVC.asi";
+        } else if (gGameVer == eGameVer::III) {
+            moduleName = "SilentPatchIII.asi";
+        }
 
-    if (!GetModuleHandle(moduleName.c_str())) {
-        int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
-        if (msgID == IDOK) {
-            ShellExecute(nullptr, "open", "https://gtaforums.com/topic/669045-silentpatch/", nullptr, nullptr, SW_SHOWNORMAL);
-        };
-        return;
+        if (!GetModuleHandle(moduleName.c_str())) {
+            int msgID = MessageBox(NULL, "SilentPatch not found. Do you want to install Silent Patch? (Game restart required)", "ImGuiRedux", MB_OKCANCEL | MB_DEFBUTTON1);
+            if (msgID == IDOK) {
+                ShellExecute(nullptr, "open", "https://gtaforums.com/topic/669045-silentpatch/", nullptr, nullptr, SW_SHOWNORMAL);
+            };
+            return;
+        }
     }
 
     if (!Hook::Inject(&ScriptExData::DrawFrames)) {
