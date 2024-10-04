@@ -140,6 +140,8 @@ void Hook::ProcessFrame(void* ptr) {
             ScriptExData::SetScaling({scaleX, scaleY});
         }
 
+        ScriptExData::InitRenderStates();
+
         ImGui_ImplWin32_NewFrame();
         if (gRenderer == eRenderer::Dx9) {
             ImGui_ImplDX9_NewFrame();

@@ -23,21 +23,21 @@ static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
     if (autoResize) flags |= ImGuiWindowFlags_AlwaysAutoResize;
     
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool isOpen = openFlag;
         if (isOpen) {
             ImGui::Begin(label, &isOpen, flags);
             data->SetData(label, 0, isOpen);
         }
     };
-    data->imgui.lastScriptCall = time(NULL);
+    data->m_ImGuiData.m_nLastScriptCallMS = time(NULL);
     wSetIntParam(ctx, data->GetData(label, 0, true));
     return RTN_CONTINUE;
 }
 
 static RTN_TYPE RUNTIME_API ImGuiEnd(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::End();
     };
     return RTN_CONTINUE;
@@ -52,7 +52,7 @@ static RTN_TYPE RUNTIME_API ImGuiButton(RUNTIME_CONTEXT ctx) {
     size.y = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::Button(buf, ImVec2(size.x, size.y));
         data->SetData(buf, 0, isPressed);
     };
@@ -79,10 +79,11 @@ static RTN_TYPE RUNTIME_API ImGuiImageButton(RUNTIME_CONTEXT ctx) {
     }
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PushID(buf);
         const ImGuiID id = ImGui::GetID(buf);
-        bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, data->imgui.m_ImGCol.m_fBgCol, data->imgui.m_ImGCol.m_fTintCol);
+        bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, 
+            data->m_ImGuiData.m_vecImgBgCol, data->m_ImGuiData.m_vecImgTint);
         ImGui::PopID();
         data->SetData(buf, 0, isPressed);
     };
@@ -99,7 +100,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetImageTintColor(RUNTIME_CONTEXT ctx) {
     col.z = wGetFloatParam(ctx);
     col.w = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui.m_ImGCol.m_fTintCol = col;
+    data->m_ImGuiData.m_vecImgTint = col;
 
     return RTN_CONTINUE;
 }
@@ -111,7 +112,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetImageBgColor(RUNTIME_CONTEXT ctx) {
     col.z = wGetFloatParam(ctx);
     col.w = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui.m_ImGCol.m_fBgCol = col;
+    data->m_ImGuiData.m_vecImgBgCol = col;
 
     return RTN_CONTINUE;
 }
@@ -140,7 +141,7 @@ static RTN_TYPE RUNTIME_API ImGuiArrowButton(RUNTIME_CONTEXT ctx) {
     }
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::ArrowButton(buf, side);
         data->SetData(buf, 0, isPressed);
     };
@@ -159,7 +160,7 @@ static RTN_TYPE RUNTIME_API ImGuiInvisibleButton(RUNTIME_CONTEXT ctx) {
     size.y = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::InvisibleButton(buf, ImVec2(size.x, size.y));
         data->SetData(buf, 0, isPressed);
     };
@@ -184,7 +185,7 @@ static RTN_TYPE RUNTIME_API ImGuiColorButton(RUNTIME_CONTEXT ctx) {
     size.y = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::ColorButton(buf, rgba, NULL, ImVec2(size.x, size.y));
         data->SetData(buf, 0, isPressed);
     };
@@ -200,7 +201,7 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
     bool state = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool check = state;
 
         bool clicked = ImGui::Checkbox(buf, &check);
@@ -218,7 +219,7 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
 static RTN_TYPE RUNTIME_API ImGuiSameLine(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
 
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::SameLine();
     };
     return RTN_CONTINUE;
@@ -226,7 +227,7 @@ static RTN_TYPE RUNTIME_API ImGuiSameLine(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiNewLine(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += []() {
+    data->m_ImGuiData += []() {
         ImGui::NewLine();
     };
     return RTN_CONTINUE;
@@ -236,7 +237,7 @@ static RTN_TYPE RUNTIME_API ImGuiColumns(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     count = max(count, 1);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::Columns(count, NULL, false);
     };
     return RTN_CONTINUE;
@@ -246,11 +247,11 @@ static RTN_TYPE RUNTIME_API ImGuiSetColumnWidth(RUNTIME_CONTEXT ctx) {
     int idx = wGetIntParam(ctx);
     float width = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
-        ImGui::SetColumnWidth(idx, width * data->imgui.m_vecScaling.x);
+    data->m_ImGuiData += [=]() {
+        ImGui::SetColumnWidth(idx, width * data->m_ImGuiData.m_vecScaling.x);
 
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -259,7 +260,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetColumnWidth(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiNextColumn(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::NextColumn();
     };
     return RTN_CONTINUE;
@@ -267,7 +268,7 @@ static RTN_TYPE RUNTIME_API ImGuiNextColumn(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiSpacing(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::Spacing();
     };
     return RTN_CONTINUE;
@@ -275,7 +276,7 @@ static RTN_TYPE RUNTIME_API ImGuiSpacing(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiSeparator(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::Separator();
     };
     return RTN_CONTINUE;
@@ -303,7 +304,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetNextWindowPos(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::SetNextWindowPos(pos, cond);
     };
 
@@ -314,7 +315,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetNextWindowTransparency(RUNTIME_CONTEXT ctx) 
     float alpha = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::SetNextWindowBgAlpha(alpha);
     };
 
@@ -328,7 +329,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetWindowPos(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::SetWindowPos(pos, cond);
     };
 
@@ -342,12 +343,12 @@ static RTN_TYPE RUNTIME_API ImGuiSetNextWindowSize(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    cond = data->imgui.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
-    data->imgui += [=]() {
-        ImGui::SetNextWindowSize({size.x * data->imgui.m_vecScaling.x, size.y * data->imgui.m_vecScaling.y}, cond);
+    cond = data->m_ImGuiData.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
+    data->m_ImGuiData += [=]() {
+        ImGui::SetNextWindowSize({size.x * data->m_ImGuiData.m_vecScaling.x, size.y * data->m_ImGuiData.m_vecScaling.y}, cond);
 
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -361,12 +362,12 @@ static RTN_TYPE RUNTIME_API ImGuiSetWindowSize(RUNTIME_CONTEXT ctx) {
     int cond = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    cond = data->imgui.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
-    data->imgui += [=]() {
-        ImGui::SetWindowSize({size.x * data->imgui.m_vecScaling.x, size.y * data->imgui.m_vecScaling.y}, cond);
+    cond = data->m_ImGuiData.m_bNeedToUpdateScaling ? ImGuiCond_Always : cond;
+    data->m_ImGuiData += [=]() {
+        ImGui::SetWindowSize({size.x * data->m_ImGuiData.m_vecScaling.x, size.y * data->m_ImGuiData.m_vecScaling.y}, cond);
         
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -379,7 +380,7 @@ static RTN_TYPE RUNTIME_API ImGuiDummy(RUNTIME_CONTEXT ctx) {
     size.y = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::Dummy(size);
     };
 
@@ -391,7 +392,7 @@ static RTN_TYPE RUNTIME_API ImGuiText(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::TextUnformatted(buf);
     };
     return RTN_CONTINUE;
@@ -402,7 +403,7 @@ static RTN_TYPE RUNTIME_API ImGuiTextCentered(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::NewLine();
         ImVec2 size = ImGui::CalcTextSize(buf);
         float width = ImGui::GetWindowContentRegionWidth() - size.x;
@@ -417,7 +418,7 @@ static RTN_TYPE RUNTIME_API ImGuiTextDisabled(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::TextDisabled(buf);
     };
     return RTN_CONTINUE;
@@ -428,7 +429,7 @@ static RTN_TYPE RUNTIME_API ImGuiTextWrapped(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::TextWrapped(buf);
     };
     return RTN_CONTINUE;
@@ -439,7 +440,7 @@ static RTN_TYPE RUNTIME_API ImGuiBulletText(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::BulletText(buf);
     };
     return RTN_CONTINUE;
@@ -455,7 +456,7 @@ static RTN_TYPE RUNTIME_API ImGuiTextColored(RUNTIME_CONTEXT ctx) {
     col.w = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::TextColored(col, buf);
     };
     return RTN_CONTINUE;
@@ -466,7 +467,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetTooltip(RUNTIME_CONTEXT ctx) {
     wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::SetTooltip(buf);
     };
     return RTN_CONTINUE;
@@ -479,7 +480,7 @@ static RTN_TYPE RUNTIME_API ImGuiSetCursorVisible(RUNTIME_CONTEXT ctx) {
     // Hidden by default
     if (flag) {
         ScriptExData* data = ScriptExData::Get();
-        data->imgui += [=]() {
+        data->m_ImGuiData += [=]() {
             data->SetCursorVisible(flag);
         };
     }
@@ -489,11 +490,11 @@ static RTN_TYPE RUNTIME_API ImGuiSetCursorVisible(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetFrameHeight(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
-        data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight() / data->imgui.m_vecScaling.y);
+    data->m_ImGuiData += [=]() {
+        data->SetData("__frameHeight__", 0, ImGui::GetFrameHeight() / data->m_ImGuiData.m_vecScaling.y);
 
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
     wSetFloatParam(ctx, data->GetData("__frameHeight__", 0, 0.0f));
@@ -505,10 +506,10 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowSize(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImVec2 size = ImGui::GetWindowSize();
-        data->SetData(buf, 0, size.x / data->imgui.m_vecScaling.x);
-        data->SetData(buf, 1, size.y / data->imgui.m_vecScaling.y);
+        data->SetData(buf, 0, size.x / data->m_ImGuiData.m_vecScaling.x);
+        data->SetData(buf, 1, size.y / data->m_ImGuiData.m_vecScaling.y);
     };
 
     ImVec2 size = { data->GetData(buf, 0, 0.0f), data->GetData(buf, 1, 0.0f) };
@@ -532,7 +533,7 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowPos(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImVec2 pos = ImGui::GetWindowPos();
         data->SetData(buf, 0, pos.x);
         data->SetData(buf, 1, pos.y);
@@ -549,7 +550,7 @@ static RTN_TYPE RUNTIME_API ImGuiCalcTextSize(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImVec2 size = ImGui::CalcTextSize(buf);
         data->SetData(buf, 0, size.x);
         data->SetData(buf, 1, size.y);
@@ -566,12 +567,12 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowContentRegionWidth(RUNTIME_CONTEXT ctx
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         float width = ImGui::GetWindowContentRegionWidth();
-        data->SetData(buf, 0, width / data->imgui.m_vecScaling.x);
+        data->SetData(buf, 0, width / data->m_ImGuiData.m_vecScaling.x);
 
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -584,7 +585,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginMainMenuBar(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool state = ImGui::BeginMainMenuBar();
         data->SetData(buf, 0, state);
     };
@@ -597,7 +598,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginDisabled(RUNTIME_CONTEXT ctx) {
     bool flag = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::BeginDisabled(flag);
     };
 
@@ -606,7 +607,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginDisabled(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiEndDisabled(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::EndDisabled();
     };
     return RTN_CONTINUE;
@@ -618,7 +619,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginMenu(RUNTIME_CONTEXT ctx) {
     bool enabled = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool state = ImGui::BeginMenu(buf, enabled);
         data->SetData(buf, 0, state);
     };
@@ -628,7 +629,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginMenu(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiEndMenu(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::EndMenu();
     };
     return RTN_CONTINUE;
@@ -636,7 +637,7 @@ static RTN_TYPE RUNTIME_API ImGuiEndMenu(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiEndMainMenuBar(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::EndMainMenuBar();
     };
 
@@ -650,7 +651,7 @@ static RTN_TYPE RUNTIME_API ImGuiMenuItem(RUNTIME_CONTEXT ctx) {
     bool enabled = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool state = ImGui::MenuItem(buf, NULL, selected, enabled);
         data->SetData(buf, 0, state);
     };
@@ -665,7 +666,7 @@ static RTN_TYPE RUNTIME_API ImGuiSelectable(RUNTIME_CONTEXT ctx) {
     bool selected = wGetBoolParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool state = ImGui::Selectable(buf, &selected);
         data->SetData(buf, 0, state);
     };
@@ -679,7 +680,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginChild(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::BeginChild(buf);
     };
 
@@ -698,7 +699,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginChildEx(RUNTIME_CONTEXT ctx) {
     flags = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::BeginChild(buf, {szX, szY}, border, flags);
     };
 
@@ -707,7 +708,7 @@ static RTN_TYPE RUNTIME_API ImGuiBeginChildEx(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiEndChild(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::EndChild();
     };
 
@@ -719,10 +720,10 @@ static RTN_TYPE RUNTIME_API ImGuiPushItemWidth(RUNTIME_CONTEXT ctx) {
     float width = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
-        ImGui::PushItemWidth(width * data->imgui.m_vecScaling.x);
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+    data->m_ImGuiData += [=]() {
+        ImGui::PushItemWidth(width * data->m_ImGuiData.m_vecScaling.x);
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -731,7 +732,7 @@ static RTN_TYPE RUNTIME_API ImGuiPushItemWidth(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiPopItemWidth(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PopItemWidth();
     };
 
@@ -743,7 +744,7 @@ static RTN_TYPE RUNTIME_API ImGuiCollapsingHeader(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool state = ImGui::CollapsingHeader(buf);
         data->SetData(buf, 0, state);
     };
@@ -793,7 +794,7 @@ static RTN_TYPE RUNTIME_API ImGuiSliderInt(RUNTIME_CONTEXT ctx) {
     int max = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         int value = data->GetData(buf, 0, initVal);
         ImGui::SliderInt(buf, &value, min, max);
         data->SetData(buf, 0, value);
@@ -812,7 +813,7 @@ static RTN_TYPE RUNTIME_API ImGuiSliderFloat(RUNTIME_CONTEXT ctx) {
     float max = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         float value = data->GetData(buf, 0, initVal);
         ImGui::SliderFloat(buf, &value, min, max);
         data->SetData(buf, 0, value);
@@ -831,7 +832,7 @@ static RTN_TYPE RUNTIME_API ImGuiInputFloat(RUNTIME_CONTEXT ctx) {
     float max = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         float value = data->GetData(buf, 0, initVal);
         if (ImGui::InputFloat(buf, &value)) {
             if (value < min) {
@@ -859,7 +860,7 @@ static RTN_TYPE RUNTIME_API ImGuiInputInt(RUNTIME_CONTEXT ctx) {
     int max = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         int value = data->GetData(buf, 0, initVal);
         if (ImGui::InputInt(buf, &value)) {
             if (value < min) {
@@ -884,7 +885,7 @@ static RTN_TYPE RUNTIME_API ImGuiInputText(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         std::string str = data->GetData(buf, 0, std::string(""));
         if (ImGui::InputText(buf, &str)) {
             data->SetData(buf, 0, str);
@@ -901,7 +902,7 @@ static RTN_TYPE RUNTIME_API ImGuiColorPicker(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData* data = ScriptExData::Get();
 
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         float col[4];
         col[0] = data->GetData(buf, 0, 0) / 255.0f;
         col[1] = data->GetData(buf, 1, 0) / 255.0f;
@@ -936,7 +937,7 @@ static RTN_TYPE RUNTIME_API ImGuiRadioButton(RUNTIME_CONTEXT ctx) {
 
     ScriptExData* data = ScriptExData::Get();
 
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         int value = curSelectedBtn;
         bool clicked = ImGui::RadioButton(buf, &value, btnNo);
         data->SetData(buf, 0, clicked);
@@ -964,13 +965,13 @@ static RTN_TYPE RUNTIME_API ImGuiBeginFrame(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData::SetCurrentScript(std::string(buf));
     ScriptExData *data = ScriptExData::Get();
-
+    // ImGui::SetCurrentContext(data->m_ImGuiData.m_pContext);
     return RTN_CONTINUE;
 }
 
 static RTN_TYPE RUNTIME_API ImGuiEndFrame(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui.m_bRender = true;
+    data->m_ImGuiData.m_bIsBackBufferReady = true;
     ScriptExData::SetCurrentScript("");
 
     return RTN_CONTINUE;
@@ -994,7 +995,7 @@ static RTN_TYPE RUNTIME_API ImGuiCombo(RUNTIME_CONTEXT ctx) {
     int selectedOption = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
 
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         int value = selectedOption;
         bool clicked = ImGui::Combo(buf, &value, options);
         data->SetData(buf, 0, clicked);
@@ -1022,7 +1023,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemActive(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         data->SetData(buf, 0, ImGui::IsItemActive());
     };
 
@@ -1035,7 +1036,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemHovered(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         data->SetData(buf, 0, ImGui::IsItemHovered());
     };
 
@@ -1048,7 +1049,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemClicked(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         data->SetData(buf, 0, ImGui::IsItemClicked());
     };
 
@@ -1061,7 +1062,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemFocused(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         data->SetData(buf, 0, ImGui::IsItemFocused());
     };
 
@@ -1071,7 +1072,7 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemFocused(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiBullet(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::Bullet();
     };
     return RTN_CONTINUE;
@@ -1117,7 +1118,7 @@ static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
     int spacing = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         bool spcaing_ = spacing;
         if (count == 1) {
             spcaing_ = false;
@@ -1138,11 +1139,11 @@ static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
 
         y = ImGui::GetFrameHeight() * 1.3f;
 
-        data->SetData(buf, 0, x / data->imgui.m_vecScaling.x);
-        data->SetData(buf, 1, y / data->imgui.m_vecScaling.y);
+        data->SetData(buf, 0, x / data->m_ImGuiData.m_vecScaling.x);
+        data->SetData(buf, 1, y / data->m_ImGuiData.m_vecScaling.y);
 
-        if (data->imgui.m_bNeedToUpdateScaling) {
-            data->imgui.m_bWasScalingUpdatedThisFrame = true;
+        if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
+            data->m_ImGuiData.m_bWasScalingUpdatedThisFrame = true;
         }
     };
 
@@ -1151,11 +1152,42 @@ static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
     return RTN_CONTINUE;
 }
 
+static RTN_TYPE RUNTIME_API ImGuiLoadFont(RUNTIME_CONTEXT ctx) {
+    char buf[RUNTIME_STR_LEN];
+    int font = wGetIntParam(ctx);
+    float sz = wGetFloatParam(ctx);
+    size_t start = wGetIntParam(ctx);
+    size_t end = wGetIntParam(ctx);
+    wGetStringParam(ctx, buf, RUNTIME_STR_LEN);
+
+    
+    ScriptExData* data = ScriptExData::Get();
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiPushFont(RUNTIME_CONTEXT ctx) {
+    int font = wGetIntParam(ctx);
+    ScriptExData* data = ScriptExData::Get();
+    data->m_ImGuiData += [=]() {
+        ImGui::PushFont(reinterpret_cast<ImFont*>(font));
+    };
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiPopFont(RUNTIME_CONTEXT ctx) {
+    int count = wGetIntParam(ctx);
+    ScriptExData* data = ScriptExData::Get();
+    data->m_ImGuiData += [=]() {
+        ImGui::PopFont();
+    };
+    return RTN_CONTINUE;
+}
+
 static RTN_TYPE RUNTIME_API ImGuiPushStyleVar(RUNTIME_CONTEXT ctx) {
     int idx = wGetIntParam(ctx);
     float val = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PushStyleVar(idx, val);
     };
     return RTN_CONTINUE;
@@ -1166,7 +1198,7 @@ static RTN_TYPE RUNTIME_API ImGuiPushStyleVar2(RUNTIME_CONTEXT ctx) {
     float x = wGetFloatParam(ctx);
     float y = wGetFloatParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PushStyleVar(idx, ImVec2(x, y));
     };
     return RTN_CONTINUE;
@@ -1175,7 +1207,7 @@ static RTN_TYPE RUNTIME_API ImGuiPushStyleVar2(RUNTIME_CONTEXT ctx) {
 static RTN_TYPE RUNTIME_API ImGuiPopStyleVar(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PopStyleVar(count);
     };
     return RTN_CONTINUE;
@@ -1189,7 +1221,7 @@ static RTN_TYPE RUNTIME_API ImGuiPushStyleColor(RUNTIME_CONTEXT ctx) {
     int a = wGetIntParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PushStyleColor(idx, IM_COL32(r, g, b, a));
     };
     return RTN_CONTINUE;
@@ -1198,7 +1230,7 @@ static RTN_TYPE RUNTIME_API ImGuiPushStyleColor(RUNTIME_CONTEXT ctx) {
 static RTN_TYPE RUNTIME_API ImGuiPopStyleColor(RUNTIME_CONTEXT ctx) {
     int count = wGetIntParam(ctx);
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImGui::PopStyleColor(count);
     };
     return RTN_CONTINUE;
@@ -1206,7 +1238,7 @@ static RTN_TYPE RUNTIME_API ImGuiPopStyleColor(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetWindowDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImDrawList *drawList = ImGui::GetWindowDrawList();
         data->SetData("__WindowDrawlist__", 0, reinterpret_cast<int>(drawList));
     };
@@ -1217,7 +1249,7 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowDrawList(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetBackgroundDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImDrawList *drawList = ImGui::GetBackgroundDrawList();
         data->SetData("__BackgroundDrawlist__", 0, reinterpret_cast<int>(drawList));
     };
@@ -1228,7 +1260,7 @@ static RTN_TYPE RUNTIME_API ImGuiGetBackgroundDrawList(RUNTIME_CONTEXT ctx) {
 
 static RTN_TYPE RUNTIME_API ImGuiGetForegroundDrawList(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         ImDrawList *drawList = ImGui::GetForegroundDrawList();
         data->SetData("__ForegroundDrawlist__", 0, reinterpret_cast<int>(drawList));
     };
@@ -1253,7 +1285,7 @@ static RTN_TYPE RUNTIME_API ImGuiDrawListAddText(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, text, RUNTIME_STR_LEN);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         if (pDrawList) {
             pDrawList->AddText(pos, IM_COL32(col.x, col.y, col.z, col.w), text);
         }
@@ -1279,7 +1311,7 @@ static RTN_TYPE RUNTIME_API ImGuiDrawListAddLine(RUNTIME_CONTEXT ctx) {
     float thickness = wGetFloatParam(ctx);
 
     ScriptExData* data = ScriptExData::Get();
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         if (pDrawList) {
             pDrawList->AddLine(p1, p2, IM_COL32(col.x, col.y, col.z, col.w), thickness);
         }
@@ -1309,7 +1341,7 @@ static RTN_TYPE RUNTIME_API ImGuiTabs(RUNTIME_CONTEXT ctx) {
         }
     }
 
-    data->imgui += [=]() {
+    data->m_ImGuiData += [=]() {
         if (ImGui::BeginTabBar(buf)) {
             for (int i = 0; i < static_cast<int>(items.size()); ++i) {
                 if (ImGui::BeginTabItem(items[i].c_str())) {

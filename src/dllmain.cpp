@@ -75,7 +75,7 @@ void ImGuiThread(void* param) {
         }
     }
 
-    if (!Hook::Inject(&ScriptExData::DrawFrames)) {
+    if (!Hook::Inject(&ScriptExData::RenderFrames)) {
         MessageBox(HWND_DESKTOP, "Failed to inject dxhook..", "ImGuiRedux", MB_ICONERROR);
     }
 

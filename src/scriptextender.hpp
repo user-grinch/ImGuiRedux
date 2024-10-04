@@ -3,270 +3,117 @@
 #include <string>
 #include "table.hpp"
 #include "hook.h"
-#include <functional>
 #include <any>
-#include <time.h>
 #include <tuple>
 #include "opcodemgr.h"
-#include "notifypopup.h"
 #include "imgui_internal.h"
+#include "imguiframe.hpp"
+#include "notifypopup.h"
 
-extern enum class eGameVer;
-extern eGameVer gGameVer;
-extern ImGuiContext* GImGui;
+/* 
+*   Handles data exchange between ImGui & CLEO
+*   Repalce with new data when previous is passed
+*/
+struct ImGui2ScriptCom {
+    bool m_bPassed; 
+    std::any m_Val;
+};
 
-class ScriptExData
-{
+class ScriptExData {
 private:
-    ScriptExData(std::string id): ID(id){}
-
-    /*
-    * We're storing all the func ptrs that we need for a single frame
-    * After drawing frame, we clear up the stored ptrs and repeat
-    */
-    struct ImGuiFrame
-    {
-    public:
-        /*
-        * Overlay colors for imgui images
-        * Used by ButtonImage(..)
-        */
-        struct ImgOverlay
-        {
-            ImVec4 m_fTintCol = ImVec4(1, 1, 1, 1);
-            ImVec4 m_fBgCol = ImVec4(1, 1, 1, 1);
-        } m_ImGCol;
-
-        bool m_bRender; // is backBuffer ready for render
-        ImVec2 m_vecScaling = ImVec2(1, 1);
-        bool m_bWasScalingUpdatedThisFrame; // was scaling updated
-        bool m_bNeedToUpdateScaling; // does imgui scaling needs updating for this script
-        long long lastScriptCall; // last time script called ImGui::Begin(), hide if no script call
-
-        std::vector<std::function<void()>> buf; // finished buffer for render
-        std::vector<std::function<void()>> backBuf; // back buffer being processed
-    
-        ImGuiFrame& operator+=(std::function<void()> f)
-        {
-            // don't push more if back buffer is full
-            if (!m_bRender)
-            {
-                backBuf.push_back(f);
-            }
-            return *this;
-        }   
-
-        void DrawFrames()
-        {
-            for (auto func : buf)
-            {
-                func();
-            }
-
-            // if back buffer is render ready switch the buffer and reset render state
-            if (m_bRender)
-            {
-                buf = std::move(backBuf);
-                m_bRender = false;
-            }
-
-            time_t curTime = time(NULL);
-
-            // We're clearing our buffer if script isn't responding anymore
-            bool scriptsPaused = false;
-            switch(static_cast<int>(gGameVer)) {
-                case 0: // III
-                    scriptsPaused = *(bool*)0x95CD7C;
-                    break;
-                case 1: // VC
-                    scriptsPaused = *(bool*)0xA10B36;
-                    break;
-                case 2: // SA
-                    scriptsPaused = *(bool*)0xB7CB49;
-                    break;
-                default:
-                    break;
-            }
-            
-            if (curTime-lastScriptCall > 2 || scriptsPaused) {
-                ClearFrames();
-            }
-
-            if (m_bWasScalingUpdatedThisFrame) {
-                m_bNeedToUpdateScaling = false;
-                m_bWasScalingUpdatedThisFrame = false;
-            }
-        }
-
-        void ClearFrames()
-        {
-            buf.clear();
-        }
-    };
-    /*
-    *   Handles the return data between imgui frame & script
-    */
-    struct ComData
-    {
-        bool m_bPassed; // Was the data passed to the script, if yes, replace with new data 
-        std::any m_Val;
-    };
-
-    std::string ID; // script indentifier
-    /*
-    * Cached return data of previous frame
-    * Due to some limitations we can't run the ImGui realtime with the script
-    * We run the ImGui frames independent of the script and cache the returns to return back to script
-    */
-    static inline Table<std::string, std::vector<ComData>> frameData;
-    static inline std::vector<ScriptExData*> scripts; // ptr to all the scripts using ImGui
-    static inline bool showCursor; // global cursor state flag
-    static inline std::string curScriptID; // current script identifier
+    static inline Table<std::string, std::vector<ImGui2ScriptCom>> m_FrameCache;
+    static inline std::vector<ScriptExData*> m_pScriptTable;
+    static inline bool m_bShowCursorFlag;
+    static inline std::string m_CurrentScriptID;
 	static inline size_t m_nFramerate;
+
+    std::string m_ScriptID;
+
+    ScriptExData(std::string id): m_ScriptID(id) {}
+
 public:
+    ImGuiFrame m_ImGuiData;
 
-    ImGuiFrame imgui;
-
-    static size_t GetGameFPS()
-    {
+    static size_t GetGameFPS() {
         return m_nFramerate;
     }
 
-    static void SetCurrentScript(std::string id)
-    {
-        curScriptID = id;
+    static void SetCurrentScript(std::string id) {
+        m_CurrentScriptID = id;
     }
 
-    static std::string GetCurrentScript()
-    {
-        return curScriptID;
+    static std::string GetCurrentScript() {
+        return m_CurrentScriptID;
     }
     
-    static ScriptExData* Get()
-    {
-        // create the object if it doesn't exist
-        for (auto it = scripts.begin(); it != scripts.end(); ++it)
-        {
-            // return the exisitng data
-            if ((*it)->ID == curScriptID)
-            {
+    static ScriptExData* Get() {
+        for (auto it = m_pScriptTable.begin(); it != m_pScriptTable.end(); ++it) {
+            if ((*it)->m_ScriptID == m_CurrentScriptID) {
                 return *it;
             }
         }
 
-        // return the new data
-        ScriptExData* script = new ScriptExData(curScriptID);
-        scripts.push_back(script);
+        ScriptExData* script = new ScriptExData(m_CurrentScriptID);
+        m_pScriptTable.push_back(script);
         return script;
     }
 
     template<typename T>
-    T GetData(const char* label, int index, T defaultVal)
-    {
-        try
-        {
-            ComData *pData = &frameData[label].at(index);
+    T GetData(const char* label, int index, T defaultVal) {
+        try {
+            ImGui2ScriptCom *pData = &m_FrameCache[label].at(index);
             T val = std::any_cast<T>(pData->m_Val);
             pData->m_bPassed = true;
             return val;
-        }
-        catch(...)
-        {
+        } catch(...) {
             return defaultVal;
         }
     }
+
     template<typename T>
-    void SetData(const char* label,size_t index, T val)
-    {
-        /*
-        * Probably a shitty way to do this and gonna fk me later
-        * But it works so..
-        * 
-        * We're only gonna set data if previous one was extracted!
-        * This fixes an issue with race condition
-        */
-        if (frameData[label].size() < index+1)
-        {
-            frameData[label].push_back({false, val});
-        }
-        else
-        {
-            if (frameData[label].at(index).m_bPassed)
-            {
-                frameData[label].at(index) = {false, val};
+    void SetData(const char* label,size_t index, T val) {
+        // Set data when previous one is retrived
+        if (m_FrameCache[label].size() < index+1) {
+            m_FrameCache[label].push_back({false, val});
+        } else {
+            if (m_FrameCache[label].at(index).m_bPassed) {
+                m_FrameCache[label].at(index) = {false, val};
             }
         }
     }
 
-    static void SetCursorVisible(bool flag)
-    {
-        showCursor = flag;
+    static void SetCursorVisible(bool flag) {
+        m_bShowCursorFlag = flag;
     }
 
-    static void DrawFrames()
-    {
-        // reset stuff
-        showCursor = false;
+    static void InitRenderStates() {
+        for (auto it = m_pScriptTable.begin(); it != m_pScriptTable.end(); ++it) {
+            (*it)->m_ImGuiData.BeforeRender();
+        }
+    }
 
-        // draw frames
-        for (auto it = scripts.begin(); it != scripts.end(); ++it)
-        {
-            (*it)->imgui.DrawFrames();
+    static void RenderFrames() {
+        m_bShowCursorFlag = false;
+
+        for (auto it = m_pScriptTable.begin(); it != m_pScriptTable.end(); ++it) {
+            (*it)->m_ImGuiData.OnRender();
         }
 
         NotifiyPopup::Draw();
-        // update stuff
-        Hook::SetMouseState(showCursor);
+        
+        Hook::SetMouseState(m_bShowCursorFlag);
         m_nFramerate = (size_t)ImGui::GetIO().Framerate;
     }
 
     static void SetScaling(ImVec2 scaling) {
-        for (auto it = scripts.begin(); it != scripts.end(); ++it)
-        {
-            (*it)->imgui.m_vecScaling = scaling;
-            (*it)->imgui.m_bNeedToUpdateScaling = true;
+        for (auto it = m_pScriptTable.begin(); it != m_pScriptTable.end(); ++it) {
+            (*it)->m_ImGuiData.m_vecScaling = scaling;
+            (*it)->m_ImGuiData.m_bNeedToUpdateScaling = true;
         }
     }
 
-    // Clears all the internal stuff
     static void Clear() {
-        scripts.clear();
-        frameData.Clear();
-
-        // Clear ImGui internal states here
-        auto e = ImGui::GetCurrentContext();
-        if (Hook::m_bInitialized && e) {
-            e->Windows.clear_delete();
-            e->WindowsFocusOrder.clear();
-            e->WindowsTempSortBuffer.clear();
-            e->CurrentWindow = NULL;
-            e->CurrentWindowStack.clear();
-            e->WindowsById.Clear();
-            e->NavWindow = NULL;
-            e->HoveredWindow = e->HoveredWindowUnderMovingWindow = NULL;
-            e->ActiveIdWindow = e->ActiveIdPreviousFrameWindow = NULL;
-            e->MovingWindow = NULL;
-            e->ColorStack.clear();
-            e->StyleVarStack.clear();
-            e->OpenPopupStack.clear();
-            e->BeginPopupStack.clear();
-
-            e->TabBars.Clear();
-            e->CurrentTabBarStack.clear();
-            e->ShrinkWidthBuffer.clear();
-
-            e->ClipperTempData.clear_destruct();
-
-            e->Tables.Clear();
-            e->TablesTempData.clear_destruct();
-            e->DrawChannelsTempMergeBuffer.clear();
-
-            e->ClipboardHandlerData.clear();
-            e->MenusIdSubmittedThisFrame.clear();
-            e->InputTextState.ClearFreeMemory();
-
-            e->SettingsWindows.clear();
-            e->SettingsHandlers.clear();
-        }
+        m_pScriptTable.clear();
+        m_FrameCache.Clear();
     }
 };
