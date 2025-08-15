@@ -82,7 +82,7 @@ static RTN_TYPE RUNTIME_API ImGuiImageButton(RUNTIME_CONTEXT ctx) {
     data->m_ImGuiData += [=]() {
         ImGui::PushID(buf);
         const ImGuiID id = ImGui::GetID(buf);
-        bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, 
+        bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, 
             data->m_ImGuiData.m_vecImgBgCol, data->m_ImGuiData.m_vecImgTint);
         ImGui::PopID();
         data->SetData(buf, 0, isPressed);
@@ -142,7 +142,7 @@ static RTN_TYPE RUNTIME_API ImGuiArrowButton(RUNTIME_CONTEXT ctx) {
 
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
-        bool isPressed = ImGui::ArrowButton(buf, side);
+        bool isPressed = ImGui::ArrowButton(buf, static_cast<ImGuiDir>(side));
         data->SetData(buf, 0, isPressed);
     };
 
@@ -406,7 +406,7 @@ static RTN_TYPE RUNTIME_API ImGuiTextCentered(RUNTIME_CONTEXT ctx) {
     data->m_ImGuiData += [=]() {
         ImGui::NewLine();
         ImVec2 size = ImGui::CalcTextSize(buf);
-        float width = ImGui::GetWindowContentRegionWidth() - size.x;
+        float width = ImGui::GetContentRegionAvail().x - size.x;
         ImGui::SameLine(width/2);
         ImGui::TextUnformatted(buf);
     };
@@ -568,7 +568,7 @@ static RTN_TYPE RUNTIME_API ImGuiGetWindowContentRegionWidth(RUNTIME_CONTEXT ctx
 
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
-        float width = ImGui::GetWindowContentRegionWidth();
+        float width = ImGui::GetContentRegionAvail().x;
         data->SetData(buf, 0, width / data->m_ImGuiData.m_vecScaling.x);
 
         if (data->m_ImGuiData.m_bNeedToUpdateScaling) {
@@ -1132,9 +1132,9 @@ static RTN_TYPE RUNTIME_API ImGuiGetScalingSize(RUNTIME_CONTEXT ctx) {
         }
 
         if (spcaing_) {
-            x = ImGui::GetWindowContentRegionWidth() / count - factor;
+            x = ImGui::GetContentRegionAvail().x / count - factor;
         } else {
-            x = ImGui::GetWindowContentRegionWidth() / count;
+            x = ImGui::GetContentRegionAvail().x / count;
         }
 
         y = ImGui::GetFrameHeight() * 1.3f;

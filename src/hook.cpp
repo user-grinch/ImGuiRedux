@@ -4,12 +4,12 @@
 #include "MinHook.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_impl_dx11.h"
-#include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 #include "injector.hpp"
 #include "font.h"
 #include "kiero.h"
 #include "scriptextender.hpp"
+#include "wrapper.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -147,8 +147,6 @@ void Hook::ProcessFrame(void* ptr) {
             ImGui_ImplDX9_NewFrame();
         } else if (gRenderer == eRenderer::Dx11) {
             ImGui_ImplDX11_NewFrame();
-        } else {
-            ImGui_ImplOpenGL3_NewFrame();
         }
 
         ImGui::NewFrame();
@@ -165,8 +163,6 @@ void Hook::ProcessFrame(void* ptr) {
         } else if (gRenderer == eRenderer::Dx11) {
             pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-        } else {
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     } else {
         if (!ImGui::GetCurrentContext()) {
@@ -207,17 +203,12 @@ void Hook::ProcessFrame(void* ptr) {
                 }
                 ImGui_ImplDX11_Init(pDevice, pDeviceContext);
                 ImGui_ImplDX11_CreateDeviceObjects();
-                ImGui::GetIO().ImeWindowHandle = hwnd;
             }
 
             gD3DDevice = ptr;
         } else {
             hwnd = GetForegroundWindow();
             if (!ImGui_ImplWin32_Init(hwnd)) {
-                return;
-            }
-
-            if(!ImGui_ImplOpenGL3_Init()) {
                 return;
             }
         }
@@ -332,6 +323,8 @@ static bool IsKeyPressed(int i, LPVOID data) {
     return reinterpret_cast<char*>(data)[i] & 0x80;
 }
 
+ImGuiKey VirtualKeyToImGuiKey(int vk);
+
 HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData, LPVOID lpvData) {
     HRESULT result = oGetDeviceState(pThis, cbData, lpvData);
 
@@ -375,21 +368,23 @@ HRESULT CALLBACK Hook::hkGetDeviceState(IDirectInputDevice8* pThis, DWORD cbData
                     bool pressed = IsKeyPressed(i, lpvData);
                     UINT vk = MapVirtualKeyEx(i, MAPVK_VSC_TO_VK, GetKeyboardLayout(NULL));
 
-                    // ignore key holds
-                    if (io.KeysDown[vk] != pressed) {
+                    ImGuiKey imgui_key = VirtualKeyToImGuiKey(vk); // You define this mapping
+
+                    if (imgui_key != ImGuiKey_None) {
+                        io.AddKeyEvent(imgui_key, pressed);
+
                         if (pressed) {
                             WCHAR c;
-                            BYTE keystate[256];
-                            ZeroMemory(keystate, 256);
+                            BYTE keystate[256] = {};
                             ToUnicode(vk, i, keystate, &c, 1, 0);
 
                             // Capital letters on shift hold
                             if (io.KeyShift && c >= 0x61 && c <= 0x7A) {
                                 c -= 0x20;
                             }
+
                             io.AddInputCharacterUTF16(c);
                         }
-                        io.KeysDown[vk] = pressed;
                     }
                 }
                 keyCount = frameCount;
@@ -494,21 +489,6 @@ bool Hook::Inject(void *pCallback) {
         kiero::bind(42, reinterpret_cast<LPVOID*>(&oEndScene), hkEndScene);
         pCallbackFunc = pCallback;
     }
-
-    if (init(kiero::RenderType::OpenGL) == kiero::Status::Success) {
-        gRenderer = eRenderer::OpenGL;
-        injected = true;
-
-        HMODULE hMod = GetModuleHandle("OPENGL32.dll");
-        if (!hMod) {
-            return false;
-        }
-        FARPROC addr = GetProcAddress(hMod, "wglSwapBuffers");
-        MH_CreateHook(addr, hkGlSwapBuffer, reinterpret_cast<LPVOID*>(&oGlSwapBuffer));
-        MH_EnableHook(addr);
-        pCallbackFunc = pCallback;
-    }
-
 dx11:
     if (init(kiero::RenderType::D3D11) == kiero::Status::Success) {
         gRenderer = eRenderer::Dx11;
@@ -541,11 +521,92 @@ void Hook::Remove() {
         ImGui_ImplDX9_Shutdown();
     } else if (gRenderer == eRenderer::Dx11) {
         ImGui_ImplDX11_Shutdown();
-    } else {
-        ImGui_ImplOpenGL3_Shutdown();
     }
 
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
     kiero::shutdown();
+}
+
+ImGuiKey VirtualKeyToImGuiKey(int vk) {
+    if (vk >= 'A' && vk <= 'Z') return (ImGuiKey)(ImGuiKey_A + (vk - 'A'));
+    if (vk >= '0' && vk <= '9') return (ImGuiKey)(ImGuiKey_0 + (vk - '0'));
+
+    switch (vk) {
+        // Function keys
+        case VK_F1:  return ImGuiKey_F1;
+        case VK_F2:  return ImGuiKey_F2;
+        case VK_F3:  return ImGuiKey_F3;
+        case VK_F4:  return ImGuiKey_F4;
+        case VK_F5:  return ImGuiKey_F5;
+        case VK_F6:  return ImGuiKey_F6;
+        case VK_F7:  return ImGuiKey_F7;
+        case VK_F8:  return ImGuiKey_F8;
+        case VK_F9:  return ImGuiKey_F9;
+        case VK_F10: return ImGuiKey_F10;
+        case VK_F11: return ImGuiKey_F11;
+        case VK_F12: return ImGuiKey_F12;
+
+        // Navigation
+        case VK_LEFT:     return ImGuiKey_LeftArrow;
+        case VK_RIGHT:    return ImGuiKey_RightArrow;
+        case VK_UP:       return ImGuiKey_UpArrow;
+        case VK_DOWN:     return ImGuiKey_DownArrow;
+        case VK_HOME:     return ImGuiKey_Home;
+        case VK_END:      return ImGuiKey_End;
+        case VK_PRIOR:    return ImGuiKey_PageUp;
+        case VK_NEXT:     return ImGuiKey_PageDown;
+        case VK_INSERT:   return ImGuiKey_Insert;
+        case VK_DELETE:   return ImGuiKey_Delete;
+        case VK_BACK:     return ImGuiKey_Backspace;
+        case VK_RETURN:   return ImGuiKey_Enter;
+        case VK_ESCAPE:   return ImGuiKey_Escape;
+        case VK_SPACE:    return ImGuiKey_Space;
+        case VK_TAB:      return ImGuiKey_Tab;
+
+        // Modifiers
+        case VK_SHIFT:    return ImGuiKey_LeftShift;   // You may want to distinguish left/right
+        case VK_LSHIFT:   return ImGuiKey_LeftShift;
+        case VK_RSHIFT:   return ImGuiKey_RightShift;
+        case VK_CONTROL:  return ImGuiKey_LeftCtrl;
+        case VK_LCONTROL: return ImGuiKey_LeftCtrl;
+        case VK_RCONTROL: return ImGuiKey_RightCtrl;
+        case VK_MENU:     return ImGuiKey_LeftAlt;
+        case VK_LMENU:    return ImGuiKey_LeftAlt;
+        case VK_RMENU:    return ImGuiKey_RightAlt;
+        case VK_LWIN:     return ImGuiKey_LeftSuper;
+        case VK_RWIN:     return ImGuiKey_RightSuper;
+
+        // Punctuation and symbols
+        case VK_OEM_1:    return ImGuiKey_Semicolon;     // ;:
+        case VK_OEM_PLUS: return ImGuiKey_Equal;         // =+
+        case VK_OEM_COMMA:return ImGuiKey_Comma;         // ,<
+        case VK_OEM_MINUS:return ImGuiKey_Minus;         // -_
+        case VK_OEM_PERIOD:return ImGuiKey_Period;       // .>
+        case VK_OEM_2:    return ImGuiKey_Slash;          // /?
+        case VK_OEM_3:    return ImGuiKey_GraveAccent;    // `~
+        case VK_OEM_4:    return ImGuiKey_LeftBracket;    // [{
+        case VK_OEM_5:    return ImGuiKey_Backslash;      // \|
+        case VK_OEM_6:    return ImGuiKey_RightBracket;   // ]}
+        case VK_OEM_7:    return ImGuiKey_Apostrophe;     // '"
+
+        // Numpad
+        case VK_NUMPAD0:  return ImGuiKey_Keypad0;
+        case VK_NUMPAD1:  return ImGuiKey_Keypad1;
+        case VK_NUMPAD2:  return ImGuiKey_Keypad2;
+        case VK_NUMPAD3:  return ImGuiKey_Keypad3;
+        case VK_NUMPAD4:  return ImGuiKey_Keypad4;
+        case VK_NUMPAD5:  return ImGuiKey_Keypad5;
+        case VK_NUMPAD6:  return ImGuiKey_Keypad6;
+        case VK_NUMPAD7:  return ImGuiKey_Keypad7;
+        case VK_NUMPAD8:  return ImGuiKey_Keypad8;
+        case VK_NUMPAD9:  return ImGuiKey_Keypad9;
+        case VK_DIVIDE:   return ImGuiKey_KeypadDivide;
+        case VK_MULTIPLY: return ImGuiKey_KeypadMultiply;
+        case VK_SUBTRACT: return ImGuiKey_KeypadSubtract;
+        case VK_ADD:      return ImGuiKey_KeypadAdd;
+        case VK_DECIMAL:  return ImGuiKey_KeypadDecimal;
+
+        default: return ImGuiKey_None;
+    }
 }

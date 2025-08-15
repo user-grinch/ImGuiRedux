@@ -98,7 +98,7 @@ BOOL WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) {
         gGameVer = eGameVer::SA;
 #else   
         if (GetModuleHandle("ImGuiCleoWin32.cleo")) {
-            Log("ImGuiReduxWin32: ImGuiCleoWin32 detected. Closing...");
+            wLog("ImGuiReduxWin32: ImGuiCleoWin32 detected. Closing...");
             return TRUE;
         }
 
