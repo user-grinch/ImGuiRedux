@@ -6,7 +6,7 @@
 #define RTN_TYPE CLEO::OpcodeResult
 #define RUNTIME_API WINAPI
 #define RUNTIME_CONTEXT CLEO::CRunningScript*
-#define CMD_DEF CLEO::_pOpcodeHandler
+#define CMD_DEF CLEO::CustomOpcodeHandler
 #define INT int
 #else
 #include "../include/cleo/cleo_redux_sdk.h"
@@ -112,5 +112,14 @@ static void wSetStringParam(RUNTIME_CONTEXT ctx, const char* buf) {
     CLEO_WriteStringOpcodeParam(reinterpret_cast<CLEO::CRunningScript*>(ctx), buf);
 #else
     SetStringParam(ctx, buf);
+#endif
+}
+
+
+static void wLog(const char *text) {
+#ifdef RUNTIME_CLEO
+    CLEO::CLEO_Log(CLEO::eLogLevel::Default, text);
+#else
+    Log(text);
 #endif
 }

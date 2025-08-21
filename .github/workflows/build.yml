@@ -9,11 +9,11 @@ jobs:
         buildtype: [Release]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v5
       - name: Setup premake
-        uses: abel0b/setup-premake@v2
+        uses: abel0b/setup-premake@v2.4
         with:
-          version: "5.0.0-beta1"
+          version: "5.0.0-beta7"
       - name: Configure build
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -25,12 +25,12 @@ jobs:
           cd ../build
           MsBuild ImGuiRedux.sln /property:Configuration=${{matrix.buildtype}} /p:Platform=${{matrix.platform}} /t:ImGuiRedux
       - name: Upload plugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ImGuiRedux${{matrix.platform}}
           path: build\bin\ImGuiRedux${{matrix.platform}}.cleo
       - name: Archive plugin
-        uses: papeloto/action-zip@v1
+        uses: papeloto/action-zip@v1.2
         with:
           files: build\bin\ImGuiRedux${{matrix.platform}}.cleo
           dest: ImGuiRedux${{matrix.platform}}.zip
@@ -46,11 +46,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v5
       - name: Setup premake
-        uses: abel0b/setup-premake@v2
+        uses: abel0b/setup-premake@v2.4
         with:
-          version: "5.0.0-beta1"
+          version: "5.0.0-beta7"
       - name: Configure build
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -62,12 +62,12 @@ jobs:
           cd ../build
           MsBuild ImGuiRedux.sln /property:Configuration=ReleaseCleo /p:Platform=Win32 /t:ImGuiRedux
       - name: Upload plugin
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ImGuiCleoWin32
           path: build\bin\ImGuiCleoWin32.cleo
       - name: Archive plugin
-        uses: papeloto/action-zip@v1
+        uses: papeloto/action-zip@v1.2
         with:
           files: build\bin\ImGuiCleoWin32.cleo
           dest: ImGuiCleoWin32.zip
@@ -79,4 +79,3 @@ jobs:
           body: "This release is updated frequently with newer builds.\n\n- ImGuiCleoWin32 -> For CLEO5 (Supports GTA SA). Only required if you use ImGui in .cs scripts. \n- ImGuiReduxWin32 -> For CLEORedux (Supports 32 bit games). GTA SA Support is also included."
           allowUpdates: true
           tag: "Win32-latest"
-        

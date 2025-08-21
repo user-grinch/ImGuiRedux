@@ -258,5 +258,3 @@ while (true)
         gShowWindow = !gShowWindow
     }
 }
-
-
