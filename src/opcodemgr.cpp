@@ -1358,6 +1358,32 @@ static RTN_TYPE RUNTIME_API ImGuiTabs(RUNTIME_CONTEXT ctx) {
     return RTN_CONTINUE;
 }
 
+// Custom Font Support JavaScript Bindings
+static RTN_TYPE RUNTIME_API ImGuiSetCustomFontEnabled(RUNTIME_CONTEXT ctx) {
+    bool enabled = wGetBoolParam(ctx);
+    Hook::SetCustomFontEnabled(enabled);
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiIsCustomFontEnabled(RUNTIME_CONTEXT ctx) {
+    bool enabled = Hook::IsCustomFontEnabled();
+    wUpdateCompareFlag(ctx, enabled);
+    return RTN_CONTINUE;
+}
+
+static RTN_TYPE RUNTIME_API ImGuiLoadCustomFont(RUNTIME_CONTEXT ctx) {
+    char fullPath[RUNTIME_STR_LEN*2], fontPath[RUNTIME_STR_LEN];
+    wGetStringParam(ctx, fontPath, RUNTIME_STR_LEN);
+    float fontSize = wGetFloatParam(ctx);
+
+    // Use wResolvePath to resolve the font path, just like ImGuiLoadImage
+    wResolvePath(ctx, fontPath, fullPath, sizeof(fullPath));
+    
+    bool success = Hook::LoadCustomFont(fullPath, fontSize);
+    wUpdateCompareFlag(ctx, success);
+    return RTN_CONTINUE;
+}
+
 void OpcodeMgr::RegisterCommands() {
 
     // Note: Calling order can't be changed!
@@ -1463,4 +1489,9 @@ void OpcodeMgr::RegisterCommands() {
     wRegisterCommand("IMGUI_END_DISABLED", ImGuiEndDisabled);
     wRegisterCommand("IMGUI_BEGIN_MENU", ImGuiBeginMenu);
     wRegisterCommand("IMGUI_END_MENU", ImGuiEndMenu);
+
+    // Custom Font Support Commands
+    wRegisterCommand("IMGUI_SET_CUSTOM_FONT_ENABLED", ImGuiSetCustomFontEnabled);
+    wRegisterCommand("IMGUI_IS_CUSTOM_FONT_ENABLED", ImGuiIsCustomFontEnabled);
+    wRegisterCommand("IMGUI_LOAD_CUSTOM_FONT", ImGuiLoadCustomFont);
 }

@@ -68,4 +68,9 @@ class Hook {
     static bool Inject(void *pCallback);
     static void Remove();
     static void SetMouseState(bool state);
+    
+    // Font management functions
+    static void SetCustomFontEnabled(bool enabled);
+    static bool IsCustomFontEnabled();
+    static bool LoadCustomFont(const char* fontPath, float fontSize = 16.0f);
 };
