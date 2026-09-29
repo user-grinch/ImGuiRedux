@@ -401,7 +401,10 @@ void    ImGui_ImplWin32_NewFrame()
     // Setup time step
     INT64 current_time = 0;
     ::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
-    io.DeltaTime = (float)(current_time - bd->Time) / bd->TicksPerSecond;
+    float delta_time = (float)(current_time - bd->Time) / bd->TicksPerSecond;
+    if (delta_time <= 0.00001f) delta_time = 0.00001f;
+    if (delta_time > 0.2f) delta_time = 0.2f;
+    io.DeltaTime = delta_time;
     bd->Time = current_time;
 
     // Update OS mouse position

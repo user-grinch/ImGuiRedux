@@ -32,6 +32,12 @@ class Hook {
     static inline bool mouseVisible;
     static inline void* pCallbackFunc = nullptr;
     static inline HWND hwnd = NULL;
+    static inline ImVec2 m_fScreenSize = ImVec2(-1, -1);
+    static inline std::string m_CustomFontPath = "";
+    static inline float m_CustomFontSize = 0.0f;
+
+    static void CreateRenderTarget(IDXGISwapChain* pSwapChain);
+    static void CleanupRenderTarget();
 
     static void CALLBACK ProcessFrame(void* ptr);
     static LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

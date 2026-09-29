@@ -30,7 +30,7 @@ static RTN_TYPE RUNTIME_API ImGuiBegin(RUNTIME_CONTEXT ctx) {
             data->SetData(label, 0, isOpen);
         }
     };
-    data->m_ImGuiData.m_nLastScriptCallMS = time(NULL);
+    data->m_ImGuiData.m_nLastScriptCallMS = GetTickCount64();
     wSetIntParam(ctx, data->GetData(label, 0, true));
     return RTN_CONTINUE;
 }
@@ -54,10 +54,10 @@ static RTN_TYPE RUNTIME_API ImGuiButton(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::Button(buf, ImVec2(size.x, size.y));
-        data->SetData(buf, 0, isPressed);
+        data->SetEvent(buf, 0, isPressed);
     };
 
-    bool rtn = data->GetData(buf, 0, false);
+    bool rtn = data->GetEvent(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
     return RTN_CONTINUE;
 }
@@ -85,10 +85,10 @@ static RTN_TYPE RUNTIME_API ImGuiImageButton(RUNTIME_CONTEXT ctx) {
         bool isPressed = ImGui::ImageButtonEx(id, pInfo->pTexture, size, {0.0f, 0.0f}, {1.0f, 1.0f}, 
             data->m_ImGuiData.m_vecImgBgCol, data->m_ImGuiData.m_vecImgTint);
         ImGui::PopID();
-        data->SetData(buf, 0, isPressed);
+        data->SetEvent(buf, 0, isPressed);
     };
 
-    bool rtn = data->GetData(buf, 0, false);
+    bool rtn = data->GetEvent(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
     return RTN_CONTINUE;
 }
@@ -143,10 +143,10 @@ static RTN_TYPE RUNTIME_API ImGuiArrowButton(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::ArrowButton(buf, static_cast<ImGuiDir>(side));
-        data->SetData(buf, 0, isPressed);
+        data->SetEvent(buf, 0, isPressed);
     };
 
-    bool rtn = data->GetData(buf, 0, false);
+    bool rtn = data->GetEvent(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
     return RTN_CONTINUE;
 }
@@ -162,10 +162,10 @@ static RTN_TYPE RUNTIME_API ImGuiInvisibleButton(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::InvisibleButton(buf, ImVec2(size.x, size.y));
-        data->SetData(buf, 0, isPressed);
+        data->SetEvent(buf, 0, isPressed);
     };
 
-    bool rtn = data->GetData(buf, 0, false);
+    bool rtn = data->GetEvent(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
     return RTN_CONTINUE;
 }
@@ -187,10 +187,10 @@ static RTN_TYPE RUNTIME_API ImGuiColorButton(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool isPressed = ImGui::ColorButton(buf, rgba, NULL, ImVec2(size.x, size.y));
-        data->SetData(buf, 0, isPressed);
+        data->SetEvent(buf, 0, isPressed);
     };
 
-    bool rtn = data->GetData(buf, 0, false);
+    bool rtn = data->GetEvent(buf, 0, false);
     wUpdateCompareFlag(ctx, rtn);
     return RTN_CONTINUE;
 }
@@ -205,13 +205,13 @@ static RTN_TYPE RUNTIME_API ImGuiCheckbox(RUNTIME_CONTEXT ctx) {
         bool check = state;
 
         bool clicked = ImGui::Checkbox(buf, &check);
-        data->SetData(buf, 0, clicked);
         if (clicked) {
+            data->SetEvent(buf, 0, true);
             data->SetData(buf, 1, check);
         }
     };
 
-    bool clicked = data->GetData(buf, 0, state);
+    bool clicked = data->GetEvent(buf, 0, false);
     wSetIntParam(ctx, clicked ? data->GetData(buf, 1, state) : state);
     return RTN_CONTINUE;
 }
@@ -653,10 +653,10 @@ static RTN_TYPE RUNTIME_API ImGuiMenuItem(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool state = ImGui::MenuItem(buf, NULL, selected, enabled);
-        data->SetData(buf, 0, state);
+        data->SetEvent(buf, 0, state);
     };
 
-    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetEvent(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -668,10 +668,10 @@ static RTN_TYPE RUNTIME_API ImGuiSelectable(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
         bool state = ImGui::Selectable(buf, &selected);
-        data->SetData(buf, 0, state);
+        data->SetEvent(buf, 0, state);
     };
 
-    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetEvent(buf, 0, false));
     return RTN_CONTINUE;
 }
 
@@ -940,17 +940,14 @@ static RTN_TYPE RUNTIME_API ImGuiRadioButton(RUNTIME_CONTEXT ctx) {
     data->m_ImGuiData += [=]() {
         int value = curSelectedBtn;
         bool clicked = ImGui::RadioButton(buf, &value, btnNo);
-        data->SetData(buf, 0, clicked);
-
         if (clicked) {
+            data->SetEvent(buf, 0, true);
             data->SetData(buf, 1, btnNo);
-        } else {
-            data->SetData(buf, 1, value);
         }
     };
 
-    bool clicked = data->GetData(buf, 0, false);
-    int value = data->GetData(buf, 1, 0);
+    bool clicked = data->GetEvent(buf, 0, false);
+    int value = data->GetData(buf, 1, curSelectedBtn);
 
     if (clicked) {
         wSetIntParam(ctx, value);
@@ -965,13 +962,13 @@ static RTN_TYPE RUNTIME_API ImGuiBeginFrame(RUNTIME_CONTEXT ctx) {
     wGetStringWithFrame(ctx, buf, RUNTIME_STR_LEN);
     ScriptExData::SetCurrentScript(std::string(buf));
     ScriptExData *data = ScriptExData::Get();
-    // ImGui::SetCurrentContext(data->m_ImGuiData.m_pContext);
+    data->m_ImGuiData.BeginFrame();
     return RTN_CONTINUE;
 }
 
 static RTN_TYPE RUNTIME_API ImGuiEndFrame(RUNTIME_CONTEXT ctx) {
     ScriptExData* data = ScriptExData::Get();
-    data->m_ImGuiData.m_bIsBackBufferReady = true;
+    data->m_ImGuiData.EndFrame();
     ScriptExData::SetCurrentScript("");
 
     return RTN_CONTINUE;
@@ -998,17 +995,14 @@ static RTN_TYPE RUNTIME_API ImGuiCombo(RUNTIME_CONTEXT ctx) {
     data->m_ImGuiData += [=]() {
         int value = selectedOption;
         bool clicked = ImGui::Combo(buf, &value, options);
-        data->SetData(buf, 0, clicked);
-
-        if(clicked) {
+        if (clicked) {
+            data->SetEvent(buf, 0, true);
             data->SetData(buf, 1, value);
-        } else {
-            data->SetData(buf, 1, selectedOption);
         }
     };
 
-    bool clicked = data->GetData(buf, 0, false);
-    int value = data->GetData(buf, 1, 0);
+    bool clicked = data->GetEvent(buf, 0, false);
+    int value = data->GetData(buf, 1, selectedOption);
 
     if (clicked) {
         wSetIntParam(ctx, value);
@@ -1050,10 +1044,10 @@ static RTN_TYPE RUNTIME_API ImGuiIsItemClicked(RUNTIME_CONTEXT ctx) {
 
     ScriptExData* data = ScriptExData::Get();
     data->m_ImGuiData += [=]() {
-        data->SetData(buf, 0, ImGui::IsItemClicked());
+        data->SetEvent(buf, 0, ImGui::IsItemClicked());
     };
 
-    wUpdateCompareFlag(ctx, data->GetData(buf, 0, false));
+    wUpdateCompareFlag(ctx, data->GetEvent(buf, 0, false));
     return RTN_CONTINUE;
 }
 
