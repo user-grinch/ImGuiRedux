@@ -2,7 +2,9 @@
 #include "imgui.h"
 #include <vector>
 #include <functional>
-#include <time.h>
+#include <mutex>
+#include <windows.h>
+#include <string>
 
 extern enum class eGameVer;
 extern eGameVer gGameVer;
@@ -16,18 +18,24 @@ struct FontInfo {
 };
 
 class ImGuiFrame {
+private:
+    std::mutex m_BufferMutex;
+    std::vector<std::function<void()>> m_BuildingBuffer;
+    std::vector<std::function<void()>> m_BackBuffer;
+    std::vector<std::function<void()>> m_RenderBuffer;
+    bool m_bHasNewFrame = false;
+
 public:
     ImGuiContext *m_pContext = nullptr;
 
     // Scaling related
     ImVec2 m_vecScaling = ImVec2(1, 1);
-    bool m_bWasScalingUpdatedThisFrame;
-    bool m_bNeedToUpdateScaling; 
-    long long m_nLastScriptCallMS; 
+    bool m_bWasScalingUpdatedThisFrame = false;
+    bool m_bNeedToUpdateScaling = false; 
+    uint64_t m_nLastScriptCallMS = 0; 
 
-    // Render buffers
-    bool m_bIsBackBufferReady;
-    std::vector<std::function<void()>> m_RenderBuffer, m_BackBuffer; 
+    // Render buffer readiness flag (for backwards compatibility)
+    bool m_bIsBackBufferReady = false;
     
     // for ImGui::ImageButton()
     ImVec4 m_vecImgTint = ImVec4(1, 1, 1, 1);
@@ -38,46 +46,45 @@ public:
     std::vector<FontInfo> m_FontTable;
 
     ImGuiFrame() {
-        // m_pContext = ImGui::CreateContext();
+        m_nLastScriptCallMS = GetTickCount64();
+    }
+
+    void BeginFrame() {
+        m_BuildingBuffer.clear();
+        m_nLastScriptCallMS = GetTickCount64();
     }
 
     ImGuiFrame& operator+=(std::function<void()> f) {
-        if (!m_bIsBackBufferReady) {
-            m_BackBuffer.push_back(f);
+        if (m_BuildingBuffer.size() < 10000) {
+            m_BuildingBuffer.push_back(std::move(f));
         }
         return *this;
     }   
 
-    void BeforeRender() {
-        // bool buildRequired = false;
-        // for (auto& e: m_FontTable) {
-        //     if (!e.m_bFontLoaded) {
-        //         ImWchar ranges[] = { 
-        //             e.m_nStart, e.m_nEnd, 0
-        //         };
-        //         ImGui::GetIO().Fonts->AddFontFromFileTTF(e.m_Path.c_str(), e.m_nSize, NULL, ranges);
-        //         buildRequired = true;
-        //     }
-        // }
+    void EndFrame() {
+        {
+            std::lock_guard<std::mutex> lock(m_BufferMutex);
+            m_BackBuffer = std::move(m_BuildingBuffer);
+            m_bHasNewFrame = true;
+            m_bIsBackBufferReady = true;
+        }
+        m_nLastScriptCallMS = GetTickCount64();
+    }
 
-        // if (buildRequired) {
-        //     ImGui::GetIO().Fonts->Build();
-        // }
+    void BeforeRender() {
     }
 
     void OnRender() {
-        for (auto func : m_RenderBuffer) {
-            func();
+        {
+            std::lock_guard<std::mutex> lock(m_BufferMutex);
+            if (m_bHasNewFrame) {
+                m_RenderBuffer = std::move(m_BackBuffer);
+                m_bHasNewFrame = false;
+                m_bIsBackBufferReady = false;
+            }
         }
 
-        // if back buffer is render ready switch the buffer and reset render state
-        if (m_bIsBackBufferReady) {
-            m_RenderBuffer = std::move(m_BackBuffer);
-            m_bIsBackBufferReady = false;
-        }
-
-        time_t curTime = time(NULL);
-        // Clear buffer when script stops responding
+        uint64_t curTime = GetTickCount64();
         bool scriptsPaused = false;
         switch(static_cast<int>(gGameVer)) {
             case 0: // III
@@ -93,8 +100,15 @@ public:
                 break;
         }
         
-        if (curTime-m_nLastScriptCallMS > 2 || scriptsPaused) {
+        if ((curTime - m_nLastScriptCallMS > 2500) || scriptsPaused) {
             OnClear();
+            return;
+        }
+
+        for (const auto& func : m_RenderBuffer) {
+            if (func) {
+                func();
+            }
         }
 
         if (m_bWasScalingUpdatedThisFrame) {
@@ -104,6 +118,11 @@ public:
     }
 
     void OnClear() {
+        std::lock_guard<std::mutex> lock(m_BufferMutex);
         m_RenderBuffer.clear();
+        m_BackBuffer.clear();
+        m_BuildingBuffer.clear();
+        m_bHasNewFrame = false;
+        m_bIsBackBufferReady = false;
     }
 };

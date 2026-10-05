@@ -93,12 +93,41 @@ HRESULT Hook::hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresent
     return oReset(pDevice, pPresentationParameters);
 }
 
+void Hook::CreateRenderTarget(IDXGISwapChain* pSwapChain) {
+    if (!pSwapChain) return;
+
+    CleanupRenderTarget();
+
+    ID3D11Device* pDev = nullptr;
+    if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDev))) {
+        ID3D11Texture2D* backBuffer = nullptr;
+        if (SUCCEEDED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer))) {
+            pDev->CreateRenderTargetView(backBuffer, nullptr, &pRenderTargetView);
+            backBuffer->Release();
+        }
+        if (!pDeviceContext) {
+            pDev->GetImmediateContext(&pDeviceContext);
+        }
+        pDev->Release();
+    }
+}
+
+void Hook::CleanupRenderTarget() {
+    if (pDeviceContext) {
+        pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+    }
+    if (pRenderTargetView) {
+        pRenderTargetView->Release();
+        pRenderTargetView = nullptr;
+    }
+}
+
 void Hook::ProcessFrame(void* ptr) {
     if (m_bInitialized) {
         ProcessMouse();
 
         // Scale the menu if game resolution changed
-        static int height, width, RsGlobal;
+        int height = 0, width = 0, RsGlobal = 0;
 
 #ifndef _WIN64
         if (gGameVer == eGameVer::III) {
@@ -115,19 +144,45 @@ void Hook::ProcessFrame(void* ptr) {
             height = injector::ReadMemory<int>(RsGlobal + 8, 0);    // height
         } else {
             RECT rect;
-            GetWindowRect(hwnd, &rect);
-            width = rect.right - rect.left;
-            height = rect.bottom - rect.top;
+            if (hwnd && GetClientRect(hwnd, &rect) && (rect.right - rect.left > 0) && (rect.bottom - rect.top > 0)) {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            } else if (hwnd && GetWindowRect(hwnd, &rect)) {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            }
         }
 #else 
-        RECT rect;
-        GetWindowRect(hwnd, &rect);
-        width = rect.right - rect.left;
-        height = rect.bottom - rect.top;
+        if (gRenderer == eRenderer::Dx11 && ptr) {
+            IDXGISwapChain* pSwapChain = reinterpret_cast<IDXGISwapChain*>(ptr);
+            DXGI_SWAP_CHAIN_DESC desc;
+            if (SUCCEEDED(pSwapChain->GetDesc(&desc))) {
+                if (desc.OutputWindow) {
+                    hwnd = desc.OutputWindow;
+                }
+                if (desc.BufferDesc.Width > 0 && desc.BufferDesc.Height > 0) {
+                    width = (int)desc.BufferDesc.Width;
+                    height = (int)desc.BufferDesc.Height;
+                }
+            }
+        }
+        if (width <= 0 || height <= 0) {
+            RECT rect;
+            if (hwnd && GetClientRect(hwnd, &rect) && (rect.right - rect.left > 0) && (rect.bottom - rect.top > 0)) {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            } else if (hwnd && GetWindowRect(hwnd, &rect)) {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            }
+        }
 #endif
 
-        static ImVec2 fScreenSize = ImVec2(-1, -1);
-        if (fScreenSize.x != width && fScreenSize.y != height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        if (m_fScreenSize.x != width || m_fScreenSize.y != height) {
             if (gRenderer == eRenderer::Dx9) {
                 ImGui_ImplDX9_InvalidateDeviceObjects();
             } else if (gRenderer == eRenderer::Dx11) {
@@ -136,13 +191,25 @@ void Hook::ProcessFrame(void* ptr) {
 
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->Clear();
-            float fontSize = height / 48.0f;
-            io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fontData, fontSize, NULL, GetGlyphRanges());
+            float fontSize = (std::max)(height / 48.0f, 13.0f);
+
+            bool fontLoaded = false;
+            if (!m_CustomFontPath.empty() && g_EnableCustomFont) {
+                float customSize = (m_CustomFontSize > 0.0f) ? m_CustomFontSize : fontSize;
+                ImFont* font = io.Fonts->AddFontFromFileTTF(m_CustomFontPath.c_str(), customSize, NULL, GetGlyphRanges());
+                if (font) {
+                    io.FontDefault = font;
+                    fontLoaded = true;
+                }
+            }
+            if (!fontLoaded) {
+                io.FontDefault = io.Fonts->AddFontFromMemoryCompressedBase85TTF(fontData, fontSize, NULL, GetGlyphRanges());
+            }
             io.Fonts->Build();
 
             ImGuiStyle* style = &ImGui::GetStyle();
-            float scaleX = width / 1366.0f;
-            float scaleY = height / 768.0f;
+            float scaleX = (std::max)(width / 1366.0f, 0.1f);
+            float scaleY = (std::max)(height / 768.0f, 0.1f);
 
             style->TabRounding = 0.0f;
             style->ChildBorderSize = 0;
@@ -158,7 +225,7 @@ void Hook::ProcessFrame(void* ptr) {
             style->Colors[ImGuiCol_Header] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
             style->WindowTitleAlign = ImVec2(0.5f, 0.5f);
-            fScreenSize = ImVec2((float)width, (float)height);
+            m_fScreenSize = ImVec2((float)width, (float)height);
             ScriptExData::SetScaling({scaleX, scaleY});
         }
 
@@ -171,10 +238,23 @@ void Hook::ProcessFrame(void* ptr) {
             ImGui_ImplDX11_NewFrame();
         }
 
+        ImGuiIO& io = ImGui::GetIO();
+        if (width > 0 && height > 0) {
+            io.DisplaySize = ImVec2((float)width, (float)height);
+        }
+
         ImGui::NewFrame();
 
         if (pCallbackFunc != nullptr) {
             static_cast<void(*)()>(pCallbackFunc)();
+        }
+
+        // Stack recovery: close any dangling windows from a script before EndFrame
+        ImGuiContext* g = ImGui::GetCurrentContext();
+        if (g) {
+            while (g->CurrentWindowStack.Size > 1) {
+                ImGui::End();
+            }
         }
 
         ImGui::EndFrame();
@@ -183,8 +263,14 @@ void Hook::ProcessFrame(void* ptr) {
         if (gRenderer == eRenderer::Dx9) {
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         } else if (gRenderer == eRenderer::Dx11) {
-            pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
-            ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            IDXGISwapChain* pSwapChain = reinterpret_cast<IDXGISwapChain*>(ptr);
+            if (!pRenderTargetView && pSwapChain) {
+                CreateRenderTarget(pSwapChain);
+            }
+            if (pRenderTargetView && pDeviceContext) {
+                pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
+                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+            }
         }
     } else {
         if (!ImGui::GetCurrentContext()) {
@@ -207,27 +293,25 @@ void Hook::ProcessFrame(void* ptr) {
             gD3DDevice = ptr;
         } else if (gRenderer == eRenderer::Dx11) {
             IDXGISwapChain* pSwapChain = reinterpret_cast<IDXGISwapChain*>(ptr);
-            if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), &ptr))) {
-                ID3D11Device *pDevice = reinterpret_cast<ID3D11Device*>(ptr);
+            ID3D11Device *pDevice = nullptr;
+            if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice))) {
                 pDevice->GetImmediateContext(&pDeviceContext);
 
                 DXGI_SWAP_CHAIN_DESC Desc;
                 pSwapChain->GetDesc(&Desc);
                 hwnd = Desc.OutputWindow;
 
-                ID3D11Texture2D* backBuffer;
-                pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBuffer);
-                pDevice->CreateRenderTargetView(backBuffer, NULL, &pRenderTargetView);
-                backBuffer->Release();
+                CreateRenderTarget(pSwapChain);
 
                 if (!ImGui_ImplWin32_Init(hwnd)) {
+                    pDevice->Release();
                     return;
                 }
                 ImGui_ImplDX11_Init(pDevice, pDeviceContext);
                 ImGui_ImplDX11_CreateDeviceObjects();
+                gD3DDevice = pDevice;
+                pDevice->Release();
             }
-
-            gD3DDevice = ptr;
         } else {
             hwnd = GetForegroundWindow();
             if (!ImGui_ImplWin32_Init(hwnd)) {
@@ -259,17 +343,16 @@ HRESULT Hook::hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flag
 }
 
 HRESULT Hook::hkResizeBuffers(IDXGISwapChain* pSwapChain, UINT a, UINT b, UINT c, DXGI_FORMAT d, UINT e) {
-    if (pRenderTargetView) {
-        pRenderTargetView->Release();
-        pRenderTargetView = nullptr;
+    CleanupRenderTarget();
+    if (pDeviceContext) {
         pDeviceContext->Flush();
     }
 
     HRESULT hr = oResizeBuffers(pSwapChain, a, b, c, d, e);
-    ID3D11Texture2D* back_buffer{};
-    pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&back_buffer);
-    reinterpret_cast<ID3D11Device*>(pSwapChain)->CreateRenderTargetView(back_buffer, nullptr, &pRenderTargetView);
-    back_buffer->Release();
+    if (SUCCEEDED(hr)) {
+        CreateRenderTarget(pSwapChain);
+    }
+    m_fScreenSize = ImVec2(-1, -1);
     return hr;
 }
 
@@ -542,6 +625,11 @@ void Hook::Remove() {
     if (gRenderer == eRenderer::Dx9) {
         ImGui_ImplDX9_Shutdown();
     } else if (gRenderer == eRenderer::Dx11) {
+        CleanupRenderTarget();
+        if (pDeviceContext) {
+            pDeviceContext->Release();
+            pDeviceContext = nullptr;
+        }
         ImGui_ImplDX11_Shutdown();
     }
 
@@ -636,9 +724,7 @@ ImGuiKey VirtualKeyToImGuiKey(int vk) {
 // Font management functions implementation
 void Hook::SetCustomFontEnabled(bool enabled) {
     g_EnableCustomFont = enabled;
-    // Force font reload on next frame
-    static ImVec2 fScreenSize = ImVec2(-1, -1);
-    fScreenSize = ImVec2(-1, -1);
+    m_fScreenSize = ImVec2(-1, -1);
 }
 
 bool Hook::IsCustomFontEnabled() {
@@ -716,6 +802,8 @@ bool Hook::LoadCustomFont(const char* fontPath, float fontSize) {
     
     // Set the font as default
     io.FontDefault = font;
+    m_CustomFontPath = fontPath;
+    m_CustomFontSize = fontSize;
     
     // Invalidate device objects to force rebuild
     try {
